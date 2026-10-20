@@ -1,0 +1,124 @@
+.hero {
+  padding-top: var(--space-8);
+  text-align: center;
+  overflow: hidden;
+}
+
+.heroInner {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+}
+
+.heroInner > :nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.heroInner > :nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.heroInner > :nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.heroTitle {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+.heroLead {
+  max-width: 36rem;
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+}
+
+.heroActions {
+  margin-top: var(--space-4);
+}
+
+.heroMedia {
+  margin-top: var(--space-7);
+  animation-delay: 240ms;
+}
+
+.heroImage {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 599px) {
+  .heroImage {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+.types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  list-style: none;
+}
+
+.typeCard {
+  display: grid;
+  gap: var(--space-1);
+  height: 100%;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: background-color var(--duration-fast) ease, transform var(--duration-base) var(--ease-out);
+}
+
+.typeCard:hover {
+  text-decoration: none;
+  background: #ebebef;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .typeCard:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.typeName {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+}
+
+.typeBlurb {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+.typeCount {
+  margin-top: var(--space-3);
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.typeCount::after {
+  content: ' ›';
+}
+
+.featured {
+  padding-top: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-6);
+}

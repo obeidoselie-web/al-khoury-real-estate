@@ -1,0 +1,91 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--header-height);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-target);
+  color: var(--color-text);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.mark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.45rem;
+  background: var(--color-text);
+  color: #fff;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.wordmark {
+  font-size: var(--text-base);
+}
+
+.wordmarkSub {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  list-style: none;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  transition: background-color var(--duration-fast) ease;
+}
+
+.link:hover {
+  text-decoration: none;
+  background: var(--color-surface);
+}
+
+.link[aria-current='page'] {
+  font-weight: 600;
+  background: var(--color-surface);
+}
+
+/* Very narrow phones: drop the secondary wordmark so the nav never wraps. */
+@media (max-width: 400px) {
+  .wordmarkSub {
+    display: none;
+  }
+
+  .link {
+    padding-inline: var(--space-2);
+  }
+}
