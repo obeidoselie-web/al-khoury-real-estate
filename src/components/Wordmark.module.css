@@ -1,0 +1,99 @@
+.lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text);
+}
+
+.tile {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.6rem;
+  background: var(--brand-ink);
+  /* A hairline keeps the black tile defined on the black dark-theme header. */
+  box-shadow: inset 0 0 0 1px rgba(201, 164, 92, 0.35);
+}
+
+.mark {
+  width: 72%;
+  height: auto;
+  margin-top: 4%;
+}
+
+.text {
+  display: grid;
+  line-height: 1;
+}
+
+/* Latin lock-up: wide-tracked Montserrat capitals, as in the brand artwork. */
+.name {
+  font-family: var(--font-wordmark);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.suffix {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-top: 0.3rem;
+  font-family: var(--font-wordmark);
+  font-weight: 500;
+  font-size: 0.56rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-eyebrow);
+}
+
+/* The thin rules either side of "REAL ESTATE". */
+.suffix::before,
+.suffix::after {
+  content: '';
+  flex: 1;
+  min-width: 0.5rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* Arabic lock-up: Plex Arabic, no tracking or capitals. */
+.text[data-locale='ar'] .name {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.text[data-locale='ar'] .suffix {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  margin-top: 0.25rem;
+}
+
+.footer .tile {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+}
+
+.footer .name {
+  font-size: 1.1rem;
+}
+
+.footer .suffix {
+  font-size: 0.62rem;
+}
+
+/* Phones: the header keeps the mark only, so links and the settings button never wrap. */
+@media (max-width: 520px) {
+  .header .text {
+    display: none;
+  }
+}

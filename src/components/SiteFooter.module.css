@@ -16,9 +16,10 @@
   }
 }
 
-.name {
-  font-weight: 600;
-  margin-bottom: var(--space-1);
+.brand {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
 }
 
 .muted {

@@ -20,32 +20,39 @@
   --color-border: #d2d2d7;
   --color-border-strong: #a1a1a6;
   --color-hairline: rgba(0, 0, 0, 0.06);
-  --color-accent: #0066cc;            /* links: 5.6:1 */
-  --color-action: #0066cc;            /* button fill: white text 5.6:1 */
-  --color-action-hover: #0055aa;
-  --color-on-action: #ffffff;
+  /* Brand: Al Khoury black and gold. Gold is decorative on white; text-gold uses the deeper bronze. */
+  --brand-ink: #0b0b0c;
+  --brand-gold: #c9a45c;
+  --brand-gold-light: #f3dc9e;
+  --brand-gold-deep: #9c7130;
+  --color-accent: #8a6420;            /* links: 5.4:1 on bg, 4.9:1 on surface */
+  --color-action: #c9a45c;            /* gold button: ink text 8.4:1 */
+  --color-action-hover: #b8913f;      /* ink text 6.7:1 */
+  --color-on-action: #0b0b0c;
+  --color-eyebrow: #8a6420;
   --color-fill-hover: #e8e8ed;
   --color-fill-subtle: rgba(0, 0, 0, 0.06);
-  --color-selected: #1d1d1f;
+  --color-selected: #0b0b0c;
   --color-on-selected: #ffffff;
   --color-on-selected-fill: rgba(255, 255, 255, 0.2);
   --color-success: #1d7a3a;           /* 5.4:1 */
   --color-success-surface: #edf7ef;
   --color-danger: #c4142b;            /* 5.9:1 */
   --color-danger-surface: #fff1f2;
-  --color-focus: #0066cc;
-  --color-focus-soft: rgba(0, 102, 204, 0.35);
+  --color-focus: #8a6420;
+  --color-focus-soft: rgba(201, 164, 92, 0.45);
   --color-header-bg: rgba(255, 255, 255, 0.82);
   --color-badge-bg: rgba(255, 255, 255, 0.92);
   --color-badge-text: #1d1d1f;
   --color-skeleton: #ececf0;
-  --color-selection: #b3d7ff;
+  --color-selection: #f3dc9e;
   --color-backdrop: rgba(0, 0, 0, 0.4);
   --image-filter: none;
 
   /* Contrast-boost values for this theme (applied by data-contrast / prefers-contrast). */
   --contrast-text-secondary: #3a3a3c;
   --contrast-border: #6e6e73;
+  --contrast-accent: #6b4d14;         /* 8.3:1 */
 
   /* Typography — system stack renders SF Pro / SF Arabic on Apple devices; no web-font download. */
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial,
@@ -65,6 +72,7 @@
   --tracking-body: -0.012em;
   --tracking-tight: -0.022em;
   --tracking-display: -0.03em;
+  --font-wordmark: var(--font-brand, 'Montserrat'), var(--font-sans);
 
   /* Direction-aware glyphs */
   --chevron-end: '›';
@@ -107,38 +115,40 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --color-bg: #000000;
-    --color-surface: #1c1c1e;
-    --color-surface-raised: #1c1c1e;
+    --color-bg: #0b0b0c;
+    --color-surface: #1a1a1c;
+    --color-surface-raised: #1a1a1c;
     --color-text: #f5f5f7;            /* 19.3:1 */
     --color-text-body: #d1d1d6;       /* 14.2:1 */
     --color-text-secondary: #a1a1a6;  /* 8.1:1 on bg, 6.5:1 on surface */
     --color-border: #3a3a3c;
     --color-border-strong: #636366;
     --color-hairline: rgba(255, 255, 255, 0.1);
-    --color-accent: #2997ff;          /* 7.2:1 on bg, 5.8:1 on surface */
-    --color-action: #0066cc;
-    --color-action-hover: #0a74e0;
+    --color-accent: #d9b56a;          /* 10.4:1 on bg, 8.4:1 on surface; ink on gold 10.1:1 */
+    --color-action: #d9b56a;
+    --color-action-hover: #c9a45c;
     --color-fill-hover: #2c2c2e;
     --color-fill-subtle: rgba(255, 255, 255, 0.12);
-    --color-selected: #f5f5f7;
-    --color-on-selected: #000000;
+    --color-selected: #d9b56a;
+    --color-on-selected: #0b0b0c;
     --color-on-selected-fill: rgba(0, 0, 0, 0.12);
     --color-success: #32d74b;
     --color-success-surface: #0f2a17;
     --color-danger: #ff6b6b;          /* 7.6:1 */
+    --color-eyebrow: #d9b56a;
     --color-danger-surface: #3a1416;
-    --color-focus: #2997ff;
-    --color-focus-soft: rgba(41, 151, 255, 0.4);
-    --color-header-bg: rgba(22, 22, 23, 0.8);
+    --color-focus: #d9b56a;
+    --color-focus-soft: rgba(217, 181, 106, 0.45);
+    --color-header-bg: rgba(11, 11, 12, 0.8);
     --color-badge-bg: rgba(28, 28, 30, 0.88);
     --color-badge-text: #f5f5f7;
     --color-skeleton: #2c2c2e;
-    --color-selection: #1d4f80;
+    --color-selection: #5c4719;
     --color-backdrop: rgba(0, 0, 0, 0.6);
     --image-filter: brightness(0.86);
     --contrast-text-secondary: #e5e5ea;
     --contrast-border: #8e8e93;
+    --contrast-accent: #f3dc9e;
     --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06);
     --shadow-raised: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 16px 40px rgba(0, 0, 0, 0.6);
   }
@@ -146,44 +156,48 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --color-bg: #000000;
-  --color-surface: #1c1c1e;
-  --color-surface-raised: #1c1c1e;
+  --color-bg: #0b0b0c;
+  --color-surface: #1a1a1c;
+  --color-surface-raised: #1a1a1c;
   --color-text: #f5f5f7;
   --color-text-body: #d1d1d6;
   --color-text-secondary: #a1a1a6;
   --color-border: #3a3a3c;
   --color-border-strong: #636366;
   --color-hairline: rgba(255, 255, 255, 0.1);
-  --color-accent: #2997ff;
-  --color-action: #0066cc;
-  --color-action-hover: #0a74e0;
+  --color-accent: #d9b56a;
+  --color-action: #d9b56a;
+  --color-action-hover: #c9a45c;
   --color-fill-hover: #2c2c2e;
   --color-fill-subtle: rgba(255, 255, 255, 0.12);
-  --color-selected: #f5f5f7;
-  --color-on-selected: #000000;
+  --color-selected: #d9b56a;
+  --color-on-selected: #0b0b0c;
   --color-on-selected-fill: rgba(0, 0, 0, 0.12);
   --color-success: #32d74b;
   --color-success-surface: #0f2a17;
   --color-danger: #ff6b6b;
   --color-danger-surface: #3a1416;
-  --color-focus: #2997ff;
-  --color-focus-soft: rgba(41, 151, 255, 0.4);
-  --color-header-bg: rgba(22, 22, 23, 0.8);
+  --color-eyebrow: #d9b56a;
+  --color-focus: #d9b56a;
+  --color-focus-soft: rgba(217, 181, 106, 0.45);
+  --color-header-bg: rgba(11, 11, 12, 0.8);
   --color-badge-bg: rgba(28, 28, 30, 0.88);
   --color-badge-text: #f5f5f7;
   --color-skeleton: #2c2c2e;
-  --color-selection: #1d4f80;
+  --color-selection: #5c4719;
   --color-backdrop: rgba(0, 0, 0, 0.6);
   --image-filter: brightness(0.86);
   --contrast-text-secondary: #e5e5ea;
   --contrast-border: #8e8e93;
+  --contrast-accent: #f3dc9e;
   --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06);
   --shadow-raised: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 16px 40px rgba(0, 0, 0, 0.6);
 }
 
 /* Increased contrast — explicit choice, or the OS preference when no choice is stored. */
 :root[data-contrast='more'] {
+  --color-accent: var(--contrast-accent);
+  --color-eyebrow: var(--contrast-accent);
   --color-text-secondary: var(--contrast-text-secondary);
   --color-text-body: var(--color-text);
   --color-border: var(--contrast-border);
@@ -193,6 +207,8 @@
 
 @media (prefers-contrast: more) {
   :root:not([data-contrast]) {
+    --color-accent: var(--contrast-accent);
+    --color-eyebrow: var(--contrast-accent);
     --color-text-secondary: var(--contrast-text-secondary);
     --color-text-body: var(--color-text);
     --color-border: var(--contrast-border);
@@ -215,18 +231,27 @@
   font-size: 125%;
 }
 
-/* Arabic: native Arabic system fonts, no negative tracking (it breaks cursive joining), taller lines. */
+/*
+ * Arabic: IBM Plex Sans Arabic (self-hosted via next/font, see src/app/fonts.ts) for every Arabic glyph;
+ * Latin characters inside Arabic text (prices, emails) fall through to the system font.
+ * No negative tracking (it breaks cursive joining) and taller lines for Arabic's ascenders/descenders.
+ */
 :root:lang(ar) {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Arabic', 'Segoe UI', 'Noto Sans Arabic', 'Geeza Pro', Tahoma,
+  --font-sans: var(--font-arabic, 'IBM Plex Sans Arabic'), -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma,
     sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, 'SF Arabic', 'Segoe UI', 'Noto Sans Arabic', 'Geeza Pro',
-    Tahoma, sans-serif;
+  --font-display: var(--font-arabic, 'IBM Plex Sans Arabic'), -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma,
+    sans-serif;
   --tracking-body: 0;
   --tracking-tight: 0;
   --tracking-display: 0;
-  --leading-tight: 1.35;
+  --leading-tight: 1.3;
   --leading-snug: 1.45;
-  --leading-body: 1.75;
+  --leading-body: 1.7;
+}
+
+/* Plex Arabic has a lighter colour than SF at the same weight: nudge headings up one step. */
+:root:lang(ar) :is(h1, h2) {
+  font-weight: 700;
 }
 
 :root[dir='rtl'] {
@@ -375,7 +400,7 @@ select {
 .eyebrow {
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--color-eyebrow);
   letter-spacing: 0;
 }
 
@@ -414,8 +439,8 @@ select {
 
 .button-secondary {
   background: transparent;
-  color: var(--color-accent);
-  border-color: var(--color-accent);
+  color: var(--color-text);
+  border-color: var(--color-text);
 }
 
 .button-secondary:hover {

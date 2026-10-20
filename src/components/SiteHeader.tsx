@@ -6,6 +6,7 @@ import { interpolate } from '@/i18n/plural';
 
 import { AppearanceSettings } from './AppearanceSettings';
 import { NavLink } from './NavLink';
+import { Wordmark } from './Wordmark';
 import styles from './SiteHeader.module.css';
 
 export function SiteHeader({ locale, t }: { locale: Locale; t: Dictionary }) {
@@ -17,13 +18,7 @@ export function SiteHeader({ locale, t }: { locale: Locale; t: Dictionary }) {
           className={styles.brand}
           aria-label={interpolate(t.nav.homeLabel, { name: t.company.name })}
         >
-          <span className={styles.mark} aria-hidden="true">
-            AK
-          </span>
-          <span className={styles.wordmark} aria-hidden="true">
-            {t.company.shortName}
-            <span className={styles.wordmarkSub}> {t.company.wordmarkSuffix}</span>
-          </span>
+          <Wordmark id="header-mark" locale={locale} t={t} />
         </Link>
         <div className={styles.end}>
           <nav aria-label={t.nav.main}>

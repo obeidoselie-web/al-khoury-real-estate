@@ -7,14 +7,18 @@ import { listingsHref } from '@/lib/filters';
 
 import { LanguageLink } from './NavLink';
 import styles from './SiteFooter.module.css';
+import { Wordmark } from './Wordmark';
 
 export function SiteFooter({ locale, t }: { locale: Locale; t: Dictionary }) {
   return (
     <footer className={styles.footer}>
       <div className={`container ${styles.grid}`}>
-        <div>
-          <p className={styles.name}>{t.company.name}</p>
-          <p className={styles.muted}>{t.company.tagline}</p>
+        <div className={styles.brand}>
+          <Wordmark id="footer-mark" locale={locale} t={t} size="footer" />
+          <p className={styles.muted}>
+            <span className="sr-only">{t.company.name}. </span>
+            {t.company.tagline}
+          </p>
         </div>
         <nav aria-label={t.nav.footer}>
           <h2 className={styles.heading}>{t.nav.browse}</h2>

@@ -1,7 +1,28 @@
 .intro {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-7);
+  align-items: center;
   padding-top: var(--space-8);
+}
+
+.introText {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 960px) {
+  .intro {
+    grid-template-columns: minmax(0, 1fr) 26rem;
+  }
+}
+
+/* The brand artwork is designed as a roundel. */
+.brandImage {
+  width: min(100%, 26rem);
+  height: auto;
+  justify-self: center;
+  border-radius: 50%;
+  box-shadow: var(--shadow-raised);
 }
 
 .title {

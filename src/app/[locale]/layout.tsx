@@ -10,6 +10,7 @@ import { I18nProvider } from '@/i18n/I18nProvider';
 import { APPEARANCE_INIT_SCRIPT } from '@/lib/appearance';
 import { alternates } from '@/lib/seo';
 
+import { arabicFont, brandFont } from '../fonts';
 import '../globals.css';
 
 export function generateStaticParams() {
@@ -34,7 +35,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b0b0c' },
   ],
 };
 
@@ -45,7 +46,12 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
 
   return (
     // Appearance attributes are added by the inline script before hydration, hence suppressHydrationWarning.
-    <html lang={locale} dir={LOCALE_META[locale].dir} suppressHydrationWarning>
+    <html
+      lang={locale}
+      dir={LOCALE_META[locale].dir}
+      className={`${brandFont.variable} ${arabicFont.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: APPEARANCE_INIT_SCRIPT }} />
       </head>

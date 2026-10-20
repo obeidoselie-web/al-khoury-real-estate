@@ -243,6 +243,7 @@ export const ar: Dictionary = {
     office: 'المكتب',
     hours: 'ساعات العمل',
     regarding: 'بخصوص:',
+    brandImageAlt: 'صورة هوية الخوري للعقارات: فيلا حجرية حديثة على شكل الشعار، عند الغروب فوق الساحل.',
   },
   contact: {
     fullName: 'الاسم الكامل',

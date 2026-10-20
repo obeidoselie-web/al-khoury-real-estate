@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -36,25 +37,36 @@ export default async function AboutPage({ params, searchParams }: Props) {
   return (
     <>
       <section className={`container ${styles.intro}`} aria-labelledby="about-title">
-        <p className="eyebrow">{a.eyebrow}</p>
-        <h1 id="about-title" className={styles.title}>
-          {interpolate(a.title, { year: COMPANY.founded })}
-        </h1>
-        <p className={styles.lead}>{a.lead}</p>
-        <dl className={styles.stats}>
-          <div>
-            <dt>{a.stats.years}</dt>
-            <dd>{formatNumber(yearsActive, locale)}+</dd>
-          </div>
-          <div>
-            <dt>{a.stats.placed}</dt>
-            <dd>{formatNumber(2400, locale)}+</dd>
-          </div>
-          <div>
-            <dt>{a.stats.regions}</dt>
-            <dd>{formatNumber(6, locale)}</dd>
-          </div>
-        </dl>
+        <div className={styles.introText}>
+          <p className="eyebrow">{a.eyebrow}</p>
+          <h1 id="about-title" className={styles.title}>
+            {interpolate(a.title, { year: COMPANY.founded })}
+          </h1>
+          <p className={styles.lead}>{a.lead}</p>
+          <dl className={styles.stats}>
+            <div>
+              <dt>{a.stats.years}</dt>
+              <dd>{formatNumber(yearsActive, locale)}+</dd>
+            </div>
+            <div>
+              <dt>{a.stats.placed}</dt>
+              <dd>{formatNumber(2400, locale)}+</dd>
+            </div>
+            <div>
+              <dt>{a.stats.regions}</dt>
+              <dd>{formatNumber(6, locale)}</dd>
+            </div>
+          </dl>
+        </div>
+        <Image
+          src="/images/brand/al-khoury-brand.webp"
+          alt={a.brandImageAlt}
+          width={1000}
+          height={1000}
+          priority
+          sizes="(min-width: 960px) 26rem, 80vw"
+          className={styles.brandImage}
+        />
       </section>
 
       <section className="section" aria-labelledby="values-title">

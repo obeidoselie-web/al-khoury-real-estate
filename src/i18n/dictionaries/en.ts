@@ -161,6 +161,8 @@ export const en = {
     office: 'Office',
     hours: 'Opening hours',
     regarding: 'About:',
+    brandImageAlt:
+      'Al Khoury Real Estate brand artwork: a modern stone villa shaped like the lk logo, at sunset above the coast.',
   },
   contact: {
     fullName: 'Full name',
