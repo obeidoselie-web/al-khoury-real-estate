@@ -22,7 +22,7 @@
 }
 
 .breadcrumb li + li::before {
-  content: '›';
+  content: var(--chevron-end);
   margin-inline: var(--space-2);
   color: var(--color-text-secondary);
 }
@@ -124,7 +124,7 @@
 }
 
 .paragraph {
-  color: #3a3a3c;
+  color: var(--color-text-body);
   max-width: 44rem;
 }
 
@@ -192,10 +192,10 @@
     inset: auto 0 0 0;
     z-index: 40;
     padding: var(--space-3) var(--gutter) calc(var(--space-3) + env(safe-area-inset-bottom));
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--color-header-bg);
     backdrop-filter: saturate(180%) blur(20px);
     -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 1px solid var(--color-hairline);
   }
 
   .stickyInner {

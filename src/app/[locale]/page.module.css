@@ -25,7 +25,7 @@
 .heroTitle {
   font-size: var(--text-3xl);
   line-height: var(--leading-tight);
-  letter-spacing: -0.03em;
+  letter-spacing: var(--tracking-display);
   font-weight: 700;
 }
 
@@ -79,7 +79,7 @@
 
 .typeCard:hover {
   text-decoration: none;
-  background: #ebebef;
+  background: var(--color-fill-hover);
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
@@ -107,7 +107,7 @@
 }
 
 .typeCount::after {
-  content: ' ›';
+  content: ' ' var(--chevron-end);
 }
 
 .featured {

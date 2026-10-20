@@ -9,11 +9,5 @@ export default function ListingsError({ error, reset }: { error: Error & { diges
     console.error(error);
   }, [error]);
 
-  return (
-    <ErrorState
-      title="We couldn’t load properties."
-      message="Something went wrong on our side while fetching listings. Please try again in a moment."
-      onRetry={reset}
-    />
-  );
+  return <ErrorState variant="listings" onRetry={reset} />;
 }

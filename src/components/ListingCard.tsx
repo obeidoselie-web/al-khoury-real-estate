@@ -1,25 +1,31 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { localizedPath, type Locale } from '@/i18n/config';
+import type { Dictionary } from '@/i18n/dictionaries';
 import { cardFacts } from '@/lib/facts';
-import { formatPrice, formatPriceSpoken } from '@/lib/format';
-import { DEAL_LABELS, TYPE_LABELS, capitalize } from '@/lib/labels';
+import { formatPlace, formatPrice, formatPriceSpoken } from '@/lib/format';
 import type { ListingSummary } from '@/lib/types';
 
 import styles from './ListingCard.module.css';
 
+export type CardStrings = Pick<Dictionary, 'card' | 'format' | 'types' | 'deals'>;
+
 interface ListingCardProps {
   listing: ListingSummary;
+  locale: Locale;
+  t: CardStrings;
   /** Eager-load the image for cards likely to be above the fold. */
   priority?: boolean;
   headingLevel?: 'h2' | 'h3';
 }
 
-export function ListingCard({ listing, priority = false, headingLevel: Heading = 'h3' }: ListingCardProps) {
-  const facts = cardFacts(listing);
+export function ListingCard({ listing, locale, t, priority = false, headingLevel: Heading = 'h3' }: ListingCardProps) {
+  const facts = cardFacts(listing, locale, t);
+  const deal = t.deals[listing.deal];
 
   return (
-    <article className={styles.card}>
+    <article className={styles.card} data-motion-lift>
       <div className={styles.media}>
         <Image
           src={listing.image.src}
@@ -29,25 +35,25 @@ export function ListingCard({ listing, priority = false, headingLevel: Heading =
           className={styles.image}
           priority={priority}
         />
-        <span className={`badge ${styles.badge}`}>{DEAL_LABELS[listing.deal].badge}</span>
+        <span className={`badge ${styles.badge}`}>{deal.badge}</span>
       </div>
       <div className={styles.body}>
         <p className={styles.meta}>
-          {capitalize(TYPE_LABELS[listing.type].singular)} · {listing.location.area}, {listing.location.city}
+          {t.types[listing.type].label} · {formatPlace(listing.location, locale)}
         </p>
         <Heading className={styles.title}>
           {/* The stretched link makes the whole card clickable while keeping one tab stop. */}
-          <Link href={`/listings/${listing.id}`} className={styles.link}>
+          <Link href={localizedPath(locale, `/listings/${listing.id}`)} className={styles.link}>
             {listing.title}
           </Link>
         </Heading>
         <p className={styles.price}>
-          <span aria-hidden="true">{formatPrice(listing.price, listing.deal)}</span>
+          <span aria-hidden="true">{formatPrice(listing.price, listing.deal, locale, t)}</span>
           <span className="sr-only">
-            {DEAL_LABELS[listing.deal].badge}, {formatPriceSpoken(listing.price, listing.deal)}
+            {deal.badge}, {formatPriceSpoken(listing.price, listing.deal, locale, t)}
           </span>
         </p>
-        <ul className={styles.facts} aria-label="Key facts">
+        <ul className={styles.facts} aria-label={t.card.keyFacts}>
           {facts.map((fact) => (
             <li key={fact}>{fact}</li>
           ))}

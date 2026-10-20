@@ -1,13 +1,18 @@
 # Al Khoury Real Estate — website
 
 A responsive, accessible property-listings site built with **Next.js 16 (App Router)**, **React 19** and
-**TypeScript**. Visitors can browse houses, apartments, commercial properties and land to buy or rent,
-view a property, and contact an advisor.
+**TypeScript**, in **English and Arabic** (full right-to-left layout). Visitors can browse houses, apartments,
+commercial properties and land to buy or rent, view a property, and contact an advisor. They can also choose
+light or dark mode, a larger text size, increased contrast and reduced motion.
 
-- **Home** (`/`): one primary action ("Browse properties"), shortcuts by property type, and featured listings.
-- **Properties** (`/listings`): instant filtering by *Buy / Rent* and *property type*, with large tap targets and no typing. Filters are kept in the URL (`/listings?deal=rent&type=apartment`), so filtered views can be shared and bookmarked.
-- **Property detail** (`/listings/[id]`): swipeable photo gallery, key facts, description, features, and a contact card (a sticky *Enquire / Call* bar on phones).
-- **About & Contact** (`/about`): company story, contact details and an enquiry form. Opening it from a property (`/about?property=<id>#contact`) pre-fills the message and attaches the property reference.
+Every URL starts with a language: `/en/…` or `/ar/…`. A bare URL such as `/` or `/listings` redirects to the
+visitor's language (see [Languages](#languages-english--arabic)).
+
+- **Home** (`/en`, `/ar`): one primary action ("Browse properties"), shortcuts by property type, and featured listings.
+- **Properties** (`/en/listings`): instant filtering by *Buy / Rent* and *property type*, with large tap targets and no typing. Filters are kept in the URL (`/en/listings?deal=rent&type=apartment`), so filtered views can be shared and bookmarked.
+- **Property detail** (`/en/listings/[id]`): swipeable photo gallery, key facts, description, features, and a contact card (a sticky *Enquire / Call* bar on phones).
+- **About & Contact** (`/en/about`): company story, contact details and an enquiry form. Opening it from a property (`/en/about?property=<id>#contact`) pre-fills the message and attaches the property reference.
+- **Appearance & language** (the half-circle button in the header): language, theme, text size, contrast and motion.
 
 ---
 
@@ -23,11 +28,11 @@ npm run dev          # http://localhost:3000
 | Script | What it does |
 | --- | --- |
 | `npm run dev` | Development server (Turbopack) |
-| `npm run build` | Production build. Property pages are pre-rendered (SSG) |
+| `npm run build` | Production build. Home and property pages are pre-rendered for both languages (SSG) |
 | `npm start` | Serve the production build |
 | `npm test` | Run the test suite once (Vitest + Testing Library) |
 | `npm run test:watch` | Tests in watch mode |
-| `npm run typecheck` | `tsc --noEmit` |
+| `npm run typecheck` | `tsc --noEmit` (run `npx next typegen` first on a fresh clone) |
 | `npm run images` | Regenerate the placeholder illustrations in `public/images/` |
 
 ### Environment variables
@@ -36,8 +41,8 @@ Copy `.env.example` to `.env.local`. All variables are **server-only**. None use
 
 | Variable | Purpose |
 | --- | --- |
-| `CONTACT_WEBHOOK_URL` | Contact-form enquiries are POSTed here as JSON (CRM, Zapier, Make, Slack…). If it's unset, enquiries are accepted and a log line without personal data is written. |
-| `SITE_URL` | Absolute site URL, used for Open Graph metadata (defaults to `http://localhost:3000`). |
+| `CONTACT_WEBHOOK_URL` | Contact-form enquiries are POSTed here as JSON, including the visitor's language (CRM, Zapier, Make, Slack…). If it's unset, enquiries are accepted and a log line without personal data is written. |
+| `SITE_URL` | Absolute site URL, used for Open Graph and `hreflang` links (defaults to `http://localhost:3000`). |
 | `SIMULATE_LISTINGS_ERROR` | Set to `1` in development to make the data layer throw, which lets you preview the error UI. Ignored in production. |
 
 ---
@@ -46,37 +51,48 @@ Copy `.env.example` to `.env.local`. All variables are **server-only**. None use
 
 ```
 src/
-  app/                          Routes (App Router)
-    layout.tsx                  Root layout: skip link, header, <main>, footer, metadata
-    globals.css                 Design tokens + base styles + shared primitives (.button, .badge…)
-    page.tsx                    Home
-    error.tsx / global-error.tsx / not-found.tsx
-    listings/
-      page.tsx                  Properties (reads ?deal & ?type and server-renders the filtered view)
-      loading.tsx / error.tsx   Skeleton + failed-fetch state with "Try again"
-      [id]/
-        page.tsx                Property detail (generateStaticParams + generateMetadata)
-        not-found.tsx           Unknown/withdrawn property → real 404
-        loading.tsx
-    about/
-      page.tsx                  About & Contact
-      actions.ts                Server Action: validate → sanitise → deliver enquiry
+  proxy.ts                      Redirects URLs without a language prefix (cookie → Accept-Language → English)
+  i18n/
+    config.ts                   Locales, direction, path helpers, Accept-Language negotiation
+    dictionaries/en.ts, ar.ts   All UI strings (Arabic is type-checked against English)
+    plural.ts                   CLDR plural rules (Arabic has six forms) + number formatting
+    I18nProvider.tsx            Gives client components the locale and strings
+  app/
+    globals.css                 Design tokens (light, dark, contrast, text size, motion, Arabic) + base styles
+    global-error.tsx            Last-resort error page (bilingual)
+    icon.svg                    Favicon
+    [locale]/                   Every route lives under the language segment
+      layout.tsx                Root layout: <html lang dir>, pre-paint appearance script, header, footer, hreflang
+      page.tsx                  Home
+      error.tsx / not-found.tsx
+      listings/
+        page.tsx                Properties (reads ?deal & ?type and server-renders the filtered view)
+        loading.tsx / error.tsx Skeleton + failed-fetch state with "Try again"
+        [id]/
+          page.tsx              Property detail (generateStaticParams for every locale × listing)
+          not-found.tsx         Unknown/withdrawn property → real 404
+          loading.tsx
+      about/
+        page.tsx                About & Contact
+        actions.ts              Server Action: validate → sanitise → deliver enquiry (replies in the form's language)
   components/
     ListingsExplorer.tsx        Client island: filter state, URL sync, live results announcement
-    FilterGroup.tsx             Native radio group styled as pills (one tab stop, arrow keys)
+    ChoiceGroup.tsx             Native radio group styled as pills (filters and settings)
+    AppearanceSettings.tsx      Header button + <dialog> for language, theme, text size, contrast, motion
     ListingCard.tsx / ListingGrid.tsx
     PropertyGallery.tsx         CSS scroll-snap gallery (no JS)
     ContactForm.tsx             Client island: useActionState, inline errors, focus management
-    SiteHeader.tsx / NavLink.tsx / SiteFooter.tsx
-    ErrorState.tsx / NotFoundState.tsx
+    SiteHeader.tsx / NavLink.tsx (+ LanguageLink) / SiteFooter.tsx
+    ErrorState.tsx / NotFoundState.tsx / LoadingStatus.tsx
   lib/
     types.ts                    Listing model (single source of truth for the shape of data)
     data/listings.ts            ⟵ THE data-access module (the only place pages get listings from)
-    data/placeholder-listings.ts  Placeholder data
+    data/placeholder-listings.ts  Placeholder data, with English and Arabic text
     filters.ts                  Pure filtering/URL/counting logic (fully unit-tested)
     contact.ts                  Pure validation + sanitisation (fully unit-tested)
     contact-delivery.ts         Server-only webhook delivery
-    format.ts / facts.ts / labels.ts / company.ts
+    appearance.ts               Appearance settings: parse, persist, apply, and the pre-paint script
+    format.ts / facts.ts / company.ts / seo.ts
 tests/                          Vitest + Testing Library
 scripts/generate-placeholders.mjs
 public/images/                  Generated placeholder illustrations
@@ -84,25 +100,67 @@ public/images/                  Generated placeholder illustrations
 
 ### What runs on the client
 
-Pages are React Server Components. Only three small client islands ship JavaScript:
+Pages are React Server Components. Only small client islands ship JavaScript:
 
-1. `ListingsExplorer` (with `FilterGroup` and the cards it renders) filters in memory, so a tap gives instant feedback without a network round trip.
+1. `ListingsExplorer` (with `ChoiceGroup` and the cards it renders) filters in memory, so a tap gives instant feedback without a network round trip.
 2. `ContactForm` handles pending state, inline errors and focus. The form still works without JS because it posts straight to the Server Action.
-3. `NavLink` sets `aria-current` on the active header link.
+3. `AppearanceSettings` runs the settings dialog.
+4. `NavLink` / `LanguageLink` set `aria-current` and build language-switch links.
 
-The gallery, sticky contact bar, cards on the home and detail pages, and every animation are pure HTML/CSS.
+The current language's dictionary (a few KB) is passed to the client once through `I18nProvider`. The gallery,
+sticky contact bar, cards on the home and detail pages, and every animation are pure HTML/CSS.
+
+---
+
+## Languages (English / Arabic)
+
+- **Routing.** Every page lives under `src/app/[locale]/`. `src/proxy.ts` redirects any URL without a prefix,
+  keeping the query string. It picks the language from the `NEXT_LOCALE` cookie (set when someone switches
+  language), then the browser's `Accept-Language`, then English. Each page declares `hreflang` alternates and a
+  canonical URL.
+- **Direction.** `<html lang dir>` is set per locale. Layout CSS uses logical properties (`inset-inline-start`,
+  `margin-inline`, …), so the same styles mirror for Arabic. Chevrons flip via a `--chevron-end` token. Phone
+  numbers, emails, prices and the email/phone inputs are kept left-to-right with `dir="ltr"` or Unicode bidi isolates.
+- **Typography.** Arabic uses the native Arabic system fonts (SF Arabic, Segoe UI, Noto Sans Arabic), no negative
+  letter-spacing (it breaks cursive joining) and taller line heights.
+- **Strings.** `src/i18n/dictionaries/en.ts` defines the shape. `ar.ts` is typed as `Dictionary`, so a missing key
+  fails the build, and a test also checks that every Arabic plural has the one/two/few/many/other forms.
+- **Plurals and numbers.** `plural()` uses `Intl.PluralRules`, so counts read naturally ("عقار واحد", "عقاران",
+  "3 عقارات", "11 عقارًا"). Arabic uses Latin digits and prices show as `$1,250,000`, the common convention in
+  Lebanese listings.
+- **Listing content** comes from the data layer per locale: `ListingsSource.list(locale)` and `getById(id, locale)`.
+- **Adding a language**: add it to `LOCALES` / `LOCALE_META` in `src/i18n/config.ts`, add a dictionary typed as
+  `Dictionary`, and provide listing text for it in the data source.
+
+## Appearance settings
+
+The header's half-circle button opens a native `<dialog>`. Focus stays inside it, Esc closes it, and focus returns
+to the button. On phones it opens as a bottom sheet. It holds:
+
+| Setting | Options | How it works |
+| --- | --- | --- |
+| Language | English / العربية | Same page in the other language; remembered in a cookie |
+| Theme | System / Light / Dark | `data-theme` on `<html>`. "System" follows `prefers-color-scheme` |
+| Text size | Default / Large / Larger | `data-text` scales the root font size (100 / 112.5 / 125%). Every size is in rem |
+| Contrast | System / Increased | `data-contrast="more"` darkens secondary text and borders, thickens focus rings and underlines links. "System" honours `prefers-contrast: more` |
+| Motion | System / Reduced | `data-motion="reduce"` stops all animation and smooth scrolling. "System" honours `prefers-reduced-motion` |
+
+Choices are saved in `localStorage` (`ak-appearance`). A tiny inline script in `<head>` applies them **before first
+paint**, so a saved dark theme never flashes light, and pages stay statically generated. That script is covered by
+a test that checks it matches `applyAppearance()`. All colours are tokens in `globals.css`, with light and dark
+values and WCAG AA ratios noted.
 
 ---
 
 ## Swapping in a real data source
 
 All listing reads go through `src/lib/data/listings.ts`. UI components only depend on the types in
-`src/lib/types.ts` and the functions exported from that module (`getListings`, `getListingSummaries`,
-`getFeaturedListings`, `getListingById`, `getListingIds`).
+`src/lib/types.ts` and the functions exported from that module (`getListings(locale)`,
+`getListingSummaries(locale)`, `getFeaturedListings(locale)`, `getListingById(id, locale)`, `getListingIds()`).
 
 To use an API or headless CMS:
 
-1. **Implement `ListingsSource`** and map the remote payload to the `Listing` type:
+1. **Implement `ListingsSource`** and map the remote payload to the `Listing` type, with text in the requested language:
 
    ```ts
    // src/lib/data/api-source.ts
@@ -118,13 +176,13 @@ To use an API or headless CMS:
    }
 
    export const apiSource: ListingsSource = {
-     async list() {
-       const res = await fetch(`${BASE}/listings`, { headers, next: { revalidate: 300, tags: ['listings'] } });
+     async list(locale) {                                // most CMSs take a locale parameter
+       const res = await fetch(`${BASE}/listings?locale=${locale}`, { headers, next: { revalidate: 300, tags: ['listings'] } });
        if (!res.ok) throw new Error(`Listings API ${res.status}`);
        return (await res.json()).items.map(toListing);
      },
-     async getById(id) {
-       const res = await fetch(`${BASE}/listings/${encodeURIComponent(id)}`, { headers, next: { revalidate: 300, tags: ['listings'] } });
+     async getById(id, locale) {
+       const res = await fetch(`${BASE}/listings/${encodeURIComponent(id)}?locale=${locale}`, { headers, next: { revalidate: 300, tags: ['listings'] } });
        if (res.status === 404) return null;              // → the route renders its not-found page
        if (!res.ok) throw new Error(`Listings API ${res.status}`);
        return toListing(await res.json());
@@ -139,9 +197,10 @@ To use an API or headless CMS:
 Errors thrown by a source are wrapped in `ListingsUnavailableError`, so the route error boundaries show the
 "couldn't load properties / Try again" state. Returning `null` from `getById` gives a 404.
 
-**At scale.** Filtering runs in memory, which suits a portfolio of up to a few hundred listings. For
-thousands, move filtering to the server. Add `getListings(filters)` that passes `deal`/`type` to the API,
-then have the explorer navigate with `router.replace()` instead of filtering locally. `filters.ts` already parses and serialises the URL contract.
+**At scale.** Filtering runs in memory, which suits a portfolio of up to a few hundred listings. For thousands,
+move filtering to the server. Add `getListings(locale, filters)` that passes `deal`/`type` to the API, then have
+the explorer navigate with `router.replace()` instead of filtering locally. `filters.ts` already parses and
+serialises the URL contract.
 
 ---
 
@@ -149,28 +208,30 @@ then have the explorer navigate with `router.replace()` instead of filtering loc
 
 - Semantic landmarks (`header`, `nav`, `main`, `footer`, `search`), a skip link, a logical heading order, and breadcrumbs on the detail page.
 - Filters are **native radio groups** inside `fieldset`/`legend`. Arrow keys and screen-reader announcements ("radio button, 2 of 5, checked") come for free. Each option's result count is read out ("Apartments, 4 listings").
-- The results summary (for example "3 apartments for rent") sits in a `role="status"` live region, so screen readers announce each filter change.
+- The results summary (for example "3 apartments for rent" / "3 شقق للإيجار") sits in a `role="status"` live region, so screen readers announce each filter change.
 - Form fields have visible labels, `autocomplete`/`inputmode` hints, and `aria-invalid` + `aria-describedby` error text. After a failed submit, focus moves to the first invalid field; after success, to the confirmation.
 - One consistent, high-contrast focus ring (`:focus-visible`). Tap targets are at least 44 × 44 px. Body text is 17 px.
-- Colour contrast meets WCAG AA. Ratios are documented beside each token in `globals.css` (secondary text is 5.1:1, the accent is 5.6:1).
-- `prefers-reduced-motion` turns off all animation and smooth scrolling. `forced-colors` keeps the selected filter visible.
+- Colour contrast meets WCAG AA in both themes. Ratios are documented beside each token in `globals.css`.
+- User-adjustable text size, contrast, theme and motion (see [Appearance settings](#appearance-settings)). `prefers-reduced-motion`, `prefers-contrast` and `prefers-color-scheme` are honoured by default. `forced-colors` keeps the selected filter visible.
+- `lang`/`dir` are correct per page, and labels in the other language (e.g. "العربية" on an English page) carry their own `lang`, so screen readers switch voice.
 - Error boundaries move focus to their heading and use `role="alert"`.
 
 ## Performance
 
-- Server Components by default. Property pages are statically generated, and the home page is static.
+- Server Components by default. Home and property pages are statically generated for both languages.
 - `next/image` everywhere, with responsive `sizes`, AVIF/WebP, and `priority` only for above-the-fold images.
-- A system font stack (SF Pro on Apple devices), so there are no web-font downloads.
+- A system font stack (SF Pro / SF Arabic on Apple devices), so there are no web-font downloads.
+- Appearance settings are applied by a ~400-byte inline script, so pages stay static (no cookies read at render time).
 - Cards pass a trimmed `ListingSummary` to the client instead of full listings.
 
 ## Security
 
-- **Contact form**: every field is validated and sanitised **on the server** (`src/lib/contact.ts`). That covers Unicode normalisation, removal of control and bidi-override characters and of HTML tags and angle brackets, whitespace collapsing, length limits, an email/phone format check, and an allow-list pattern for the property reference. React escapes output too. The sanitising also protects downstream systems such as CRMs and email bodies.
+- **Contact form**: every field is validated and sanitised **on the server** (`src/lib/contact.ts`). That covers Unicode normalisation, removal of control and bidi-override characters and of HTML tags and angle brackets, whitespace collapsing, length limits, an email/phone format check, and an allow-list pattern for the property reference. The locale field is checked against the supported locales. React escapes output too. The sanitising also protects downstream systems such as CRMs and email bodies.
 - A honeypot field silently drops most bot submissions.
 - Secrets live only in server-only env vars. `server-only` imports make the build fail if a server module is ever imported into client code.
 - Security headers (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`) are set in `next.config.ts`, and `X-Powered-By` is disabled.
 - Route params and query strings are validated against allow-lists before use.
-- **Before launch** (infrastructure-dependent, so deliberately not stubbed here): add rate limiting to the contact action (at the edge/WAF or with a KV-backed limiter), and add a CSP with nonces if third-party scripts are introduced.
+- **Before launch** (infrastructure-dependent, so deliberately not stubbed here): add rate limiting to the contact action (at the edge/WAF or with a KV-backed limiter). If you add a CSP, allow the inline appearance script with a nonce or hash.
 
 ## Testing
 
@@ -178,31 +239,38 @@ then have the explorer navigate with `router.replace()` instead of filtering loc
 npm test
 ```
 
-53 tests across 7 files:
+82 tests across 10 files:
 
 | File | Covers |
 | --- | --- |
-| `filters.test.ts` | URL parsing (including malicious input), serialisation round-trip, type/deal filtering, option counts, result sentences |
-| `ListingsExplorer.test.tsx` | Tapping filters updates results, the live-region text and the URL; keyboard arrow-key use; empty state and recovery; Clear filters; card links |
-| `ListingCard.test.tsx` | Card content and accessible price; price/area/fact formatting |
-| `data-listings.test.ts` | Placeholder data integrity; sorting; summaries; by-id lookup (unknown and malformed ids); failure wrapping; swapping the source |
-| `contact.test.ts` | Sanitisation, validation, the Server Action (no webhook, webhook failure, honeypot, no PII in logs) |
-| `ContactForm.test.tsx` | Labels, pre-fill, inline server errors with focus, success state |
-| `ErrorState.test.tsx` | Failed-fetch boundary (focus, retry) and property not-found page |
+| `filters.test.ts` | URL parsing (including malicious input), serialisation round-trip, type/deal filtering, option counts, result sentences in English and every Arabic plural form |
+| `ListingsExplorer.test.tsx` | Tapping filters updates results, the live-region text and the URL; keyboard arrow-key use; empty state and recovery; Clear filters; localised card links; the Arabic UI |
+| `ListingCard.test.tsx` | Card content and accessible price in both languages; price/area/place/fact formatting, including RTL isolation |
+| `data-listings.test.ts` | Placeholder data integrity and translation completeness; sorting; summaries; by-id lookup per locale (unknown and malformed ids); failure wrapping; the locale reaching a custom source |
+| `contact.test.ts` | Sanitisation, validation, the Server Action (no webhook, webhook failure, honeypot, no PII in logs, Arabic replies, unknown locale) |
+| `ContactForm.test.tsx` | Labels, pre-fill, inline server errors with focus, success state; the Arabic form (LTR email/phone, locale sent) |
+| `ErrorState.test.tsx` | Failed-fetch boundary (focus, retry) and property not-found page, in both languages |
+| `i18n.test.ts` | Arabic/English dictionary parity and plural completeness, placeholder consistency, path helpers, Accept-Language negotiation |
+| `proxy.test.ts` | Language redirects: prefixed URLs pass through; cookie beats Accept-Language; query strings kept; English fallback |
+| `appearance.test.tsx` | Settings parsing and attributes; the pre-paint script matching `applyAppearance`; the dialog applying, persisting, restoring and resetting choices; Arabic labels |
 
 Manual checks done in a browser against the production build at 375 px (mobile), 768 px (tablet) and
 1280 px (desktop): no horizontal overflow, filtering and URL sync, the property gallery and sticky contact bar,
 the full contact-form round trip (server-side error and success), a real 404 status for unknown properties,
-and keyboard focus order.
+and keyboard focus order. Also checked: Arabic RTL pages on a phone in dark mode, the language redirect and
+switcher (page and filters kept, choice remembered), settings persisting across navigation, increased contrast
+and reduced motion, and an Arabic enquiry end to end.
 
 ---
 
 ## Assumptions
 
-- **Market and currency**: listings are in Lebanon and priced in **USD**, with rentals shown per month. Copy is in **English only**. Arabic/RTL would be a follow-up (`dir="rtl"` plus logical CSS properties, which the styles mostly already use).
-- **Light theme only**, matching the Apple marketing-site look. Dark mode was not requested.
+- **Market and currency**: listings are in Lebanon and priced in **USD** (`$1,250,000` in both languages), with rentals shown per month.
+- **Arabic** is Modern Standard Arabic with Latin digits. The translations should be reviewed by a native-speaking copywriter before launch, especially the listing descriptions.
+- **Language in the URL** (`/en`, `/ar`) rather than a cookie only. That keeps pages static, shareable and indexable per language.
+- **Appearance settings are per device** (localStorage), since there are no user accounts.
 - **Filtering** is single-choice per group (one deal type, one property type). That gives the simplest phone UI and keeps URLs readable. Price, bedroom filters and sorting were left out to stay within scope.
 - **Contact** is through a form that posts to a webhook, plus phone (`tel:`) and email links. No email provider or CRM is assumed.
-- **Company details** in `src/lib/company.ts` (phone, email, address, founding year, stats on the About page) are **placeholders**, and the email uses the reserved `.example` domain.
+- **Company details** (`src/lib/company.ts` and the `company` section of the dictionaries: phone, email, address, founding year, stats on the About page) are **placeholders**, and the email uses the reserved `.example` domain.
 - **Images** are generated illustrations, used to avoid depending on third-party image hosts and licensing. Real photography should replace them, and the alt text should then describe each photo.
 - Per the brief, there are no user accounts, payments, maps or saved searches.

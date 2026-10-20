@@ -12,7 +12,7 @@
 
 @media (min-width: 768px) {
   .grid {
-    grid-template-columns: 2fr 1fr 1.4fr;
+    grid-template-columns: 2fr 1fr 1.4fr 1fr;
   }
 }
 
@@ -49,4 +49,11 @@
   border-top: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
+}
+
+.currentLang {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+  font-weight: 600;
 }

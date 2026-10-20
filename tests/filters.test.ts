@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { getDictionary } from '@/i18n/dictionaries';
 import {
   DEFAULT_FILTERS,
   countOptions,
@@ -12,6 +13,9 @@ import {
 } from '@/lib/filters';
 
 import { sampleListings } from './fixtures';
+
+const en = getDictionary('en');
+const ar = getDictionary('ar');
 
 describe('parseFilters', () => {
   it('defaults to all/all when params are absent', () => {
@@ -35,13 +39,13 @@ describe('parseFilters', () => {
 describe('filtersToQueryString / listingsHref', () => {
   it('omits defaults to keep URLs clean', () => {
     expect(filtersToQueryString(DEFAULT_FILTERS)).toBe('');
-    expect(listingsHref()).toBe('/listings');
+    expect(listingsHref('en')).toBe('/en/listings');
   });
 
   it('round-trips through parseFilters', () => {
     const filters = { type: 'commercial', deal: 'rent' } as const;
     expect(parseFilters(new URLSearchParams(filtersToQueryString(filters)))).toEqual(filters);
-    expect(listingsHref({ type: 'land' })).toBe('/listings?type=land');
+    expect(listingsHref('ar', { type: 'land' })).toBe('/ar/listings?type=land');
   });
 });
 
@@ -90,12 +94,23 @@ describe('countOptions', () => {
 });
 
 describe('describeResults', () => {
-  it('builds natural sentences', () => {
-    expect(describeResults(7, DEFAULT_FILTERS)).toBe('7 properties');
-    expect(describeResults(1, DEFAULT_FILTERS)).toBe('1 property');
-    expect(describeResults(2, { type: 'apartment', deal: 'rent' })).toBe('2 apartments for rent');
-    expect(describeResults(1, { type: 'commercial', deal: 'sale' })).toBe('1 commercial property for sale');
-    expect(describeResults(0, { type: 'land', deal: 'rent' })).toBe('No land plots for rent right now');
+  it('builds natural English sentences', () => {
+    expect(describeResults(7, DEFAULT_FILTERS, 'en', en)).toBe('7 properties');
+    expect(describeResults(1, DEFAULT_FILTERS, 'en', en)).toBe('1 property');
+    expect(describeResults(2, { type: 'apartment', deal: 'rent' }, 'en', en)).toBe('2 apartments for rent');
+    expect(describeResults(1, { type: 'commercial', deal: 'sale' }, 'en', en)).toBe('1 commercial property for sale');
+    expect(describeResults(0, { type: 'land', deal: 'rent' }, 'en', en)).toBe('No land plots for rent right now');
+  });
+
+  it('uses every Arabic plural category', () => {
+    const all = DEFAULT_FILTERS;
+    expect(describeResults(1, all, 'ar', ar)).toBe('عقار واحد');
+    expect(describeResults(2, all, 'ar', ar)).toBe('عقاران');
+    expect(describeResults(3, all, 'ar', ar)).toBe('3 عقارات');
+    expect(describeResults(11, all, 'ar', ar)).toBe('11 عقارًا');
+    expect(describeResults(100, all, 'ar', ar)).toBe('100 عقار');
+    expect(describeResults(2, { type: 'apartment', deal: 'rent' }, 'ar', ar)).toBe('شقتان للإيجار');
+    expect(describeResults(0, { type: 'house', deal: 'sale' }, 'ar', ar)).toBe('لا توجد منازل للبيع حاليًا');
   });
 });
 

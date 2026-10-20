@@ -1,9 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ContactForm } from '@/components/ContactForm';
 import type { ContactState } from '@/lib/contact';
+
+import { renderWithI18n as render } from './render';
 
 describe('ContactForm', () => {
   it('labels every field and pre-fills the message for a property enquiry', () => {
@@ -47,5 +49,20 @@ describe('ContactForm', () => {
     expect(status).toHaveTextContent('Message sent.');
     expect(status).toHaveFocus();
     expect(screen.queryByRole('button', { name: 'Send message' })).not.toBeInTheDocument();
+  });
+
+  it('renders Arabic labels, keeps email and phone left-to-right, and sends the locale', async () => {
+    const user = userEvent.setup();
+    const action = vi.fn(async (_prev: ContactState, _data: FormData): Promise<ContactState> => ({ status: 'success', message: 'شكرًا' }));
+    render(<ContactForm propertyTitle="فيلا" action={action} />, 'ar');
+
+    expect(screen.getByLabelText('الاسم الكامل')).toBeRequired();
+    expect(screen.getByLabelText('البريد الإلكتروني')).toHaveAttribute('dir', 'ltr');
+    expect(screen.getByLabelText(/الهاتف/)).toHaveAttribute('dir', 'ltr');
+    expect(screen.getByLabelText('الرسالة')).toHaveValue('مرحبًا، أنا مهتم بـ«فيلا». ');
+
+    await user.click(screen.getByRole('button', { name: 'أرسل الرسالة' }));
+    expect(action.mock.calls[0][1].get('locale')).toBe('ar');
+    expect(await screen.findByRole('status')).toHaveTextContent('تمّ إرسال الرسالة.');
   });
 });

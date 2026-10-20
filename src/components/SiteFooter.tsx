@@ -1,48 +1,71 @@
 import Link from 'next/link';
 
+import { LOCALES, LOCALE_META, localizedPath, type Locale } from '@/i18n/config';
+import type { Dictionary } from '@/i18n/dictionaries';
 import { COMPANY } from '@/lib/company';
 import { listingsHref } from '@/lib/filters';
 
+import { LanguageLink } from './NavLink';
 import styles from './SiteFooter.module.css';
 
-export function SiteFooter() {
+export function SiteFooter({ locale, t }: { locale: Locale; t: Dictionary }) {
   return (
     <footer className={styles.footer}>
       <div className={`container ${styles.grid}`}>
         <div>
-          <p className={styles.name}>{COMPANY.name}</p>
-          <p className={styles.muted}>{COMPANY.tagline}</p>
+          <p className={styles.name}>{t.company.name}</p>
+          <p className={styles.muted}>{t.company.tagline}</p>
         </div>
-        <nav aria-label="Footer">
-          <h2 className={styles.heading}>Browse</h2>
+        <nav aria-label={t.nav.footer}>
+          <h2 className={styles.heading}>{t.nav.browse}</h2>
           <ul className={styles.list}>
             <li>
-              <Link href={listingsHref({ deal: 'sale' })}>Buy</Link>
+              <Link href={listingsHref(locale, { deal: 'sale' })}>{t.nav.buy}</Link>
             </li>
             <li>
-              <Link href={listingsHref({ deal: 'rent' })}>Rent</Link>
+              <Link href={listingsHref(locale, { deal: 'rent' })}>{t.nav.rent}</Link>
             </li>
             <li>
-              <Link href="/about">About us</Link>
+              <Link href={localizedPath(locale, '/about')}>{t.nav.aboutUs}</Link>
             </li>
           </ul>
         </nav>
         <div>
-          <h2 className={styles.heading}>Contact</h2>
+          <h2 className={styles.heading}>{t.nav.contact}</h2>
           <ul className={styles.list}>
             <li>
-              <a href={COMPANY.phone.href}>{COMPANY.phone.display}</a>
+              <a href={COMPANY.phone.href} className="ltr">
+                {COMPANY.phone.display}
+              </a>
             </li>
             <li>
-              <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
+              <a href={`mailto:${COMPANY.email}`} className="ltr">
+                {COMPANY.email}
+              </a>
             </li>
-            <li className={styles.muted}>{COMPANY.address.lines.slice(0, 2).join(', ')}</li>
+            <li className={styles.muted}>{t.company.address.slice(0, 2).join(locale === 'ar' ? '، ' : ', ')}</li>
+          </ul>
+        </div>
+        <div>
+          <h2 className={styles.heading}>{t.nav.language}</h2>
+          <ul className={styles.list}>
+            {LOCALES.map((l) => (
+              <li key={l}>
+                {l === locale ? (
+                  <span aria-current="true" className={styles.currentLang} lang={l}>
+                    {LOCALE_META[l].label}
+                  </span>
+                ) : (
+                  <LanguageLink locale={l} label={LOCALE_META[l].label} />
+                )}
+              </li>
+            ))}
           </ul>
         </div>
       </div>
       <div className={`container ${styles.legal}`}>
         <p>
-          © {new Date().getFullYear()} {COMPANY.name}. Listings and images shown are illustrative placeholders.
+          © {new Date().getFullYear()} {t.company.name}. {t.nav.legal}
         </p>
       </div>
     </footer>

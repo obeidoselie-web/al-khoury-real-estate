@@ -3,19 +3,24 @@
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 
+import { localizedPath } from '@/i18n/config';
+import { useI18n } from '@/i18n/I18nProvider';
 import { COMPANY } from '@/lib/company';
 
 import styles from './StatusPage.module.css';
 
 interface ErrorStateProps {
-  title: string;
-  message: string;
+  variant: 'listings' | 'generic';
   onRetry: () => void;
 }
 
 /** Shared UI for route error boundaries: explains, offers a retry, and a way out. */
-export function ErrorState({ title, message, onRetry }: ErrorStateProps) {
+export function ErrorState({ variant, onRetry }: ErrorStateProps) {
+  const { locale, t } = useI18n();
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const title = variant === 'listings' ? t.errors.listingsTitle : t.errors.genericTitle;
+  const message = variant === 'listings' ? t.errors.listingsText : t.errors.genericText;
+  const [before, after = ''] = t.errors.stillNot.split('{phone}');
 
   // Move focus to the message so keyboard and screen-reader users know the page changed.
   useEffect(() => {
@@ -30,14 +35,18 @@ export function ErrorState({ title, message, onRetry }: ErrorStateProps) {
       <p className={styles.text}>{message}</p>
       <div className={styles.actions}>
         <button type="button" className="button" onClick={onRetry}>
-          Try again
+          {t.errors.retry}
         </button>
-        <Link href="/" className="text-link">
-          Go to the home page
+        <Link href={localizedPath(locale)} className="text-link">
+          {t.errors.home}
         </Link>
       </div>
       <p className={styles.small}>
-        Still not working? Call us on <a href={COMPANY.phone.href}>{COMPANY.phone.display}</a>.
+        {before}
+        <a href={COMPANY.phone.href} className="ltr">
+          {COMPANY.phone.display}
+        </a>
+        {after}
       </p>
     </div>
   );

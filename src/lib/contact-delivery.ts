@@ -1,18 +1,20 @@
 import 'server-only';
 
+import type { Locale } from '@/i18n/config';
+
 import type { ContactEnquiry } from './contact';
 
 /**
  * Delivers a validated enquiry. Secrets (the webhook URL) are read from server-only env vars and
  * never reach the browser bundle — note there is no NEXT_PUBLIC_ prefix.
  */
-export async function deliverEnquiry(enquiry: ContactEnquiry): Promise<void> {
+export async function deliverEnquiry(enquiry: ContactEnquiry & { locale: Locale }): Promise<void> {
   const webhookUrl = process.env.CONTACT_WEBHOOK_URL;
 
   if (!webhookUrl) {
     // Development fallback: acknowledge receipt without logging personal data.
     console.info(
-      `[contact] Enquiry received${enquiry.propertyId ? ` about ${enquiry.propertyId}` : ''} ` +
+      `[contact] Enquiry received (${enquiry.locale})${enquiry.propertyId ? ` about ${enquiry.propertyId}` : ''} ` +
         '(CONTACT_WEBHOOK_URL not set, so it was not forwarded).',
     );
     return;

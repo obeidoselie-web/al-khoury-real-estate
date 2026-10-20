@@ -1,11 +1,11 @@
+import { LoadingStatus } from '@/components/LoadingStatus';
+
 import styles from '../listings.module.css';
 
 export default function PropertyLoading() {
   return (
     <div className="container" aria-busy="true">
-      <p className="sr-only" role="status">
-        Loading property…
-      </p>
+      <LoadingStatus what="property" />
       <div aria-hidden="true" style={{ display: 'grid', gap: 'var(--space-3)', paddingBlock: 'var(--space-7) var(--space-5)' }}>
         <div className={styles.shimmer} style={{ height: '1rem', width: '9rem', borderRadius: 8 }} />
         <div className={styles.shimmer} style={{ height: '2.5rem', width: 'min(32rem, 90%)', borderRadius: 10 }} />

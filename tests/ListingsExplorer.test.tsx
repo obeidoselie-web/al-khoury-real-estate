@@ -1,18 +1,20 @@
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ListingsExplorer } from '@/components/ListingsExplorer';
+import type { Locale } from '@/i18n/config';
 import { DEFAULT_FILTERS } from '@/lib/filters';
 
 import { sampleListings } from './fixtures';
+import { renderWithI18n } from './render';
 
-function renderExplorer(initialFilters = DEFAULT_FILTERS) {
-  return render(<ListingsExplorer listings={sampleListings()} initialFilters={initialFilters} />);
+function renderExplorer(initialFilters = DEFAULT_FILTERS, locale: Locale = 'en') {
+  return renderWithI18n(<ListingsExplorer listings={sampleListings()} initialFilters={initialFilters} />, locale);
 }
 
-function resultCards() {
-  const list = screen.queryByRole('list', { name: 'Matching properties' });
+function resultCards(name = 'Matching properties') {
+  const list = screen.queryByRole('list', { name });
   return list ? within(list).getAllByRole('article') : [];
 }
 
@@ -92,10 +94,35 @@ describe('ListingsExplorer', () => {
     expect(screen.getByRole('radio', { name: /^All types/ })).toBeChecked();
   });
 
-  it('links each card to its detail page', () => {
+  it('links each card to its localised detail page', () => {
     renderExplorer({ type: 'commercial', deal: 'all' });
     const [card] = resultCards();
-    const link = within(card).getByRole('link');
-    expect(link).toHaveAttribute('href', expect.stringMatching(/^\/listings\/commercial-rent-/));
+    expect(within(card).getByRole('link')).toHaveAttribute('href', expect.stringMatching(/^\/en\/listings\/commercial-rent-/));
+  });
+
+  describe('in Arabic', () => {
+    it('labels filters, counts and results in Arabic with correct plural forms', async () => {
+      const user = userEvent.setup();
+      renderExplorer(DEFAULT_FILTERS, 'ar');
+
+      expect(screen.getByRole('group', { name: 'شراء أو إيجار' })).toBeInTheDocument();
+      // 7 → CLDR "few" form.
+      expect(screen.getByRole('status')).toHaveTextContent('7 عقارات');
+
+      await user.click(screen.getByRole('radio', { name: /^إيجار/ }));
+      await user.click(screen.getByRole('radio', { name: /^شقق/ }));
+      // 2 → dual form, with the deal phrase.
+      expect(screen.getByRole('status')).toHaveTextContent('شقتان للإيجار');
+      expect(resultCards('العقارات المطابقة')).toHaveLength(2);
+      expect(within(resultCards('العقارات المطابقة')[0]).getByRole('link')).toHaveAttribute(
+        'href',
+        expect.stringMatching(/^\/ar\/listings\//),
+      );
+    });
+
+    it('uses the Arabic empty-state sentence', () => {
+      renderExplorer({ type: 'land', deal: 'rent' }, 'ar');
+      expect(screen.getByRole('status')).toHaveTextContent('لا توجد أراضٍ للإيجار حاليًا');
+    });
   });
 });

@@ -1,4 +1,7 @@
-import { DEAL_LABELS, TYPE_LABELS } from './labels';
+import { localizedPath, type Locale } from '@/i18n/config';
+import type { Dictionary } from '@/i18n/dictionaries';
+import { interpolate, plural } from '@/i18n/plural';
+
 import { DEAL_TYPES, PROPERTY_TYPES, type DealType, type Listing, type PropertyType } from './types';
 
 export type TypeFilter = PropertyType | 'all';
@@ -45,9 +48,10 @@ export function filtersToQueryString(filters: ListingFilters): string {
   return params.toString();
 }
 
-export function listingsHref(filters: Partial<ListingFilters> = {}): string {
+export function listingsHref(locale: Locale, filters: Partial<ListingFilters> = {}): string {
   const query = filtersToQueryString({ ...DEFAULT_FILTERS, ...filters });
-  return query ? `/listings?${query}` : '/listings';
+  const path = localizedPath(locale, '/listings');
+  return query ? `${path}?${query}` : path;
 }
 
 type Filterable = Pick<Listing, 'type' | 'deal'>;
@@ -86,20 +90,25 @@ export function countOptions(listings: readonly Filterable[], filters: ListingFi
   return { byType, byDeal };
 }
 
-/** Human sentence for the results count, e.g. "3 apartments for rent". Used visually and announced. */
-export function describeResults(count: number, filters: ListingFilters): string {
-  const noun =
-    filters.type === 'all'
-      ? count === 1
-        ? 'property'
-        : 'properties'
-      : count === 1
-        ? TYPE_LABELS[filters.type].singular
-        : TYPE_LABELS[filters.type].plural;
-  const deal = filters.deal === 'all' ? '' : ` ${DEAL_LABELS[filters.deal].phrase}`;
+/**
+ * Human sentence for the results count, e.g. "3 apartments for rent" / "3 شقق للإيجار".
+ * Used visually and announced to screen readers. Uses CLDR plural rules for the locale.
+ */
+export function describeResults(
+  count: number,
+  filters: ListingFilters,
+  locale: Locale,
+  t: Pick<Dictionary, 'types' | 'deals' | 'listings'>,
+): string {
+  const deal = filters.deal === 'all' ? '' : ` ${t.deals[filters.deal].phrase}`;
 
-  if (count === 0) return `No ${filters.type === 'all' ? 'properties' : TYPE_LABELS[filters.type].plural}${deal} right now`;
-  return `${count} ${noun}${deal}`;
+  if (count === 0) {
+    const noun = filters.type === 'all' ? t.listings.noneProperties : t.types[filters.type].none;
+    return interpolate(t.listings.noneOf, { noun, deal });
+  }
+
+  const forms = filters.type === 'all' ? t.listings.anyProperty : t.types[filters.type].count;
+  return `${plural(locale, count, forms)}${deal}`;
 }
 
 export function isDefaultFilters(filters: ListingFilters): boolean {

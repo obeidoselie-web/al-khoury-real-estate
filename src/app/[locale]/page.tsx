@@ -1,24 +1,23 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
 import { ListingGrid } from '@/components/ListingGrid';
-import { COMPANY } from '@/lib/company';
+import { isLocale, localizedPath } from '@/i18n/config';
+import { getDictionary } from '@/i18n/dictionaries';
+import { plural } from '@/i18n/plural';
 import { getFeaturedListings, getListings } from '@/lib/data/listings';
 import { listingsHref } from '@/lib/filters';
-import { TYPE_LABELS } from '@/lib/labels';
 import { PROPERTY_TYPES } from '@/lib/types';
 
 import styles from './page.module.css';
 
-const TYPE_BLURBS = {
-  house: 'Villas, townhouses and family homes.',
-  apartment: 'From city studios to sea-view penthouses.',
-  commercial: 'Offices, retail units and warehouses.',
-  land: 'Building plots, groves and farmland.',
-} as const;
+export default async function HomePage({ params }: PageProps<'/[locale]'>) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  const t = getDictionary(locale);
 
-export default async function HomePage() {
-  const [featured, listings] = await Promise.all([getFeaturedListings(3), getListings()]);
+  const [featured, listings] = await Promise.all([getFeaturedListings(locale, 3), getListings(locale)]);
   const countByType = Object.fromEntries(
     PROPERTY_TYPES.map((type) => [type, listings.filter((listing) => listing.type === type).length]),
   );
@@ -27,16 +26,14 @@ export default async function HomePage() {
     <>
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={`container ${styles.heroInner}`}>
-          <p className="eyebrow animate-rise">{COMPANY.name}</p>
+          <p className="eyebrow animate-rise">{t.company.name}</p>
           <h1 id="hero-title" className={`${styles.heroTitle} animate-rise`}>
-            Find the place that fits.
+            {t.home.heroTitle}
           </h1>
-          <p className={`${styles.heroLead} animate-rise`}>
-            Houses, apartments, commercial spaces and land across Lebanon — to buy or to rent.
-          </p>
+          <p className={`${styles.heroLead} animate-rise`}>{t.home.heroLead}</p>
           <div className={`${styles.heroActions} animate-rise`}>
-            <Link href="/listings" className="button button-large">
-              Browse {listings.length} properties
+            <Link href={localizedPath(locale, '/listings')} className="button button-large">
+              {plural(locale, listings.length, t.home.browseCta)}
             </Link>
           </div>
         </div>
@@ -56,17 +53,15 @@ export default async function HomePage() {
       <section className="section" aria-labelledby="types-title">
         <div className="container">
           <h2 id="types-title" className="section-heading">
-            Start with what you need.
+            {t.home.typesTitle}
           </h2>
           <ul className={styles.types}>
             {PROPERTY_TYPES.map((type) => (
               <li key={type}>
-                <Link href={listingsHref({ type })} className={styles.typeCard}>
-                  <span className={styles.typeName}>{TYPE_LABELS[type].short}</span>
-                  <span className={styles.typeBlurb}>{TYPE_BLURBS[type]}</span>
-                  <span className={styles.typeCount}>
-                    {countByType[type]} {countByType[type] === 1 ? 'listing' : 'listings'}
-                  </span>
+                <Link href={listingsHref(locale, { type })} className={styles.typeCard} data-motion-lift>
+                  <span className={styles.typeName}>{t.types[type].short}</span>
+                  <span className={styles.typeBlurb}>{t.types[type].blurb}</span>
+                  <span className={styles.typeCount}>{plural(locale, countByType[type], t.home.listingCount)}</span>
                 </Link>
               </li>
             ))}
@@ -79,13 +74,13 @@ export default async function HomePage() {
           <div className="container">
             <div className={styles.sectionHeader}>
               <h2 id="featured-title" className="section-heading">
-                Featured properties.
+                {t.home.featuredTitle}
               </h2>
-              <Link href="/listings" className="text-link">
-                See all properties
+              <Link href={localizedPath(locale, '/listings')} className="text-link">
+                {t.home.seeAll}
               </Link>
             </div>
-            <ListingGrid listings={featured} headingLevel="h3" label="Featured properties" />
+            <ListingGrid listings={featured} locale={locale} t={t} headingLevel="h3" label={t.home.featuredTitle} />
           </div>
         </section>
       )}

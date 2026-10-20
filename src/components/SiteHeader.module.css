@@ -2,10 +2,10 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(255, 255, 255, 0.82);
+  background: var(--color-header-bg);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--color-hairline);
 }
 
 .inner {
@@ -23,7 +23,7 @@
   min-height: var(--tap-target);
   color: var(--color-text);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--tracking-tight);
 }
 
 .brand:hover {
@@ -36,8 +36,8 @@
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 0.45rem;
-  background: var(--color-text);
-  color: #fff;
+  background: var(--color-selected);
+  color: var(--color-on-selected);
   font-size: 0.7rem;
   letter-spacing: 0.04em;
 }
@@ -79,13 +79,26 @@
   background: var(--color-surface);
 }
 
-/* Very narrow phones: drop the secondary wordmark so the nav never wraps. */
-@media (max-width: 400px) {
-  .wordmarkSub {
+.end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* Phones: keep the logo mark only, so links and the settings button never wrap. */
+@media (max-width: 520px) {
+  .wordmark {
     display: none;
   }
 
   .link {
     padding-inline: var(--space-2);
+  }
+}
+
+@media (min-width: 521px) and (max-width: 640px) {
+  .wordmarkSub {
+    display: none;
   }
 }

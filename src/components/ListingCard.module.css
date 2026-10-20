@@ -25,7 +25,7 @@
 .badge {
   position: absolute;
   top: var(--space-3);
-  left: var(--space-3);
+  inset-inline-start: var(--space-3);
 }
 
 .body {
@@ -67,7 +67,7 @@
 }
 
 .link:focus-visible::after {
-  outline: 3px solid var(--color-focus);
+  outline: var(--focus-width) solid var(--color-focus);
   outline-offset: 3px;
 }
 
@@ -88,7 +88,7 @@
 
 .facts li + li::before {
   content: '·';
-  margin-right: var(--space-2);
+  margin-inline-end: var(--space-2);
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {

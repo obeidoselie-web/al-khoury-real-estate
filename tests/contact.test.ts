@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { submitContact } from '@/app/about/actions';
+import { submitContact } from '@/app/[locale]/about/actions';
+import { getDictionary } from '@/i18n/dictionaries';
 import { HONEYPOT_FIELD, isLikelySpam, sanitizeText, validateContact } from '@/lib/contact';
+
+const messages = getDictionary('en').contact.errors;
 
 function form(values: Record<string, string>): FormData {
   const data = new FormData();
@@ -36,7 +39,7 @@ describe('sanitizeText', () => {
 
 describe('validateContact', () => {
   it('accepts a valid enquiry and normalises the email', () => {
-    const result = validateContact(form({ ...VALID, propertyId: 'loft-mar-mikhael' }));
+    const result = validateContact(form({ ...VALID, propertyId: 'loft-mar-mikhael' }), messages);
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.email).toBe('rania@example.com');
@@ -45,7 +48,7 @@ describe('validateContact', () => {
   });
 
   it('reports a message per invalid field', () => {
-    const result = validateContact(form({ name: 'R', email: 'nope', phone: 'call me', message: 'hi' }));
+    const result = validateContact(form({ name: 'R', email: 'nope', phone: 'call me', message: 'hi' }), messages);
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(Object.keys(result.fieldErrors).sort()).toEqual(['email', 'message', 'name', 'phone']);
@@ -53,11 +56,11 @@ describe('validateContact', () => {
   });
 
   it('treats phone as optional', () => {
-    expect(validateContact(form({ ...VALID, phone: '' })).ok).toBe(true);
+    expect(validateContact(form({ ...VALID, phone: '' }), messages).ok).toBe(true);
   });
 
   it('drops a tampered propertyId instead of trusting it', () => {
-    const result = validateContact(form({ ...VALID, propertyId: '"><img src=x>' }));
+    const result = validateContact(form({ ...VALID, propertyId: '"><img src=x>' }), messages);
     expect(result.ok && result.data.propertyId).toBeNull();
   });
 });
@@ -97,6 +100,20 @@ describe('submitContact server action', () => {
       expect(state.message).toMatch(/couldn’t send/);
       expect(state.values.message).toBe(VALID.message);
     }
+  });
+
+  it('validates and replies in Arabic when the form was sent from the Arabic site', async () => {
+    const state = await submitContact({ status: 'idle' }, form({ ...VALID, email: 'bad', locale: 'ar' }));
+    expect(state.status).toBe('error');
+    if (state.status === 'error') {
+      expect(state.message).toBe('يُرجى مراجعة الحقول المحدّدة.');
+      expect(state.fieldErrors.email).toMatch(/بريد إلكتروني/);
+    }
+  });
+
+  it('ignores an unknown locale field and falls back to English', async () => {
+    const state = await submitContact({ status: 'idle' }, form({ ...VALID, email: 'bad', locale: 'xx' }));
+    expect(state.status === 'error' && state.message).toBe('Please check the highlighted fields.');
   });
 
   it('silently accepts honeypot submissions without delivering them', async () => {

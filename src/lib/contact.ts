@@ -64,7 +64,10 @@ export type ValidationResult =
   | { ok: true; data: ContactEnquiry }
   | { ok: false; fieldErrors: Partial<Record<ContactField, string>>; values: ContactValues };
 
-export function validateContact(formData: FormData): ValidationResult {
+/** Localised error messages; `message` may contain a `{min}` placeholder. */
+export type ContactErrorMessages = Record<ContactField, string>;
+
+export function validateContact(formData: FormData, messages: ContactErrorMessages): ValidationResult {
   const values: ContactValues = {
     name: sanitizeText(formData.get('name'), { maxLength: CONTACT_LIMITS.name.max }),
     email: sanitizeText(formData.get('email'), { maxLength: CONTACT_LIMITS.email.max }).toLowerCase(),
@@ -74,13 +77,11 @@ export function validateContact(formData: FormData): ValidationResult {
 
   const fieldErrors: Partial<Record<ContactField, string>> = {};
 
-  if (values.name.length < CONTACT_LIMITS.name.min) fieldErrors.name = 'Please enter your name.';
-  if (!EMAIL_PATTERN.test(values.email)) fieldErrors.email = 'Please enter a valid email address, like name@example.com.';
-  if (values.phone && !PHONE_PATTERN.test(values.phone)) {
-    fieldErrors.phone = 'Please use digits only, optionally starting with +.';
-  }
+  if (values.name.length < CONTACT_LIMITS.name.min) fieldErrors.name = messages.name;
+  if (!EMAIL_PATTERN.test(values.email)) fieldErrors.email = messages.email;
+  if (values.phone && !PHONE_PATTERN.test(values.phone)) fieldErrors.phone = messages.phone;
   if (values.message.length < CONTACT_LIMITS.message.min) {
-    fieldErrors.message = `Please write a message of at least ${CONTACT_LIMITS.message.min} characters.`;
+    fieldErrors.message = messages.message.replace('{min}', String(CONTACT_LIMITS.message.min));
   }
 
   if (Object.keys(fieldErrors).length > 0) return { ok: false, fieldErrors, values };

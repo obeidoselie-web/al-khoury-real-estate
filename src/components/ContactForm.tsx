@@ -2,7 +2,9 @@
 
 import { useActionState, useEffect, useRef } from 'react';
 
-import { submitContact } from '@/app/about/actions';
+import { submitContact } from '@/app/[locale]/about/actions';
+import { useI18n } from '@/i18n/I18nProvider';
+import { interpolate } from '@/i18n/plural';
 import { CONTACT_LIMITS, HONEYPOT_FIELD, type ContactField, type ContactState } from '@/lib/contact';
 
 import styles from './ContactForm.module.css';
@@ -22,13 +24,14 @@ interface ContactFormProps {
  * inline errors, focus management and a pending state when JS is available.
  */
 export function ContactForm({ propertyId, propertyTitle, action = submitContact }: ContactFormProps) {
+  const { locale, t } = useI18n();
   const [state, formAction, isPending] = useActionState(action, INITIAL_STATE);
   const formRef = useRef<HTMLFormElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
 
   const errors = state.status === 'error' ? state.fieldErrors : {};
   const values = state.status === 'error' ? state.values : undefined;
-  const defaultMessage = propertyTitle ? `Hello, I’m interested in “${propertyTitle}”. ` : '';
+  const defaultMessage = propertyTitle ? interpolate(t.contact.defaultMessage, { title: propertyTitle }) : '';
 
   // After a failed submit, move focus to the first invalid field; after success, to the confirmation.
   useEffect(() => {
@@ -44,7 +47,7 @@ export function ContactForm({ propertyId, propertyTitle, action = submitContact 
   if (state.status === 'success') {
     return (
       <div ref={statusRef} tabIndex={-1} role="status" className={styles.success}>
-        <p className={styles.successTitle}>Message sent.</p>
+        <p className={styles.successTitle}>{t.contact.sentTitle}</p>
         <p>{state.message}</p>
       </div>
     );
@@ -78,18 +81,19 @@ export function ContactForm({ propertyId, propertyTitle, action = submitContact 
         </div>
       )}
 
+      <input type="hidden" name="locale" value={locale} />
       {propertyId && <input type="hidden" name="propertyId" value={propertyId} />}
 
       {/* Honeypot: hidden from people and assistive tech, often filled by bots. */}
       <div className={styles.honeypot} aria-hidden="true">
-        <label htmlFor={HONEYPOT_FIELD}>Leave this field empty</label>
+        <label htmlFor={HONEYPOT_FIELD}>{t.contact.honeypot}</label>
         <input id={HONEYPOT_FIELD} name={HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
       <div className={styles.row}>
         <div className={styles.field}>
           <label htmlFor="contact-name" className={styles.label}>
-            Full name
+            {t.contact.fullName}
           </label>
           <input
             {...fieldProps('name')}
@@ -104,11 +108,12 @@ export function ContactForm({ propertyId, propertyTitle, action = submitContact 
 
         <div className={styles.field}>
           <label htmlFor="contact-email" className={styles.label}>
-            Email
+            {t.contact.email}
           </label>
           <input
             {...fieldProps('email')}
             type="email"
+            dir="ltr"
             inputMode="email"
             autoComplete="email"
             required
@@ -121,11 +126,12 @@ export function ContactForm({ propertyId, propertyTitle, action = submitContact 
 
       <div className={styles.field}>
         <label htmlFor="contact-phone" className={styles.label}>
-          Phone <span className={styles.optional}>(optional)</span>
+          {t.contact.phone} <span className={styles.optional}>{t.contact.optional}</span>
         </label>
         <input
           {...fieldProps('phone')}
           type="tel"
+          dir="ltr"
           inputMode="tel"
           autoComplete="tel"
           maxLength={CONTACT_LIMITS.phone.max}
@@ -136,7 +142,7 @@ export function ContactForm({ propertyId, propertyTitle, action = submitContact 
 
       <div className={styles.field}>
         <label htmlFor="contact-message" className={styles.label}>
-          Message
+          {t.contact.message}
         </label>
         <textarea
           {...fieldProps('message')}
@@ -150,9 +156,9 @@ export function ContactForm({ propertyId, propertyTitle, action = submitContact 
 
       <div className={styles.footer}>
         <button type="submit" className="button" disabled={isPending}>
-          {isPending ? 'Sending…' : 'Send message'}
+          {isPending ? t.contact.sending : t.contact.send}
         </button>
-        <p className={styles.privacy}>We only use your details to reply to this enquiry.</p>
+        <p className={styles.privacy}>{t.contact.privacy}</p>
       </div>
     </form>
   );

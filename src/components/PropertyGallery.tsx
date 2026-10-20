@@ -1,19 +1,31 @@
 import Image from 'next/image';
 
+import type { Locale } from '@/i18n/config';
+import type { Dictionary } from '@/i18n/dictionaries';
+import { interpolate, plural } from '@/i18n/plural';
 import type { ListingImage } from '@/lib/types';
 
 import styles from './PropertyGallery.module.css';
 
+interface PropertyGalleryProps {
+  images: ListingImage[];
+  title: string;
+  locale: Locale;
+  t: Pick<Dictionary, 'property'>;
+}
+
 /**
  * Zero-JS gallery: a swipeable scroll-snap strip on phones, a lead image + grid on larger screens.
  * The strip is a focusable, labelled region so keyboard users can scroll it with arrow keys.
+ * Scroll-snap follows the document direction, so the strip swipes naturally in RTL too.
  */
-export function PropertyGallery({ images, title }: { images: ListingImage[]; title: string }) {
+export function PropertyGallery({ images, title, locale, t }: PropertyGalleryProps) {
   if (images.length === 0) return null;
+  const more = images.length - 1;
 
   return (
-    <section className={styles.gallery} aria-label={`Photos of ${title}`}>
-      <div className={styles.track} tabIndex={0} role="region" aria-label={`${images.length} photos, scroll to see more`}>
+    <section className={styles.gallery} aria-label={interpolate(t.property.photosOf, { title })}>
+      <div className={styles.track} tabIndex={0} role="region" aria-label={plural(locale, images.length, t.property.photosRegion)}>
         <ul className={styles.list}>
           {images.map((image, index) => (
             <li key={`${image.src}-${index}`} className={index === 0 ? styles.lead : styles.item}>
@@ -30,9 +42,11 @@ export function PropertyGallery({ images, title }: { images: ListingImage[]; tit
           ))}
         </ul>
       </div>
-      <p className={styles.hint} aria-hidden="true">
-        Swipe for {images.length - 1} more {images.length - 1 === 1 ? 'photo' : 'photos'}
-      </p>
+      {more > 0 && (
+        <p className={styles.hint} aria-hidden="true">
+          {plural(locale, more, t.property.swipeHint)}
+        </p>
+      )}
     </section>
   );
 }
