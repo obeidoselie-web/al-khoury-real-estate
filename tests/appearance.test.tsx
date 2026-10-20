@@ -66,26 +66,38 @@ describe('appearance model', () => {
 });
 
 describe('AppearanceSettings dialog', () => {
-  it('opens a labelled dialog from the header button', async () => {
+  async function openDialog(locale: 'en' | 'ar' = 'en') {
     const user = userEvent.setup();
-    renderWithI18n(<AppearanceSettings />);
-    await user.click(screen.getByRole('button', { name: 'Appearance & language' }));
+    renderWithI18n(<AppearanceSettings />, locale);
+    await user.click(screen.getByRole('button', { name: locale === 'en' ? 'Appearance & language' : 'المظهر واللغة' }));
+    return user;
+  }
+
+  it('opens a labelled, described dialog with card groups and switches', async () => {
+    await openDialog();
     const dialog = screen.getByRole('dialog', { name: 'Appearance & language' });
-    for (const group of ['Language', 'Theme', 'Text size', 'Contrast', 'Motion']) {
+    expect(dialog).toHaveAccessibleDescription('Choose how the site looks and reads for you.');
+    for (const group of ['Language', 'Theme', 'Text size']) {
       expect(within(dialog).getByRole('group', { name: group })).toBeInTheDocument();
     }
     expect(within(dialog).getByRole('radio', { name: 'English' })).toBeChecked();
+    expect(within(dialog).getByRole('radio', { name: 'العربية Arabic' })).not.toBeChecked();
+    expect(within(dialog).getByRole('radio', { name: 'System Follows your device' })).toBeChecked();
+    expect(within(dialog).getByRole('switch', { name: 'Increase contrast' })).not.toBeChecked();
+    expect(within(dialog).getByRole('switch', { name: 'Reduce motion' })).toHaveAccessibleDescription(
+      'Turns off animations and smooth scrolling.',
+    );
   });
 
   it('applies and persists choices immediately, and resets them', async () => {
-    const user = userEvent.setup();
-    renderWithI18n(<AppearanceSettings />);
-    await user.click(screen.getByRole('button', { name: 'Appearance & language' }));
+    const user = await openDialog();
+    const reset = screen.getByRole('button', { name: 'Reset to defaults' });
+    expect(reset).toBeDisabled();
 
     await user.click(screen.getByRole('radio', { name: 'Dark' }));
     await user.click(screen.getByRole('radio', { name: 'Larger' }));
-    await user.click(screen.getByRole('radio', { name: 'Increased' }));
-    await user.click(screen.getByRole('radio', { name: 'Reduced' }));
+    await user.click(screen.getByRole('switch', { name: 'Increase contrast' }));
+    await user.click(screen.getByRole('switch', { name: 'Reduce motion' }));
 
     expect(root.dataset).toMatchObject({ theme: 'dark', text: 'larger', contrast: 'more', motion: 'reduce' });
     expect(JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY) ?? '{}')).toEqual({
@@ -94,26 +106,40 @@ describe('AppearanceSettings dialog', () => {
       contrast: 'more',
       motion: 'reduce',
     });
+    expect(screen.getByRole('switch', { name: 'Increase contrast' })).toBeChecked();
 
-    await user.click(screen.getByRole('button', { name: 'Reset to defaults' }));
+    await user.click(screen.getByRole('switch', { name: 'Increase contrast' }));
+    expect(root.hasAttribute('data-contrast')).toBe(false);
+
+    expect(reset).toBeEnabled();
+    await user.click(reset);
     for (const attr of ATTRS) expect(root.hasAttribute(attr)).toBe(false);
     expect(localStorage.getItem(APPEARANCE_STORAGE_KEY)).toBeNull();
+    expect(reset).toBeDisabled();
   });
 
   it('restores saved settings when reopened', async () => {
-    localStorage.setItem(APPEARANCE_STORAGE_KEY, JSON.stringify({ ...DEFAULT_APPEARANCE, theme: 'light' }));
-    const user = userEvent.setup();
-    renderWithI18n(<AppearanceSettings />);
-    await user.click(screen.getByRole('button', { name: 'Appearance & language' }));
+    localStorage.setItem(APPEARANCE_STORAGE_KEY, JSON.stringify({ ...DEFAULT_APPEARANCE, theme: 'light', motion: 'reduce' }));
+    await openDialog();
     expect(screen.getByRole('radio', { name: 'Light' })).toBeChecked();
+    expect(screen.getByRole('switch', { name: 'Reduce motion' })).toBeChecked();
+  });
+
+  it('closes from the round close button and the Done button', async () => {
+    const user = await openDialog();
+    const dialog = screen.getByRole('dialog');
+    await user.click(screen.getByRole('button', { name: 'Done' }));
+    expect(dialog).not.toHaveAttribute('open');
+    expect(screen.getByRole('button', { name: 'Appearance & language' })).toHaveFocus();
   });
 
   it('is fully translated in Arabic', async () => {
-    const user = userEvent.setup();
-    renderWithI18n(<AppearanceSettings />, 'ar');
-    await user.click(screen.getByRole('button', { name: 'المظهر واللغة' }));
+    await openDialog('ar');
     expect(screen.getByRole('group', { name: 'السمة' })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: 'داكن' })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: 'العربية' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'English الإنجليزية' })).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'زيادة التباين' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'تم' })).toBeInTheDocument();
   });
 });
