@@ -115,6 +115,30 @@ sticky contact bar, cards on the home and detail pages, and every animation are 
 
 ---
 
+## Design system
+
+The interface follows the style reference in `airbnb.md`: a quiet, photograph-first white canvas, with
+Al Khoury gold as the one accent.
+
+- **Canvas and colour.** White pages, with `#f7f7f7` for the footer and muted panels. Text is near-black `#222` and
+  secondary text `#6a6a6a` (5.4:1). Rows and sections are separated by hairlines (`#ebebeb`), not boxes.
+  Gold appears only on the logo, the search button and the single primary action on a page. Other actions use
+  a near-black inverse button or a ghost outline.
+- **Type.** DM Sans (the reference's recommended open substitute for its custom geometric sans), on a compact
+  scale: 14px card text and metadata, 16px UI, 22px section titles with −0.02em tracking, 28px page titles.
+- **Shape.** Flat, borderless cards with 12px photo corners; pill and circular controls; 8px inputs and
+  ghost buttons. Shadows only on floating elements (search capsule, enquiry card, dialogs, carousel arrows).
+- **Home.** The floating search capsule *is* the hero. It's a plain GET form (works without JavaScript)
+  submitting `?deal` and `?type` to the listings page. Below it are horizontal photo rows (featured, then
+  one per property type), each with a "title →" link to the filtered list and circular previous/next
+  buttons on desktop.
+- **Listings.** A sticky category bar (outline icon + label, 2px underline on the active tab) for property
+  type, and outlined pills for Buy / Rent. Options with no results are dimmed, not hidden.
+- **Property page.** Title and location, a one-large-plus-two photo grid with outer corners rounded,
+  hairline-separated sections, and a floating enquiry card with the price.
+- **Icons** are drawn for this site (`src/components/icons.tsx`): 24px, 1.6px outline, `currentColor`.
+  Directional icons mirror in Arabic.
+
 ## Brand
 
 The site follows the Al Khoury Real Estate identity: black and gold, the "lk" building mark, and the
@@ -130,7 +154,7 @@ The site follows the Al Khoury Real Estate identity: black and gold, the "lk" bu
 - **Type.**
   - **Arabic: IBM Plex Sans Arabic.** A contemporary, very legible Arabic sans with a full weight range (400–700 used), close to the clean geometric Arabic in the brand artwork.
   - **Wordmark: Montserrat**, wide-tracked capitals as in the logo.
-  - English body text stays on the system font (SF Pro on Apple devices) for the Apple-like feel.
+  - English text: DM Sans (see [Design system](#design-system)).
   - Both web fonts are self-hosted by `next/font` (`src/app/fonts.ts`): downloaded at build time, with no request to Google at runtime and size-adjusted fallbacks to avoid layout shift. The Arabic font isn't preloaded, so English visitors never download it.
 - **Imagery.** The brand roundel (`public/images/brand/al-khoury-brand.webp`) appears on the About page.
 
@@ -242,7 +266,7 @@ serialises the URL contract.
 
 - Server Components by default. Home and property pages are statically generated for both languages.
 - `next/image` everywhere, with responsive `sizes`, AVIF/WebP, and `priority` only for above-the-fold images.
-- English uses the system font stack, so there's no web-font download for body text. Montserrat (wordmark only) and IBM Plex Sans Arabic (Arabic pages only, not preloaded) are self-hosted woff2 files.
+- Web fonts are self-hosted woff2 files: DM Sans (Latin, preloaded), Montserrat (wordmark only) and IBM Plex Sans Arabic (Arabic pages only, not preloaded).
 - Appearance settings are applied by a ~400-byte inline script, so pages stay static (no cookies read at render time).
 - Cards pass a trimmed `ListingSummary` to the client instead of full listings.
 
@@ -261,7 +285,7 @@ serialises the URL contract.
 npm test
 ```
 
-85 tests across 11 files:
+92 tests across 12 files:
 
 | File | Covers |
 | --- | --- |
@@ -274,6 +298,7 @@ npm test
 | `ErrorState.test.tsx` | Failed-fetch boundary (focus, retry) and property not-found page, in both languages |
 | `i18n.test.ts` | Arabic/English dictionary parity and plural completeness, placeholder consistency, path helpers, Accept-Language negotiation |
 | `proxy.test.ts` | Language redirects: prefixed URLs pass through; cookie beats Accept-Language; query strings kept; English fallback |
+| `browse-ui.test.tsx` | Search capsule (GET form, field values match the URL contract, "any" = no filter, Arabic); category tabs (radio semantics, icons, dimmed empty options); row scroller labels and disabled arrows |
 | `brand.test.tsx` | Generated icons match the `BrandMark` paths; unique gradient ids per instance; the lock-up in both languages |
 | `appearance.test.tsx` | Settings parsing and attributes; the pre-paint script matching `applyAppearance`; the dialog applying, persisting, restoring and resetting choices; Arabic labels |
 

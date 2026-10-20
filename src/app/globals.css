@@ -1,81 +1,94 @@
 /* ==========================================================================
    Design tokens — the single source for colour, type, spacing, radius, motion.
-   Contrast ratios (WCAG AA) are noted against the page background of each theme.
 
-   Theme resolution:
-     • no data-theme attribute  → follows the OS (prefers-color-scheme)
-     • data-theme="light|dark"  → explicit choice from Appearance settings
-   Other settings (data-text, data-contrast, data-motion) are layered on top.
+   Visual language (see README → "Design system"): a quiet white canvas where photography carries the
+   page, near-black #222 type, hairline separators instead of chrome, flat borderless cards with
+   12px corners, pill and circular controls, and exactly one chromatic accent — Al Khoury gold —
+   reserved for the logo, the search button and the single primary action on a page.
+
+   Contrast ratios (WCAG AA) are noted against the page background of each theme.
+   Theme resolution: no data-theme → follows the OS; data-theme="light|dark" → explicit choice.
    ========================================================================== */
 :root {
   color-scheme: light;
 
-  /* Colour — light */
-  --color-bg: #ffffff;
-  --color-surface: #f5f5f7;
-  --color-surface-raised: #ffffff;
-  --color-text: #1d1d1f;              /* 16.8:1 */
-  --color-text-body: #3a3a3c;         /* 11.4:1 */
-  --color-text-secondary: #6e6e73;    /* 5.1:1 on bg, 4.7:1 on surface */
-  --color-border: #d2d2d7;
-  --color-border-strong: #a1a1a6;
-  --color-hairline: rgba(0, 0, 0, 0.06);
-  /* Brand: Al Khoury black and gold. Gold is decorative on white; text-gold uses the deeper bronze. */
+  /* Neutrals */
+  --color-bg: #ffffff;                /* card / page surface */
+  --color-surface: #f7f7f7;           /* canvas: footer, muted panels, hover fills */
+  --color-surface-raised: #ffffff;    /* floating panels: search capsule, booking card, dialogs */
+  --color-text: #222222;              /* 15.9:1 */
+  --color-text-body: #222222;
+  --color-text-secondary: #6a6a6a;    /* 5.4:1 on bg, 4.9:1 on surface */
+  --color-text-disabled: #c1c1c1;
+  --color-border: #dddddd;            /* control and panel outlines */
+  --color-border-strong: #b0b0b0;     /* input borders */
+  --color-hairline: #ebebeb;          /* dividers between rows and sections */
+  --color-fill-hover: #f7f7f7;
+  --color-fill-active: #ebebeb;
+  --color-fill-subtle: rgba(0, 0, 0, 0.05);
+  --color-skeleton: #ebebeb;
+  --color-skeleton-base: #f7f7f7;
+
+  /* Brand: Al Khoury black and gold — the one accent. */
   --brand-ink: #0b0b0c;
   --brand-gold: #c9a45c;
   --brand-gold-light: #f3dc9e;
   --brand-gold-deep: #9c7130;
-  --color-accent: #8a6420;            /* links: 5.4:1 on bg, 4.9:1 on surface */
-  --color-action: #c9a45c;            /* gold button: ink text 8.4:1 */
-  --color-action-hover: #b8913f;      /* ink text 6.7:1 */
-  --color-on-action: #0b0b0c;
-  --color-eyebrow: #8a6420;
-  --color-fill-hover: #e8e8ed;
-  --color-fill-subtle: rgba(0, 0, 0, 0.06);
-  --color-selected: #0b0b0c;
+  --color-action: #c9a45c;            /* primary brand action: #222 text 6.8:1 */
+  --color-action-hover: #b8913f;      /* #222 text 5.4:1 */
+  --color-on-action: #222222;
+  --color-inverse: #222222;           /* non-brand primary button */
+  --color-inverse-hover: #000000;
+  --color-on-inverse: #ffffff;
+  --color-accent: #222222;            /* links are near-black and underlined */
+  --color-eyebrow: #8a6420;           /* bronze-gold small caps: 5.4:1 */
+  --color-selected: #222222;
   --color-on-selected: #ffffff;
   --color-on-selected-fill: rgba(255, 255, 255, 0.2);
+
+  /* Status */
   --color-success: #1d7a3a;           /* 5.4:1 */
   --color-success-surface: #edf7ef;
-  --color-danger: #c4142b;            /* 5.9:1 */
-  --color-danger-surface: #fff1f2;
-  --color-focus: #8a6420;
-  --color-focus-soft: rgba(201, 164, 92, 0.45);
-  --color-header-bg: rgba(255, 255, 255, 0.82);
-  --color-badge-bg: rgba(255, 255, 255, 0.92);
-  --color-badge-text: #1d1d1f;
-  --color-skeleton: #ececf0;
+  --color-danger: #c13515;            /* 5.6:1 */
+  --color-danger-surface: #fff8f6;
+
+  /* Chrome */
+  --color-focus: #222222;
+  --color-focus-soft: rgba(34, 34, 34, 0.2);
+  --color-header-bg: #ffffff;
+  --color-badge-bg: #ffffff;
+  --color-badge-text: #222222;
   --color-selection: #f3dc9e;
-  --color-backdrop: rgba(0, 0, 0, 0.4);
+  --color-backdrop: rgba(0, 0, 0, 0.5);
   --image-filter: none;
 
   /* Contrast-boost values for this theme (applied by data-contrast / prefers-contrast). */
-  --contrast-text-secondary: #3a3a3c;
-  --contrast-border: #6e6e73;
-  --contrast-accent: #6b4d14;         /* 8.3:1 */
+  --contrast-text-secondary: #3f3f3f;
+  --contrast-border: #6a6a6a;
+  --contrast-eyebrow: #6b4d14;
 
-  /* Typography — system stack renders SF Pro / SF Arabic on Apple devices; no web-font download. */
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial,
+  /* Typography — DM Sans for Latin, IBM Plex Sans Arabic for Arabic (both self-hosted, src/app/fonts.ts). */
+  --font-sans: var(--font-latin, 'DM Sans'), -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
     sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Helvetica,
-    Arial, sans-serif;
-  --text-xs: 0.8125rem;   /* 13 */
-  --text-sm: 0.9375rem;   /* 15 */
-  --text-base: 1.0625rem; /* 17 — Apple body size */
-  --text-lg: 1.3125rem;   /* 21 */
-  --text-xl: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
-  --text-2xl: clamp(2rem, 1.4rem + 2.6vw, 3rem);
-  --text-3xl: clamp(2.5rem, 1.5rem + 4.4vw, 4.5rem);
-  --leading-tight: 1.08;
-  --leading-snug: 1.25;
-  --leading-body: 1.47;
-  --tracking-body: -0.012em;
-  --tracking-tight: -0.022em;
-  --tracking-display: -0.03em;
+  --font-display: var(--font-sans);
   --font-wordmark: var(--font-brand, 'Montserrat'), var(--font-sans);
+  --text-xs: 0.75rem;     /* 12 — badges, captions */
+  --text-sm: 0.875rem;    /* 14 — card text, metadata, footer */
+  --text-base: 1rem;      /* 16 — UI labels and reading text */
+  --text-lg: 1.25rem;     /* 20 — subheadings */
+  --text-xl: 1.375rem;    /* 22 — section titles */
+  --text-2xl: 1.75rem;    /* 28 — page titles */
+  --text-3xl: clamp(1.75rem, 1.35rem + 1.6vw, 2.5rem); /* home headline */
+  --leading-tight: 1.18;
+  --leading-snug: 1.25;
+  --leading-body: 1.5;
+  --tracking-body: normal;
+  --tracking-tight: -0.02em;
+  --tracking-display: -0.02em;
 
   /* Direction-aware glyphs */
   --chevron-end: '›';
+  --flip: 1;
 
   /* Spacing (4px base) */
   --space-1: 0.25rem;
@@ -90,136 +103,156 @@
   --space-10: 8rem;
 
   /* Layout */
-  --container: 75rem;
-  --gutter: clamp(1rem, 4vw, 2.5rem);
-  --header-height: 3.25rem;
-  --tap-target: 2.75rem; /* 44px minimum touch target */
+  --container: 90rem;                 /* 1440px */
+  --gutter: clamp(1.5rem, 4vw, 2.5rem);
+  --header-height: 5rem;              /* 80px */
+  --tap-target: 2.75rem;              /* 44px minimum touch target */
+  --section-gap: 3rem;
 
-  /* Shape & depth */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.875rem;
-  --radius-lg: 1.375rem;
-  --radius-pill: 999px;
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
-  --shadow-raised: 0 2px 4px rgba(0, 0, 0, 0.04), 0 16px 40px rgba(0, 0, 0, 0.1);
-  --focus-width: 3px;
+  /* Shape & depth — flat by default; shadows only on floating elements. */
+  --radius-sm: 0.5rem;                /* 8 — inputs, ghost/inverse buttons */
+  --radius-md: 0.75rem;               /* 12 — cards, photos */
+  --radius-lg: 1rem;                  /* 16 — panels and dialogs */
+  --radius-pill: 9999px;
+  --shadow-card: none;
+  --shadow-search: 0 0 0 1px rgba(0, 0, 0, 0.02), 0 2px 6px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-panel: 0 6px 16px rgba(0, 0, 0, 0.12);
+  --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.28);
+  --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.18);
+  --focus-width: 2px;
 
   /* Motion */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration-fast: 160ms;
-  --duration-base: 320ms;
-  --duration-slow: 640ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 500ms;
+}
+
+@media (max-width: 743px) {
+  :root {
+    --header-height: 4rem;
+    --section-gap: 2.5rem;
+  }
 }
 
 /* Dark tokens — declared twice: for "System" when the OS is dark, and for an explicit "Dark" choice. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --color-bg: #0b0b0c;
-    --color-surface: #1a1a1c;
-    --color-surface-raised: #1a1a1c;
-    --color-text: #f5f5f7;            /* 19.3:1 */
-    --color-text-body: #d1d1d6;       /* 14.2:1 */
-    --color-text-secondary: #a1a1a6;  /* 8.1:1 on bg, 6.5:1 on surface */
-    --color-border: #3a3a3c;
-    --color-border-strong: #636366;
-    --color-hairline: rgba(255, 255, 255, 0.1);
-    --color-accent: #d9b56a;          /* 10.4:1 on bg, 8.4:1 on surface; ink on gold 10.1:1 */
-    --color-action: #d9b56a;
+    --color-bg: #121212;
+    --color-surface: #1e1e1e;
+    --color-surface-raised: #1e1e1e;
+    --color-text: #f7f7f7;            /* 17.5:1 */
+    --color-text-body: #f7f7f7;
+    --color-text-secondary: #b0b0b0;  /* 8.6:1 on bg, 7.7:1 on surface */
+    --color-text-disabled: #5e5e5e;
+    --color-border: #3d3d3d;
+    --color-border-strong: #6a6a6a;
+    --color-hairline: #2c2c2c;
+    --color-fill-hover: #1e1e1e;
+    --color-fill-active: #2c2c2c;
+    --color-fill-subtle: rgba(255, 255, 255, 0.08);
+    --color-skeleton: #2c2c2c;
+    --color-skeleton-base: #1e1e1e;
+    --color-action: #d9b56a;          /* #121212 text 9.5:1 */
     --color-action-hover: #c9a45c;
-    --color-fill-hover: #2c2c2e;
-    --color-fill-subtle: rgba(255, 255, 255, 0.12);
-    --color-selected: #d9b56a;
-    --color-on-selected: #0b0b0c;
+    --color-on-action: #121212;
+    --color-inverse: #f7f7f7;
+    --color-inverse-hover: #ffffff;
+    --color-on-inverse: #121212;
+    --color-accent: #f7f7f7;
+    --color-eyebrow: #d9b56a;         /* 9.5:1 */
+    --color-selected: #f7f7f7;
+    --color-on-selected: #121212;
     --color-on-selected-fill: rgba(0, 0, 0, 0.12);
-    --color-success: #32d74b;
-    --color-success-surface: #0f2a17;
-    --color-danger: #ff6b6b;          /* 7.6:1 */
-    --color-eyebrow: #d9b56a;
-    --color-danger-surface: #3a1416;
-    --color-focus: #d9b56a;
-    --color-focus-soft: rgba(217, 181, 106, 0.45);
-    --color-header-bg: rgba(11, 11, 12, 0.8);
-    --color-badge-bg: rgba(28, 28, 30, 0.88);
-    --color-badge-text: #f5f5f7;
-    --color-skeleton: #2c2c2e;
+    --color-success: #4cd07d;
+    --color-success-surface: #10291a;
+    --color-danger: #ff7a62;
+    --color-danger-surface: #33170f;
+    --color-focus: #f7f7f7;
+    --color-focus-soft: rgba(247, 247, 247, 0.25);
+    --color-header-bg: #121212;
+    --color-badge-bg: #222222;
+    --color-badge-text: #f7f7f7;
     --color-selection: #5c4719;
-    --color-backdrop: rgba(0, 0, 0, 0.6);
-    --image-filter: brightness(0.86);
-    --contrast-text-secondary: #e5e5ea;
-    --contrast-border: #8e8e93;
-    --contrast-accent: #f3dc9e;
-    --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06);
-    --shadow-raised: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 16px 40px rgba(0, 0, 0, 0.6);
+    --color-backdrop: rgba(0, 0, 0, 0.7);
+    --image-filter: brightness(0.9);
+    --contrast-text-secondary: #e0e0e0;
+    --contrast-border: #8e8e8e;
+    --contrast-eyebrow: #f3dc9e;
+    --shadow-search: 0 0 0 1px #3d3d3d, 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-panel: 0 0 0 1px #3d3d3d, 0 6px 16px rgba(0, 0, 0, 0.5);
+    --shadow-raised: 0 0 0 1px #3d3d3d, 0 8px 28px rgba(0, 0, 0, 0.7);
   }
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --color-bg: #0b0b0c;
-  --color-surface: #1a1a1c;
-  --color-surface-raised: #1a1a1c;
-  --color-text: #f5f5f7;
-  --color-text-body: #d1d1d6;
-  --color-text-secondary: #a1a1a6;
-  --color-border: #3a3a3c;
-  --color-border-strong: #636366;
-  --color-hairline: rgba(255, 255, 255, 0.1);
-  --color-accent: #d9b56a;
+  --color-bg: #121212;
+  --color-surface: #1e1e1e;
+  --color-surface-raised: #1e1e1e;
+  --color-text: #f7f7f7;
+  --color-text-body: #f7f7f7;
+  --color-text-secondary: #b0b0b0;
+  --color-text-disabled: #5e5e5e;
+  --color-border: #3d3d3d;
+  --color-border-strong: #6a6a6a;
+  --color-hairline: #2c2c2c;
+  --color-fill-hover: #1e1e1e;
+  --color-fill-active: #2c2c2c;
+  --color-fill-subtle: rgba(255, 255, 255, 0.08);
+  --color-skeleton: #2c2c2c;
+  --color-skeleton-base: #1e1e1e;
   --color-action: #d9b56a;
   --color-action-hover: #c9a45c;
-  --color-fill-hover: #2c2c2e;
-  --color-fill-subtle: rgba(255, 255, 255, 0.12);
-  --color-selected: #d9b56a;
-  --color-on-selected: #0b0b0c;
-  --color-on-selected-fill: rgba(0, 0, 0, 0.12);
-  --color-success: #32d74b;
-  --color-success-surface: #0f2a17;
-  --color-danger: #ff6b6b;
-  --color-danger-surface: #3a1416;
+  --color-on-action: #121212;
+  --color-inverse: #f7f7f7;
+  --color-inverse-hover: #ffffff;
+  --color-on-inverse: #121212;
+  --color-accent: #f7f7f7;
   --color-eyebrow: #d9b56a;
-  --color-focus: #d9b56a;
-  --color-focus-soft: rgba(217, 181, 106, 0.45);
-  --color-header-bg: rgba(11, 11, 12, 0.8);
-  --color-badge-bg: rgba(28, 28, 30, 0.88);
-  --color-badge-text: #f5f5f7;
-  --color-skeleton: #2c2c2e;
+  --color-selected: #f7f7f7;
+  --color-on-selected: #121212;
+  --color-on-selected-fill: rgba(0, 0, 0, 0.12);
+  --color-success: #4cd07d;
+  --color-success-surface: #10291a;
+  --color-danger: #ff7a62;
+  --color-danger-surface: #33170f;
+  --color-focus: #f7f7f7;
+  --color-focus-soft: rgba(247, 247, 247, 0.25);
+  --color-header-bg: #121212;
+  --color-badge-bg: #222222;
+  --color-badge-text: #f7f7f7;
   --color-selection: #5c4719;
-  --color-backdrop: rgba(0, 0, 0, 0.6);
-  --image-filter: brightness(0.86);
-  --contrast-text-secondary: #e5e5ea;
-  --contrast-border: #8e8e93;
-  --contrast-accent: #f3dc9e;
-  --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --shadow-raised: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 16px 40px rgba(0, 0, 0, 0.6);
+  --color-backdrop: rgba(0, 0, 0, 0.7);
+  --image-filter: brightness(0.9);
+  --contrast-text-secondary: #e0e0e0;
+  --contrast-border: #8e8e8e;
+  --contrast-eyebrow: #f3dc9e;
+  --shadow-search: 0 0 0 1px #3d3d3d, 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-panel: 0 0 0 1px #3d3d3d, 0 6px 16px rgba(0, 0, 0, 0.5);
+  --shadow-raised: 0 0 0 1px #3d3d3d, 0 8px 28px rgba(0, 0, 0, 0.7);
 }
 
 /* Increased contrast — explicit choice, or the OS preference when no choice is stored. */
 :root[data-contrast='more'] {
-  --color-accent: var(--contrast-accent);
-  --color-eyebrow: var(--contrast-accent);
   --color-text-secondary: var(--contrast-text-secondary);
-  --color-text-body: var(--color-text);
+  --color-eyebrow: var(--contrast-eyebrow);
   --color-border: var(--contrast-border);
+  --color-border-strong: var(--contrast-border);
   --color-hairline: var(--contrast-border);
-  --focus-width: 4px;
+  --focus-width: 3px;
 }
 
 @media (prefers-contrast: more) {
   :root:not([data-contrast]) {
-    --color-accent: var(--contrast-accent);
-    --color-eyebrow: var(--contrast-accent);
     --color-text-secondary: var(--contrast-text-secondary);
-    --color-text-body: var(--color-text);
+    --color-eyebrow: var(--contrast-eyebrow);
     --color-border: var(--contrast-border);
+    --color-border-strong: var(--contrast-border);
     --color-hairline: var(--contrast-border);
-    --focus-width: 4px;
+    --focus-width: 3px;
   }
-}
-
-:root[data-contrast='more'] a:not(.button) {
-  text-decoration: underline;
-  text-underline-offset: 0.18em;
 }
 
 /* Text size — every size token is rem-based, so scaling the root scales the whole UI. */
@@ -232,30 +265,23 @@
 }
 
 /*
- * Arabic: IBM Plex Sans Arabic (self-hosted via next/font, see src/app/fonts.ts) for every Arabic glyph;
- * Latin characters inside Arabic text (prices, emails) fall through to the system font.
- * No negative tracking (it breaks cursive joining) and taller lines for Arabic's ascenders/descenders.
+ * Arabic: IBM Plex Sans Arabic for every Arabic glyph; Latin characters inside Arabic text (prices,
+ * emails) fall through to DM Sans. No negative tracking (it breaks cursive joining) and taller lines.
  */
 :root:lang(ar) {
-  --font-sans: var(--font-arabic, 'IBM Plex Sans Arabic'), -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma,
-    sans-serif;
-  --font-display: var(--font-arabic, 'IBM Plex Sans Arabic'), -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma,
-    sans-serif;
+  --font-sans: var(--font-arabic, 'IBM Plex Sans Arabic'), var(--font-latin, 'DM Sans'), -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
   --tracking-body: 0;
   --tracking-tight: 0;
   --tracking-display: 0;
-  --leading-tight: 1.3;
+  --leading-tight: 1.35;
   --leading-snug: 1.45;
   --leading-body: 1.7;
 }
 
-/* Plex Arabic has a lighter colour than SF at the same weight: nudge headings up one step. */
-:root:lang(ar) :is(h1, h2) {
-  font-weight: 700;
-}
-
 :root[dir='rtl'] {
   --chevron-end: '‹';
+  --flip: -1; /* mirrors directional icons (arrows, chevrons) */
 }
 
 /* ==========================================================================
@@ -286,7 +312,6 @@ body {
   letter-spacing: var(--tracking-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color var(--duration-base) ease, color var(--duration-base) ease;
 }
 
 main {
@@ -325,11 +350,17 @@ img {
 a {
   color: var(--color-accent);
   text-decoration: none;
+  text-underline-offset: 0.15em;
 }
 
-a:hover {
+a:hover,
+/* Links inside running text are always underlined, as colour alone doesn't distinguish them. */
+:is(p, dd, address) > a:not(.button) {
   text-decoration: underline;
-  text-underline-offset: 0.18em;
+}
+
+:root[data-contrast='more'] a:not(.button) {
+  text-decoration: underline;
 }
 
 button,
@@ -344,7 +375,7 @@ select {
 /* One visible, consistent focus ring for every interactive element. */
 :focus-visible {
   outline: var(--focus-width) solid var(--color-focus);
-  outline-offset: 3px;
+  outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
 
@@ -386,15 +417,15 @@ select {
   top: -100px;
   z-index: 100;
   padding: var(--space-3) var(--space-4);
-  background: var(--color-selected);
-  color: var(--color-on-selected);
+  background: var(--color-inverse);
+  color: var(--color-on-inverse);
   border-radius: var(--radius-sm);
   font-weight: 600;
+  text-decoration: none;
 }
 
 .skip-link:focus {
   top: var(--space-3);
-  text-decoration: none;
 }
 
 .eyebrow {
@@ -404,19 +435,25 @@ select {
   letter-spacing: 0;
 }
 
+/* Directional icons flip in RTL. */
+.icon-directional {
+  transform: scaleX(var(--flip));
+}
+
+/* Buttons: brand (gold pill) for the one primary action; inverse and ghost (8px) for the rest. */
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: var(--tap-target);
+  min-height: 3rem;
   padding: var(--space-2) var(--space-5);
   border: 1px solid transparent;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: var(--color-action);
   color: var(--color-on-action);
   font-size: var(--text-base);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
   text-decoration: none;
@@ -425,16 +462,24 @@ select {
 
 .button:hover {
   background: var(--color-action-hover);
-  text-decoration: none;
 }
 
 .button:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
 .button:disabled {
   opacity: 0.6;
   cursor: progress;
+}
+
+.button-inverse {
+  background: var(--color-inverse);
+  color: var(--color-on-inverse);
+}
+
+.button-inverse:hover {
+  background: var(--color-inverse-hover);
 }
 
 .button-secondary {
@@ -444,13 +489,12 @@ select {
 }
 
 .button-secondary:hover {
-  background: var(--color-fill-subtle);
+  background: var(--color-fill-hover);
 }
 
 .button-large {
   min-height: 3.25rem;
   padding-inline: var(--space-6);
-  font-size: var(--text-lg);
 }
 
 .text-link {
@@ -458,38 +502,44 @@ select {
   align-items: center;
   min-height: var(--tap-target);
   font-size: var(--text-base);
-}
-
-.text-link::after {
-  content: var(--chevron-end);
-  margin-inline-start: 0.3em;
-  font-size: 1.2em;
-  line-height: 1;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.6rem;
+  padding: 0.3rem 0.75rem;
   border-radius: var(--radius-pill);
   background: var(--color-badge-bg);
   color: var(--color-badge-text);
   font-size: var(--text-xs);
   font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-:root:lang(ar) .badge {
-  letter-spacing: 0;
+  line-height: 1.2;
+  box-shadow: var(--shadow-small);
 }
 
 .section {
-  padding-block: var(--space-8);
+  padding-block: var(--section-gap);
 }
 
 .section-heading {
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
+  font-weight: 600;
   line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.page-title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Plex Arabic reads lighter than Latin at the same weight: nudge titles up one step. */
+:root:lang(ar) :is(h1, h2, .page-title, .section-heading) {
+  font-weight: 700;
 }
 
 /* ==========================================================================
@@ -498,7 +548,7 @@ select {
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -534,8 +584,4 @@ select {
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
-}
-
-:root[data-motion='reduce'] [data-motion-lift]:hover {
-  transform: none !important;
 }

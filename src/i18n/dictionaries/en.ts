@@ -41,13 +41,20 @@ export const en = {
     breadcrumb: 'Breadcrumb',
   },
   home: {
-    heroTitle: 'Find the place that fits.',
+    heroTitle: 'Find your place in Lebanon.',
+    search: {
+      label: 'Search properties',
+      deal: 'Looking to',
+      dealAny: 'Buy or rent',
+      type: 'Property type',
+      typeAny: 'Any type',
+      submit: 'Search',
+    },
+    rowPrevious: 'Previous',
+    rowNext: 'Next',
+    rowShowAll: 'Show all',
     heroLead: 'Houses, apartments, commercial spaces and land across Lebanon — to buy or to rent.',
-    browseCta: { one: 'Browse {count} property', other: 'Browse {count} properties' } as PluralForms,
-    typesTitle: 'Start with what you need.',
-    featuredTitle: 'Featured properties.',
-    seeAll: 'See all properties',
-    listingCount: { one: '{count} listing', other: '{count} listings' } as PluralForms,
+    featuredTitle: 'Featured properties',
   },
   types: {
     house: {

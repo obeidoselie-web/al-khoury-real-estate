@@ -1,0 +1,145 @@
+.row {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.titleBlock {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.titleLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+
+.titleLink:hover {
+  text-decoration: none;
+}
+
+.titleLink:hover svg {
+  transform: scaleX(var(--flip)) translateX(3px);
+}
+
+.titleLink svg {
+  transition: transform var(--duration-fast) ease;
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.arrows {
+  display: none;
+  flex: none;
+  gap: var(--space-2);
+}
+
+@media (min-width: 744px) and (hover: hover) {
+  .arrows {
+    display: flex;
+  }
+}
+
+/* Circular carousel buttons: white with a subtle shadow; greyed when there's nowhere to go. */
+.arrow {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: transform var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+}
+
+.arrow:hover:not(:disabled) {
+  box-shadow: var(--shadow-small);
+  transform: scale(1.04);
+}
+
+.arrow:disabled {
+  color: var(--color-text-disabled);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* The strip: native scroll-snap, hidden scrollbar, bleeds to the screen edge on phones. */
+.track {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  scroll-padding-inline: var(--gutter);
+  padding-bottom: var(--space-2);
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.track:focus-visible {
+  outline-offset: -2px;
+}
+
+.list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 72%;
+  gap: var(--space-4);
+  list-style: none;
+}
+
+@media (min-width: 560px) {
+  .list {
+    grid-auto-columns: calc((100% - var(--space-4)) / 2.15);
+  }
+}
+
+@media (min-width: 744px) {
+  .list {
+    grid-auto-columns: calc((100% - 2 * var(--space-5)) / 3);
+    gap: var(--space-5);
+  }
+}
+
+@media (min-width: 1128px) {
+  .list {
+    grid-auto-columns: calc((100% - 3 * var(--space-5)) / 4);
+  }
+}
+
+@media (min-width: 1440px) {
+  .list {
+    grid-auto-columns: calc((100% - 4 * var(--space-5)) / 5);
+  }
+}
+
+.item {
+  scroll-snap-align: start;
+  min-width: 0;
+}

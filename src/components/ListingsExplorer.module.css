@@ -3,20 +3,40 @@
   gap: var(--space-5);
 }
 
+/* Filter bar: category tabs + Buy/Rent pills, pinned under the header while scrolling results. */
 .filters {
-  display: grid;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-raised);
-  border: 1px solid var(--color-hairline);
+  position: sticky;
+  top: var(--header-height);
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+  margin-inline: calc(var(--gutter) * -1);
+  padding: var(--space-3) var(--gutter) 0;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-hairline);
 }
 
-@media (min-width: 900px) {
+.filters > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.filters > :last-child {
+  padding-bottom: var(--space-3);
+}
+
+@media (max-width: 743px) {
   .filters {
-    grid-template-columns: auto 1fr;
-    gap: var(--space-7);
-    padding: var(--space-5) var(--space-6);
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters > :last-child {
+    order: -1;
+    padding-bottom: 0;
   }
 }
 
@@ -38,9 +58,12 @@
   min-height: var(--tap-target);
   padding-inline: var(--space-3);
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: none;
-  color: var(--color-accent);
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
   cursor: pointer;
 }
 
@@ -53,7 +76,7 @@
   justify-items: center;
   gap: var(--space-3);
   padding: var(--space-8) var(--space-5);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   text-align: center;
 }

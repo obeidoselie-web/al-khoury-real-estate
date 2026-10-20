@@ -17,6 +17,10 @@ interface ChoiceGroupProps<T extends string> {
   options: ChoiceOption<T>[];
   value: T;
   onChange: (value: T) => void;
+  /** Hide the legend visually (it stays available to screen readers). */
+  legendHidden?: boolean;
+  /** Show count badges; counts are always part of the accessible name when provided. */
+  showCounts?: boolean;
 }
 
 /**
@@ -24,15 +28,23 @@ interface ChoiceGroupProps<T extends string> {
  * one Tab stop per group, arrow keys move between options, and screen readers
  * announce "radio button, 2 of 5, checked" for free. Used for listing filters and settings.
  */
-export function ChoiceGroup<T extends string>({ name, legend, options, value, onChange }: ChoiceGroupProps<T>) {
+export function ChoiceGroup<T extends string>({
+  name,
+  legend,
+  options,
+  value,
+  onChange,
+  legendHidden = false,
+  showCounts = true,
+}: ChoiceGroupProps<T>) {
   return (
     <fieldset className={styles.group}>
-      <legend className={styles.legend}>{legend}</legend>
+      <legend className={legendHidden ? 'sr-only' : styles.legend}>{legend}</legend>
       <div className={styles.options}>
         {options.map((option) => {
           const id = `${name}-${option.value}`;
           return (
-            <label key={option.value} htmlFor={id} className={styles.option}>
+            <label key={option.value} htmlFor={id} className={styles.option} data-empty={option.count === 0 || undefined}>
               <input
                 id={id}
                 type="radio"
@@ -44,14 +56,12 @@ export function ChoiceGroup<T extends string>({ name, legend, options, value, on
               />
               <span className={styles.pill} lang={option.lang}>
                 {option.label}
-                {option.count !== undefined && (
-                  <>
-                    <span className={styles.count} aria-hidden="true">
-                      {option.count}
-                    </span>
-                    {option.countLabel && <span className="sr-only">, {option.countLabel}</span>}
-                  </>
+                {showCounts && option.count !== undefined && (
+                  <span className={styles.count} aria-hidden="true">
+                    {option.count}
+                  </span>
                 )}
+                {option.countLabel && <span className="sr-only">, {option.countLabel}</span>}
               </span>
             </label>
           );

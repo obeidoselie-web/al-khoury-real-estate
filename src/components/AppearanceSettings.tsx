@@ -15,6 +15,7 @@ import {
 } from '@/lib/appearance';
 
 import styles from './AppearanceSettings.module.css';
+import { GlobeIcon } from './icons';
 import { ChoiceGroup, type ChoiceOption } from './ChoiceGroup';
 
 /** Moves to the same page in another language and remembers the choice for future visits. */
@@ -100,12 +101,7 @@ export function AppearanceSettings() {
         aria-label={s.open}
         title={s.open}
       >
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-          <path
-            fill="currentColor"
-            d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2v16a8 8 0 0 1 0-16Z"
-          />
-        </svg>
+        <GlobeIcon size={18} />
       </button>
 
       <dialog

@@ -1,0 +1,91 @@
+.group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-6);
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* Room for the focus ring and underline inside the scroll container. */
+  padding: var(--space-1) var(--space-1) 0;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 559px) {
+  .tabs {
+    gap: var(--space-4);
+    justify-content: space-between;
+  }
+}
+
+.option {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+}
+
+/* Visually hidden but focusable and operable. */
+.input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.tab {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  min-width: 3.5rem;
+  min-height: var(--tap-target);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid transparent;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  transition: color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+}
+
+.label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.option:hover .tab {
+  color: var(--color-text);
+  border-bottom-color: var(--color-border);
+}
+
+.input:checked + .tab {
+  color: var(--color-text);
+  border-bottom-color: var(--color-text);
+}
+
+.input:focus-visible + .tab {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* No results for this type under the current Buy/Rent choice: still selectable, but quieter. */
+.option[data-empty] .tab {
+  opacity: 0.45;
+}
+
+.option[data-empty] .input:checked + .tab {
+  opacity: 1;
+}
+
+@media (forced-colors: active) {
+  .input:checked + .tab {
+    border-bottom-color: Highlight;
+  }
+}

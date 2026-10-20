@@ -1,25 +1,28 @@
+/* Circular utility button (language & appearance), as in the reference's top-right controls. */
 .trigger {
   display: inline-grid;
   place-items: center;
+  flex: none;
   width: var(--tap-target);
   height: var(--tap-target);
+  margin-inline-start: var(--space-1);
   border: 0;
   border-radius: var(--radius-pill);
-  background: transparent;
+  background: var(--color-surface);
   color: var(--color-text);
   cursor: pointer;
   transition: background-color var(--duration-fast) ease;
 }
 
 .trigger:hover {
-  background: var(--color-fill-hover);
+  background: var(--color-fill-active);
 }
 
 .dialog {
   width: min(100% - 2 * var(--space-4), 32rem);
   max-height: min(90dvh, 44rem);
   padding: 0;
-  border: 1px solid var(--color-hairline);
+  border: 0;
   border-radius: var(--radius-lg);
   background: var(--color-surface-raised);
   color: var(--color-text);
@@ -78,10 +81,12 @@
   min-height: var(--tap-target);
   padding-inline: var(--space-3);
   border: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: none;
-  color: var(--color-accent);
-  font-weight: 500;
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
   cursor: pointer;
 }
 

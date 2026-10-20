@@ -72,7 +72,7 @@ export default async function PropertyPage({ params }: Props) {
 
   return (
     <article className={styles.page}>
-      <div className="container">
+      <div className={`container ${styles.narrow}`}>
         <nav aria-label={t.nav.breadcrumb} className={styles.breadcrumb}>
           <ol>
             <li>
@@ -93,7 +93,6 @@ export default async function PropertyPage({ params }: Props) {
           </p>
           <h1 className={styles.title}>{listing.title}</h1>
           <p className={styles.location}>{formatPlace(listing.location, locale)}</p>
-          <p className={styles.price}>{price}</p>
         </header>
 
         <PropertyGallery images={listing.images} title={listing.title} locale={locale} t={t} />
@@ -142,6 +141,7 @@ export default async function PropertyPage({ params }: Props) {
 
           <aside className={styles.aside} aria-labelledby="contact-title">
             <div className={styles.contactCard}>
+              <p className={styles.cardPrice}>{price}</p>
               <h2 id="contact-title" className={styles.contactTitle}>
                 {p.interestedTitle}
               </h2>

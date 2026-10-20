@@ -19,6 +19,7 @@ import {
 } from '@/lib/filters';
 import { DEAL_TYPES, PROPERTY_TYPES, type ListingSummary } from '@/lib/types';
 
+import { CategoryTabs } from './CategoryTabs';
 import { ChoiceGroup, type ChoiceOption } from './ChoiceGroup';
 import { ListingGrid } from './ListingGrid';
 import styles from './ListingsExplorer.module.css';
@@ -67,19 +68,21 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
   return (
     <div className={styles.explorer}>
       <search className={styles.filters} aria-label={t.listings.filtersLabel}>
-        <ChoiceGroup
-          name="deal"
-          legend={t.listings.dealLegend}
-          options={dealOptions}
-          value={filters.deal}
-          onChange={(deal) => update({ ...filters, deal })}
-        />
-        <ChoiceGroup
+        <CategoryTabs
           name="type"
           legend={t.listings.typeLegend}
           options={typeOptions}
           value={filters.type}
           onChange={(type) => update({ ...filters, type })}
+        />
+        <ChoiceGroup
+          name="deal"
+          legend={t.listings.dealLegend}
+          legendHidden
+          showCounts={false}
+          options={dealOptions}
+          value={filters.deal}
+          onChange={(deal) => update({ ...filters, deal })}
         />
       </search>
 
@@ -109,7 +112,7 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
           <h2 className={styles.emptyTitle}>{t.listings.emptyTitle}</h2>
           <p className={styles.emptyText}>{t.listings.emptyText}</p>
           <div className={styles.emptyActions}>
-            <button type="button" className="button" onClick={() => update(DEFAULT_FILTERS)}>
+            <button type="button" className="button button-inverse" onClick={() => update(DEFAULT_FILTERS)}>
               {t.listings.showAll}
             </button>
             <Link className="text-link" href={`${localizedPath(locale, '/about')}#contact`}>
