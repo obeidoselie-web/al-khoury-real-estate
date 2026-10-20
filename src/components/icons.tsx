@@ -191,3 +191,28 @@ export const CheckIcon = (p: IconProps) => (
     <path d="m5 12.5 4.5 4.5L19 7.5" />
   </Svg>
 );
+
+/** Filled when `filled` is set (saved state); the fill colour comes from CSS via `fill: currentColor` overrides. */
+export const HeartIcon = ({ filled = false, ...p }: IconProps & { filled?: boolean }) => (
+  <Svg {...p} strokeWidth={p.strokeWidth ?? 2}>
+    <path
+      d="M12 20.5s-7.5-4.6-9.2-9.4C1.7 7.9 3.8 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.9 1.2-1.8 2.8-2.9 4.8-2.9 3.4 0 5.5 3.4 4.4 6.6-1.7 4.8-9.2 9.4-9.2 9.4Z"
+      fill={filled ? 'currentColor' : 'none'}
+    />
+  </Svg>
+);
+
+export const ShareIcon = (p: IconProps) => (
+  <Svg {...p} strokeWidth={1.8}>
+    <path d="M12 3.5v12M7.5 8 12 3.5 16.5 8" />
+    <path d="M5 12.5v6.5a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-6.5" />
+  </Svg>
+);
+
+/** A speech bubble with a handset: reads as "chat on WhatsApp" without reproducing the trademark logo. */
+export const ChatIcon = (p: IconProps) => (
+  <Svg {...p} strokeWidth={1.7}>
+    <path d="M4.3 19.7 5.4 16A8.5 8.5 0 1 1 8.4 19Z" />
+    <path d="M9.4 8.4c.3-.4.8-.4 1 0l.7 1.4c.1.3 0 .6-.2.8l-.5.5a5.3 5.3 0 0 0 2.5 2.5l.5-.5c.2-.2.5-.3.8-.2l1.4.7c.4.2.4.7 0 1-.6.6-1.4.9-2.2.7a7.3 7.3 0 0 1-4.7-4.7c-.2-.8.1-1.6.7-2.2Z" />
+  </Svg>
+);

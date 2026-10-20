@@ -60,6 +60,21 @@
   letter-spacing: var(--tracking-tight);
 }
 
+.subhead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-4);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-inline-end: calc(var(--space-3) * -1); /* align the pills' text with the gallery edge */
+}
+
 .location {
   display: inline-flex;
   align-items: center;
@@ -239,7 +254,8 @@
     white-space: nowrap;
   }
 
-  .stickyCall {
-    padding-inline: var(--space-4);
+  .stickyIcon {
+    width: 3rem;
+    padding-inline: 0;
   }
 }

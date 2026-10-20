@@ -8,6 +8,7 @@ import { LOCALES, LOCALE_META, isLocale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/dictionaries';
 import { I18nProvider } from '@/i18n/I18nProvider';
 import { APPEARANCE_INIT_SCRIPT } from '@/lib/appearance';
+import { siteUrl } from '@/lib/company';
 import { alternates } from '@/lib/seo';
 
 import { arabicFont, brandFont, latinFont } from '../fonts';
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Pr
   if (!isLocale(locale)) return {};
   const t = getDictionary(locale);
   return {
-    metadataBase: new URL(process.env.SITE_URL ?? 'http://localhost:3000'),
+    metadataBase: new URL(siteUrl()),
     title: { default: t.meta.siteTitle, template: `%s · ${t.company.name}` },
     description: t.meta.siteDescription,
     alternates: alternates(locale, '/'),

@@ -2,13 +2,15 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { FavouriteButton } from '@/components/FavouriteButton';
 import { Highlights } from '@/components/Highlights';
-import { PinIcon } from '@/components/icons';
+import { ChatIcon, PhoneIcon, PinIcon } from '@/components/icons';
 import { PropertyGallery } from '@/components/PropertyGallery';
+import { ShareButton } from '@/components/ShareButton';
 import { LOCALES, isLocale, localizedPath, type Locale } from '@/i18n/config';
 import { getDictionary, type Dictionary } from '@/i18n/dictionaries';
 import { interpolate } from '@/i18n/plural';
-import { COMPANY } from '@/lib/company';
+import { COMPANY, siteUrl, whatsappHref } from '@/lib/company';
 import { getListingById, getListingIds } from '@/lib/data/listings';
 import { listingsHref } from '@/lib/filters';
 import { formatArea, formatPlace, formatPrice } from '@/lib/format';
@@ -71,6 +73,9 @@ export default async function PropertyPage({ params }: Props) {
   const p = t.property;
   const phone = <span className="ltr">{COMPANY.phone.display}</span>;
   const [callBefore, callAfter = ''] = p.call.split('{phone}');
+  const whatsapp = whatsappHref(
+    interpolate(p.whatsappMessage, { title: listing.title, url: `${siteUrl()}${localizedPath(locale, `/listings/${listing.id}`)}` }),
+  );
 
   return (
     <article className={styles.page}>
@@ -94,10 +99,16 @@ export default async function PropertyPage({ params }: Props) {
             {t.deals[listing.deal].badge} · {t.types[listing.type].label}
           </p>
           <h1 className={styles.title}>{listing.title}</h1>
-          <p className={styles.location}>
-            <PinIcon size={18} />
-            {formatPlace(listing.location, locale)}
-          </p>
+          <div className={styles.subhead}>
+            <p className={styles.location}>
+              <PinIcon size={18} />
+              {formatPlace(listing.location, locale)}
+            </p>
+            <div className={styles.actions}>
+              <ShareButton title={listing.title} />
+              <FavouriteButton id={listing.id} title={listing.title} t={t} variant="page" />
+            </div>
+          </div>
         </header>
 
         <PropertyGallery images={listing.images} title={listing.title} locale={locale} t={t} />
@@ -157,6 +168,10 @@ export default async function PropertyPage({ params }: Props) {
               <Link href={enquireHref} className="button">
                 {p.enquire}
               </Link>
+              <a href={whatsapp} className="button button-secondary" target="_blank" rel="noopener noreferrer">
+                <ChatIcon size={20} />
+                {p.whatsappLabel}
+              </a>
               <a href={COMPANY.phone.href} className="button button-secondary">
                 {callBefore}
                 {phone}
@@ -174,12 +189,22 @@ export default async function PropertyPage({ params }: Props) {
           <Link href={enquireHref} className="button">
             {p.enquireShort}
           </Link>
+          {/* Secondary actions are icon buttons here so the price keeps its room on a 375px phone. */}
           <a
             href={COMPANY.phone.href}
-            className={`button button-secondary ${styles.stickyCall}`}
+            className={`button button-secondary ${styles.stickyIcon}`}
             aria-label={interpolate(p.call, { phone: COMPANY.phone.display })}
           >
-            {p.callShort}
+            <PhoneIcon size={22} />
+          </a>
+          <a
+            href={whatsapp}
+            className={`button button-secondary ${styles.stickyIcon}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={p.whatsappLabel}
+          >
+            <ChatIcon size={22} />
           </a>
         </div>
       </div>

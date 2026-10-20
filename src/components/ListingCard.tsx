@@ -7,9 +7,10 @@ import { cardFacts } from '@/lib/facts';
 import { formatPlace, formatPrice, formatPriceSpoken } from '@/lib/format';
 import type { ListingSummary } from '@/lib/types';
 
+import { FavouriteButton } from './FavouriteButton';
 import styles from './ListingCard.module.css';
 
-export type CardStrings = Pick<Dictionary, 'card' | 'format' | 'types' | 'deals'>;
+export type CardStrings = Pick<Dictionary, 'card' | 'format' | 'types' | 'deals' | 'saved'>;
 
 interface ListingCardProps {
   listing: ListingSummary;
@@ -36,6 +37,8 @@ export function ListingCard({ listing, locale, t, priority = false, headingLevel
           priority={priority}
         />
         <span className={`badge ${styles.badge}`}>{deal.badge}</span>
+        {/* A small client island; the rest of the card stays server-rendered HTML. */}
+        <FavouriteButton id={listing.id} title={listing.title} t={t} />
       </div>
       <div className={styles.body}>
         <Heading className={styles.title}>

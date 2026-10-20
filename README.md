@@ -10,7 +10,8 @@ visitor's language (see [Languages](#languages-english--arabic)).
 
 - **Home** (`/en`, `/ar`): one primary action ("Browse properties"), shortcuts by property type, and featured listings.
 - **Properties** (`/en/listings`): instant filtering by *Buy / Rent* and *property type*, with large tap targets and no typing. Filters are kept in the URL (`/en/listings?deal=rent&type=apartment`), so filtered views can be shared and bookmarked.
-- **Property detail** (`/en/listings/[id]`): swipeable photo gallery, key facts, description, features, and a contact card (a sticky *Enquire / Call* bar on phones).
+- **Property detail** (`/en/listings/[id]`): swipeable photo gallery, key facts, description, features, *Share* and *Save*, and a contact card with a WhatsApp enquiry (a sticky *Enquire / Call / WhatsApp* bar on phones).
+- **Saved properties** (`/en/saved`): every card and property page has a heart; saved properties are listed here and counted in the header (see [Saved properties, sharing and WhatsApp](#saved-properties-sharing-and-whatsapp)).
 - **About & Contact** (`/en/about`): company story, contact details and an enquiry form. Opening it from a property (`/en/about?property=<id>#contact`) pre-fills the message and attaches the property reference.
 - **Appearance & language** (the half-circle button in the header): language, theme, text size, contrast and motion.
 
@@ -74,6 +75,8 @@ src/
           page.tsx              Property detail (generateStaticParams for every locale × listing)
           not-found.tsx         Unknown/withdrawn property → real 404
           loading.tsx
+      saved/
+        page.tsx                Saved properties (server-renders summaries; the client island picks the saved ones)
       about/
         page.tsx                About & Contact
         actions.ts              Server Action: validate → sanitise → deliver enquiry (replies in the form's language)
@@ -85,6 +88,9 @@ src/
     ListingCard.tsx / ListingGrid.tsx
     PropertyGallery.tsx         CSS scroll-snap gallery (no JS)
     ContactForm.tsx             Client island: useActionState, inline errors, focus management
+    FavouriteButton.tsx         Client island: the save heart (aria-pressed) on cards and the property page
+    SavedLink.tsx / SavedListings.tsx  Header link with count badge; the saved-properties list
+    ShareButton.tsx             Client island: system share sheet, or copy the link with a status message
     SiteHeader.tsx / NavLink.tsx (+ LanguageLink) / SiteFooter.tsx
     ErrorState.tsx / NotFoundState.tsx / LoadingStatus.tsx
   lib/
@@ -95,6 +101,7 @@ src/
     contact.ts                  Pure validation + sanitisation (fully unit-tested)
     contact-delivery.ts         Server-only webhook delivery
     appearance.ts               Appearance settings: parse, persist, apply, and the pre-paint script
+    favourites.ts               Saved properties: localStorage-backed store + useFavourites() hook
     format.ts / facts.ts / company.ts / seo.ts
 tests/                          Vitest + Testing Library
 scripts/fetch-photos.mjs, generate-brand.mjs
@@ -109,6 +116,8 @@ Pages are React Server Components. Only small client islands ship JavaScript:
 2. `ContactForm` handles pending state, inline errors and focus. The form still works without JS because it posts straight to the Server Action.
 3. `AppearanceSettings` runs the settings dialog.
 4. `NavLink` / `LanguageLink` set `aria-current` and build language-switch links.
+5. `FavouriteButton`, `SavedLink` and `SavedListings` read and update the saved-properties store.
+6. `ShareButton` opens the share sheet or copies the link.
 
 The current language's dictionary (a few KB) is passed to the client once through `I18nProvider`. The gallery,
 sticky contact bar, cards on the home and detail pages, and every animation are pure HTML/CSS.
@@ -252,6 +261,34 @@ serialises the URL contract.
 
 ---
 
+## Saved properties, sharing and WhatsApp
+
+**Saved properties.** A heart sits in the top inline-end corner of every card's photo (top right in English,
+top left in Arabic) and beside *Share* on the property page. It is a real `<button>` with a fixed name
+("Save {title}") and `aria-pressed`, so screen readers announce "toggle button, pressed". Saved hearts fill gold.
+Saved ids are stored per device in `localStorage` (`ak-saved`, newest first, capped at 200). Every read and write
+is wrapped in `try/catch`, so saving still works for the page view when storage is blocked. All hearts and the
+header count share one store (`src/lib/favourites.ts`, read through `useSyncExternalStore`) and stay in sync,
+including across tabs via the `storage` event. The server render always shows "not saved", and the stored state
+appears right after hydration, so markup never mismatches.
+
+`/[locale]/saved` server-renders every listing summary and picks out the saved ones on the client. A property you
+unsave on that page stays on screen with an empty heart until you leave, so a mis-tap can be undone and keyboard
+focus is never lost. Ids for listings that no longer exist are dropped. The page is `noindex` because its
+content is personal.
+
+**Share.** On the property page, *Share* opens the system share sheet where the browser has one (`navigator.share`,
+mostly phones). Otherwise it copies the page URL and says "Link copied" in a polite live region. If copying is
+not allowed, it asks the visitor to copy the address bar instead. Dismissing the share sheet shows nothing.
+
+**WhatsApp.** The contact card and the phone sticky bar link to `https://wa.me/<number>?text=…`, with the message
+pre-filled in the page's language: the property title and its absolute URL (built from `SITE_URL`, so set it
+in production). The number is `COMPANY.whatsapp` in `src/lib/company.ts`. It is a **placeholder**: use digits
+only, country code first. The link opens in a new tab with `rel="noopener noreferrer"`. On phones, Call and
+WhatsApp are icon buttons with accessible names, so the price keeps its room on a 375 px screen.
+
+---
+
 ## Accessibility
 
 - Semantic landmarks (`header`, `nav`, `main`, `footer`, `search`), a skip link, a logical heading order, and breadcrumbs on the detail page.
@@ -287,7 +324,7 @@ serialises the URL contract.
 npm test
 ```
 
-96 tests across 12 files:
+121 tests across 14 files:
 
 | File | Covers |
 | --- | --- |
@@ -302,6 +339,8 @@ npm test
 | `proxy.test.ts` | Language redirects: prefixed URLs pass through; cookie beats Accept-Language; query strings kept; English fallback |
 | `browse-ui.test.tsx` | Search capsule (GET form, field values match the URL contract, "any" = no filter, Arabic); category tabs (radio semantics, icons, dimmed empty options); row scroller labels and disabled arrows |
 | `brand.test.tsx` | Generated icons match the `BrandMark` paths; unique gradient ids per instance; the lock-up in both languages |
+| `favourites.test.tsx` | Store parsing (corrupt/malicious data, de-duplication, cap), toggling, persistence, blocked storage, cross-tab sync, pruning; the heart toggle (aria-pressed, keyboard, kept in sync, Arabic, outside the card link); header count; the saved page (order, unsave-keeps-card, empty state, Arabic plurals) |
+| `share.test.tsx` | Share sheet when available, silent on dismiss, clipboard fallback with status message, fallback after a share error, no-clipboard message in Arabic; the encoded `wa.me` link |
 | `appearance.test.tsx` | Settings parsing and attributes; the pre-paint script matching `applyAppearance`; the dialog applying, persisting, restoring and resetting choices; Arabic labels |
 
 Manual checks done in a browser against the production build at 375 px (mobile), 768 px (tablet) and
@@ -310,6 +349,9 @@ the full contact-form round trip (server-side error and success), a real 404 sta
 and keyboard focus order. Also checked: Arabic RTL pages on a phone in dark mode, the language redirect and
 switcher (page and filters kept, choice remembered), settings persisting across navigation, increased contrast
 and reduced motion, and an Arabic enquiry end to end.
+For saved properties, sharing and WhatsApp: saving by mouse and keyboard, the header badge, the saved page in both
+languages, the share fallback message, the pre-filled WhatsApp links, and the phone sticky bar in Arabic RTL in
+light and dark mode.
 
 ---
 
@@ -323,4 +365,6 @@ and reduced motion, and an Arabic enquiry end to end.
 - **Contact** is through a form that posts to a webhook, plus phone (`tel:`) and email links. No email provider or CRM is assumed.
 - **Company details** (`src/lib/company.ts` and the `company` section of the dictionaries: phone, email, address, founding year, stats on the About page) are **placeholders**, and the email uses the reserved `.example` domain.
 - **Photos** are free-licence stock images from Unsplash (Unsplash License), self-hosted and credited in `public/images/photos/CREDITS.md`, with descriptive English and Arabic alt text. They illustrate the kind of property only; replace them with real listing photos before launch (edit `photos.json` or point the data source at CMS images).
+- **Saved properties are per device** (localStorage) for the same reason: they don't follow a visitor to another browser.
+- **WhatsApp number** (`COMPANY.whatsapp`) is a placeholder, like the phone number.
 - Per the brief, there are no user accounts, payments, maps or saved searches.

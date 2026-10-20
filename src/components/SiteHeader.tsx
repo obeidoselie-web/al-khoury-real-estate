@@ -9,11 +9,12 @@ import { listingsHref } from '@/lib/filters';
 import { AppearanceSettings } from './AppearanceSettings';
 import { PhoneIcon } from './icons';
 import { NavLink } from './NavLink';
+import { SavedLink } from './SavedLink';
 import styles from './SiteHeader.module.css';
 import { Wordmark } from './Wordmark';
 
 /**
- * Logo · centred navigation · utilities (phone, Enquire, language & appearance).
+ * Logo · centred navigation · utilities (phone, saved, Enquire, language & appearance).
  * Secondary items drop away as the screen narrows, so the bar never wraps.
  */
 export function SiteHeader({ locale, t }: { locale: Locale; t: Dictionary }) {
@@ -59,6 +60,7 @@ export function SiteHeader({ locale, t }: { locale: Locale; t: Dictionary }) {
             <span className="sr-only">{t.nav.callUs}: </span>
             <span className="ltr">{COMPANY.phone.display}</span>
           </a>
+          <SavedLink />
           <Link href={`${localizedPath(locale, '/about')}#contact`} className={styles.cta}>
             {t.nav.enquire}
           </Link>
