@@ -110,3 +110,45 @@ export const PROPERTY_TYPE_ICONS: Record<PropertyType | 'all', (p: IconProps) =>
   commercial: CommercialIcon,
   land: LandIcon,
 };
+
+export const BedIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3 18.5V6.5M3 15h18v3.5M21 15v-3.5a2.5 2.5 0 0 0-2.5-2.5H11v6" />
+    <circle cx="7" cy="11.5" r="2" />
+  </Svg>
+);
+
+export const BathIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3.5 12h17v2.5a4.5 4.5 0 0 1-4.5 4.5H8a4.5 4.5 0 0 1-4.5-4.5V12Z" />
+    <path d="M6 12V5.8A1.8 1.8 0 0 1 9.4 5M7 19l-1 2M17 19l1 2" />
+  </Svg>
+);
+
+export const AreaIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />
+    <rect x="8" y="8" width="8" height="8" rx="1" />
+  </Svg>
+);
+
+export const CalendarIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="5" width="17" height="15.5" rx="2" />
+    <path d="M3.5 10h17M8 3v4M16 3v4" />
+  </Svg>
+);
+
+export const PinIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" />
+    <circle cx="12" cy="10" r="2.3" />
+  </Svg>
+);
+
+export const PlotIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m3 8 6-3 6 3 6-3v11l-6 3-6-3-6 3Z" />
+    <path d="M9 5v11M15 8v11" />
+  </Svg>
+);

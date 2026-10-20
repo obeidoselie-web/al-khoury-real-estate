@@ -43,7 +43,8 @@ describe('placeholder data', () => {
         expect(listing.description.length).toBe(record.description.en.length);
         expect(listing.features.length).toBe(record.features.en.length);
         expect(listing.images.length).toBeGreaterThan(0);
-        expect(listing.images.every((img) => img.alt.includes(listing.title))).toBe(true);
+        expect(listing.images.every((img) => img.alt.trim().length > 10)).toBe(true);
+        if (locale === 'ar') expect(listing.images.every((img) => ARABIC.test(img.alt))).toBe(true);
       }
       const arabic = localizeListing(record, 'ar');
       expect(arabic.title).toMatch(ARABIC);
@@ -111,5 +112,22 @@ describe('data-access module', () => {
     expect((await getListings('ar')).map((l) => l.id)).toEqual(['from-api']);
     expect(seen).toEqual(['ar']);
     expect((await getListingById('from-api', 'ar'))?.title).toBe('title-ar');
+  });
+});
+
+describe('photography', () => {
+  it('every photo in the manifest exists on disk and is credited', async () => {
+    const { existsSync, readFileSync } = await import('node:fs');
+    const { default: manifest } = await import('@/lib/data/photos.json');
+    const credits = readFileSync('public/images/photos/CREDITS.md', 'utf8');
+    for (const photo of manifest.photos) {
+      expect(existsSync(`public/images/photos/${photo.name}.jpg`), photo.name).toBe(true);
+      expect(credits).toContain(`${photo.name}.jpg | ${photo.author}`);
+    }
+  });
+
+  it('gives every listing a distinct cover photo', () => {
+    const covers = PLACEHOLDER_LISTINGS.map((record) => record.photos[0]);
+    expect(new Set(covers).size).toBe(covers.length);
   });
 });

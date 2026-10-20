@@ -57,6 +57,18 @@ export const ar: Dictionary = {
     rowShowAll: 'عرض الكل',
     heroLead: 'منازل وشقق ومساحات تجارية وأراضٍ في جميع أنحاء لبنان — للشراء أو للإيجار.',
     featuredTitle: 'عقارات مميّزة',
+    heroEyebrow: 'الخوري للعقارات · لبنان',
+    spotlightEyebrow: 'تحت الضوء',
+    viewProperty: 'عرض العقار',
+    trustLabel: 'الخوري بالأرقام',
+    trustAdvisor: 'مستشار واحد',
+    trustAdvisorText: 'من أول معاينة حتى تسليم المفاتيح',
+    brandEyebrow: 'منذ عام {year}',
+    brandTitle: 'شركة عائلية تعرف لبنان شارعًا شارعًا.',
+    brandText:
+      'منذ أكثر من {years} عامًا نساعد العائلات والمستثمرين والشركات على الشراء والبيع والاستئجار بوضوح — سندات ملكية موثّقة، وأسعار صادقة، ومستشار واحد يرافقك حتى النهاية.',
+    brandCta: 'تحدّث إلى مستشار',
+    brandImageAlt: 'صورة هوية الخوري للعقارات: فيلا حجرية حديثة على شكل الشعار، عند الغروب.',
   },
   types: {
     house: {
@@ -190,6 +202,8 @@ export const ar: Dictionary = {
     bedrooms: 'غرف النوم',
     bathrooms: 'الحمّامات',
     yearBuilt: 'سنة البناء',
+    highlights: 'أبرز المعلومات',
+    showAllPhotos: 'عرض كل الصور',
     aboutTitle: 'عن هذا العقار',
     featuresTitle: 'المزايا',
     interestedTitle: 'هل أنت مهتم بهذا العقار؟',

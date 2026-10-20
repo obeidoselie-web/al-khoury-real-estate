@@ -1,45 +1,215 @@
-/* A quiet hero: compact headline, one line of context, and the search capsule. No hero image —
-   the property photography below carries the page. */
+/* ---------- Hero: inset photograph with the search capsule floating over its lower edge ---------- */
 .hero {
-  padding-block: var(--space-7) var(--space-6);
-  border-bottom: 1px solid var(--color-hairline);
+  padding-top: var(--space-4);
 }
 
-.heroInner {
+.heroFrame {
+  position: relative;
+}
+
+.heroMedia {
+  position: relative;
   display: grid;
-  justify-items: center;
-  gap: var(--space-2);
-  text-align: center;
+  align-items: end;
+  min-height: clamp(26rem, 68vh, 40rem);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--brand-ink);
+  isolation: isolate;
 }
 
-.heroInner > :nth-child(2) {
+.heroImage {
+  object-fit: cover;
+  object-position: center 60%;
+  z-index: -2;
+}
+
+/* Darkens the lower part of the photo so white type stays legible (≥ 4.5:1 over the image). */
+.heroShade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(11, 11, 12, 0.15) 0%, rgba(11, 11, 12, 0) 30%),
+    linear-gradient(0deg, rgba(11, 11, 12, 0.82) 0%, rgba(11, 11, 12, 0.45) 45%, rgba(11, 11, 12, 0) 75%);
+}
+
+.heroContent {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 46rem;
+  padding: var(--space-7) var(--space-6) calc(var(--space-9) + var(--space-2));
+  color: #ffffff;
+}
+
+.heroContent > :nth-child(2) {
   animation-delay: 60ms;
 }
 
-.heroInner > :nth-child(3) {
+.heroContent > :nth-child(3) {
   animation-delay: 120ms;
 }
 
+.heroKicker {
+  color: var(--brand-gold-light);
+}
+
 .heroTitle {
-  font-size: var(--text-3xl);
+  font-size: clamp(2.25rem, 1.5rem + 3.4vw, 4.25rem);
   font-weight: 700;
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-display);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+:root:lang(ar) .heroTitle {
+  line-height: 1.25;
+  letter-spacing: 0;
 }
 
 .heroLead {
-  max-width: 38rem;
-  font-size: var(--text-base);
-  color: var(--color-text-secondary);
+  max-width: 34rem;
+  font-size: var(--text-lg);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .search {
-  width: 100%;
-  margin-top: var(--space-5);
+  position: relative;
+  z-index: 2;
+  margin-top: -2.25rem;
+  padding-inline: var(--space-5);
+  animation-delay: 180ms;
+}
+
+@media (max-width: 743px) {
+  .hero {
+    padding-top: var(--space-3);
+  }
+
+  .heroMedia {
+    min-height: 30rem;
+  }
+
+  .heroContent {
+    padding: var(--space-6) var(--space-5) var(--space-9);
+  }
+
+  .heroLead {
+    font-size: var(--text-base);
+  }
+
+  .search {
+    margin-top: -4rem;
+    padding-inline: var(--space-3);
+  }
+}
+
+/* ---------- Page rhythm ---------- */
+.block {
+  padding-top: var(--space-8);
 }
 
 .rows {
   display: grid;
   gap: var(--section-gap);
-  padding-top: var(--section-gap);
+  padding-top: var(--space-8);
+}
+
+/* ---------- The firm in numbers ---------- */
+.trust {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5) 0;
+  margin: 0;
+  padding-block: var(--space-6);
+  border-block: 1px solid var(--color-hairline);
+}
+
+@media (min-width: 744px) {
+  .trust {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.trust > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-1);
+  padding-inline: var(--space-5);
+}
+
+.trust > div + div {
+  border-inline-start: 1px solid var(--color-hairline);
+}
+
+@media (max-width: 743px) {
+  .trust > div:nth-child(odd) {
+    border-inline-start: 0;
+    padding-inline-start: 0;
+  }
+}
+
+.trust dt {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.trust dd {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+}
+
+/* ---------- Brand band: the black-and-gold signature ---------- */
+.brandBand {
+  display: grid;
+  gap: var(--space-6);
+  align-items: center;
+  padding: var(--space-7) var(--space-6);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 120% at 100% 0%, rgba(201, 164, 92, 0.18) 0%, rgba(201, 164, 92, 0) 55%),
+    var(--brand-ink);
+  color: #f7f7f7;
+}
+
+@media (min-width: 950px) {
+  .brandBand {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    gap: var(--space-8);
+    padding: var(--space-8);
+  }
+}
+
+.brandText {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}
+
+.brandText :global(.kicker) {
+  color: var(--brand-gold);
+}
+
+.brandTitle {
+  max-width: 30rem;
+  font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.12;
+  color: #ffffff;
+}
+
+.brandLead {
+  max-width: 34rem;
+  color: #c9c9c9; /* 11.5:1 on brand black */
+}
+
+.brandImage {
+  width: min(100%, 22rem);
+  height: auto;
+  justify-self: center;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(201, 164, 92, 0.35), 0 24px 60px rgba(0, 0, 0, 0.5);
 }

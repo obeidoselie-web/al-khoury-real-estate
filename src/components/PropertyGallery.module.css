@@ -79,6 +79,28 @@
     grid-row: span 2;
   }
 
+  /* Five photos: one large, then a 2×2 grid. */
+  .list[data-count='5'] {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .list[data-count='4'] {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .list[data-count='4'] .item:last-child {
+    grid-column: span 2;
+  }
+
+  .list[data-count='2'] {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+  }
+
+  .list[data-count='2'] .lead {
+    grid-row: auto;
+  }
+
   .lead .image {
     aspect-ratio: auto;
   }

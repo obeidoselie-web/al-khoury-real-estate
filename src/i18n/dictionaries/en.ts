@@ -55,6 +55,18 @@ export const en = {
     rowShowAll: 'Show all',
     heroLead: 'Houses, apartments, commercial spaces and land across Lebanon — to buy or to rent.',
     featuredTitle: 'Featured properties',
+    heroEyebrow: 'Al Khoury Real Estate · Lebanon',
+    spotlightEyebrow: 'In the spotlight',
+    viewProperty: 'View property',
+    trustLabel: 'Al Khoury in numbers',
+    trustAdvisor: 'One advisor',
+    trustAdvisorText: 'from first viewing to keys',
+    brandEyebrow: 'Since {year}',
+    brandTitle: 'A family firm that knows Lebanon, street by street.',
+    brandText:
+      'For more than {years} years we have helped families, investors and businesses buy, sell and rent with clarity — verified title deeds, honest pricing and one advisor who stays with you.',
+    brandCta: 'Talk to an advisor',
+    brandImageAlt: 'Al Khoury Real Estate brand artwork: a modern stone villa shaped like the lk logo, at sunset.',
   },
   types: {
     house: {
@@ -132,6 +144,8 @@ export const en = {
     bedrooms: 'Bedrooms',
     bathrooms: 'Bathrooms',
     yearBuilt: 'Year built',
+    highlights: 'Highlights',
+    showAllPhotos: 'Show all photos',
     aboutTitle: 'About this property',
     featuresTitle: 'Features',
     interestedTitle: 'Interested in this property?',

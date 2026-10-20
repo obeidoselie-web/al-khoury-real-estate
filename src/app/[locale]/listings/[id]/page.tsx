@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { Highlights } from '@/components/Highlights';
+import { PinIcon } from '@/components/icons';
 import { PropertyGallery } from '@/components/PropertyGallery';
 import { LOCALES, isLocale, localizedPath, type Locale } from '@/i18n/config';
 import { getDictionary, type Dictionary } from '@/i18n/dictionaries';
@@ -35,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: listing.title,
       description: listing.summary,
-      images: [{ url: listing.images[0]?.src ?? '/images/hero.jpg' }],
+      images: [{ url: listing.images[0]?.src ?? '/images/photos/hero-villa-dusk.jpg' }],
     },
   };
 }
@@ -92,13 +94,19 @@ export default async function PropertyPage({ params }: Props) {
             {t.deals[listing.deal].badge} · {t.types[listing.type].label}
           </p>
           <h1 className={styles.title}>{listing.title}</h1>
-          <p className={styles.location}>{formatPlace(listing.location, locale)}</p>
+          <p className={styles.location}>
+            <PinIcon size={18} />
+            {formatPlace(listing.location, locale)}
+          </p>
         </header>
 
         <PropertyGallery images={listing.images} title={listing.title} locale={locale} t={t} />
 
         <div className={styles.layout}>
           <div className={styles.main}>
+            <div className={styles.section}>
+              <Highlights listing={listing} locale={locale} t={t} label={p.highlights} />
+            </div>
             <section aria-labelledby="facts-title" className={styles.section}>
               <h2 id="facts-title" className={styles.sectionTitle}>
                 {p.factsTitle}

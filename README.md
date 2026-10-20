@@ -33,7 +33,7 @@ npm run dev          # http://localhost:3000
 | `npm test` | Run the test suite once (Vitest + Testing Library) |
 | `npm run test:watch` | Tests in watch mode |
 | `npm run typecheck` | `tsc --noEmit` (run `npx next typegen` first on a fresh clone) |
-| `npm run images` | Regenerate the placeholder illustrations in `public/images/` |
+| `npm run photos -- <empty-dir>` | Re-download and optimise the stock photos listed in `src/lib/data/photos.json` into `public/images/photos/` |
 | `npm run brand` | Regenerate the favicon, Apple touch icon and `public/brand/mark.svg` from `BrandMark.tsx` |
 
 ### Environment variables
@@ -97,8 +97,8 @@ src/
     appearance.ts               Appearance settings: parse, persist, apply, and the pre-paint script
     format.ts / facts.ts / company.ts / seo.ts
 tests/                          Vitest + Testing Library
-scripts/generate-placeholders.mjs, generate-brand.mjs
-public/images/                  Generated placeholder illustrations
+scripts/fetch-photos.mjs, generate-brand.mjs
+public/images/photos/           Optimised stock photography + CREDITS.md
 ```
 
 ### What runs on the client
@@ -128,7 +128,7 @@ Al Khoury gold as the one accent.
   scale: 14px card text and metadata, 16px UI, 22px section titles with −0.02em tracking, 28px page titles.
 - **Shape.** Flat, borderless cards with 12px photo corners; pill and circular controls; 8px inputs and
   ghost buttons. Shadows only on floating elements (search capsule, enquiry card, dialogs, carousel arrows).
-- **Home.** The floating search capsule *is* the hero. It's a plain GET form (works without JavaScript)
+- **Home.** A photographic hero (inset, rounded, dark gradient for legible white type) with the search capsule floating over its lower edge, then a spotlight listing, photo rows, the firm in numbers and a black-and-gold brand band. The capsule is a plain GET form (works without JavaScript)
   submitting `?deal` and `?type` to the listings page. Below it are horizontal photo rows (featured, then
   one per property type), each with a "title →" link to the filtered list and circular previous/next
   buttons on desktop.
@@ -156,7 +156,7 @@ The site follows the Al Khoury Real Estate identity: black and gold, the "lk" bu
   - **Wordmark: Montserrat**, wide-tracked capitals as in the logo.
   - English text: DM Sans (see [Design system](#design-system)).
   - Both web fonts are self-hosted by `next/font` (`src/app/fonts.ts`): downloaded at build time, with no request to Google at runtime and size-adjusted fallbacks to avoid layout shift. The Arabic font isn't preloaded, so English visitors never download it.
-- **Imagery.** The brand roundel (`public/images/brand/al-khoury-brand.webp`) appears on the About page.
+- **Imagery.** The brand roundel (`public/images/brand/al-khoury-brand.webp`) appears in the home brand band and on the About page. The footer is brand black with gold headings in every theme.
 
 ## Languages (English / Arabic)
 
@@ -285,7 +285,7 @@ serialises the URL contract.
 npm test
 ```
 
-92 tests across 12 files:
+94 tests across 12 files:
 
 | File | Covers |
 | --- | --- |
@@ -320,5 +320,5 @@ and reduced motion, and an Arabic enquiry end to end.
 - **Filtering** is single-choice per group (one deal type, one property type). That gives the simplest phone UI and keeps URLs readable. Price, bedroom filters and sorting were left out to stay within scope.
 - **Contact** is through a form that posts to a webhook, plus phone (`tel:`) and email links. No email provider or CRM is assumed.
 - **Company details** (`src/lib/company.ts` and the `company` section of the dictionaries: phone, email, address, founding year, stats on the About page) are **placeholders**, and the email uses the reserved `.example` domain.
-- **Images** are generated illustrations, used to avoid depending on third-party image hosts and licensing. Real photography should replace them, and the alt text should then describe each photo.
+- **Photos** are free-licence stock images from Unsplash (Unsplash License), self-hosted and credited in `public/images/photos/CREDITS.md`, with descriptive English and Arabic alt text. They illustrate the kind of property only; replace them with real listing photos before launch (edit `photos.json` or point the data source at CMS images).
 - Per the brief, there are no user accounts, payments, maps or saved searches.

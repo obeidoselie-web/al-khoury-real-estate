@@ -1,11 +1,13 @@
 import type { Locale } from '@/i18n/config';
 
-import type { Listing, ListingImage, PropertyType } from '../types';
+import type { Listing, ListingImage } from '../types';
+import photoManifest from './photos.json';
 
 /*
- * PLACEHOLDER DATA. Illustrative listings with generated images (see scripts/generate-placeholders.mjs).
- * Text is stored per locale; `localizeListing` turns a record into the plain `Listing` the UI renders.
- * A real CMS would return the same shape (or one already resolved for the requested locale).
+ * PLACEHOLDER DATA. Illustrative listings with free-licence stock photography (see photos.json and
+ * public/images/photos/CREDITS.md). Text is stored per locale; `localizeListing` turns a record into
+ * the plain `Listing` the UI renders. A real CMS would return the same shape (or one already resolved
+ * for the requested locale).
  */
 
 type Localized<T> = Record<Locale, T>;
@@ -17,42 +19,33 @@ export interface ListingRecord
   summary: Localized<string>;
   description: Localized<string[]>;
   features: Localized<string[]>;
-  /** First placeholder variant (1–4) for this listing's photo set. */
-  photoStart: number;
+  /** Photo names from photos.json, cover photo first. */
+  photos: PhotoName[];
 }
 
-const IMAGE_WIDTH = 1600;
-const IMAGE_HEIGHT = 1067;
-const VARIANTS = 4;
-const PHOTOS_PER_LISTING = 3;
-
-const SCENE_NAMES: Localized<Record<PropertyType, string>> = {
-  en: { house: 'house exterior', apartment: 'apartment building', commercial: 'commercial building', land: 'landscape' },
-  ar: { house: 'واجهة منزل', apartment: 'مبنى سكني', commercial: 'مبنى تجاري', land: 'منظر طبيعي' },
-};
-
-function altText(locale: Locale, title: string, type: PropertyType, n: number): string {
-  const scene = SCENE_NAMES[locale][type];
-  return locale === 'ar'
-    ? `${title} — رسم توضيحي لـ${scene} (صورة مؤقتة ${n} من ${PHOTOS_PER_LISTING})`
-    : `${title} — illustrated ${scene} (placeholder photo ${n} of ${PHOTOS_PER_LISTING})`;
+interface PhotoEntry {
+  name: string;
+  hero?: boolean;
+  alt: Localized<string>;
+  author: string;
 }
 
-/** Placeholder photos for a listing, rotated so neighbouring cards don't look identical. */
-function photos(record: ListingRecord, locale: Locale): ListingImage[] {
-  return Array.from({ length: PHOTOS_PER_LISTING }, (_, offset) => {
-    const variant = ((record.photoStart + offset - 1) % VARIANTS) + 1;
-    return {
-      src: `/images/placeholders/${record.type}-${variant}.jpg`,
-      alt: altText(locale, record.title[locale], record.type, offset + 1),
-      width: IMAGE_WIDTH,
-      height: IMAGE_HEIGHT,
-    };
-  });
+const PHOTOS = new Map((photoManifest.photos as PhotoEntry[]).map((photo) => [photo.name, photo]));
+export type PhotoName = string;
+
+export function photo(name: PhotoName, locale: Locale): ListingImage {
+  const entry = PHOTOS.get(name);
+  if (!entry) throw new Error(`Unknown photo "${name}" — add it to photos.json`);
+  return {
+    src: `/images/photos/${name}.jpg`,
+    alt: entry.alt[locale],
+    width: entry.hero ? 2400 : 1600,
+    height: entry.hero ? 1350 : 1067,
+  };
 }
 
 export function localizeListing(record: ListingRecord, locale: Locale): Listing {
-  const { title, location, summary, description, features, photoStart: _photoStart, ...rest } = record;
+  const { title, location, summary, description, features, photos, ...rest } = record;
   return {
     ...rest,
     title: title[locale],
@@ -60,7 +53,7 @@ export function localizeListing(record: ListingRecord, locale: Locale): Listing 
     summary: summary[locale],
     description: description[locale],
     features: features[locale],
-    images: photos(record, locale),
+    images: photos.map((name) => photo(name, locale)),
   };
 }
 
@@ -111,7 +104,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Heated pool', 'Landscaped garden', 'Two-car garage', 'Solar water heating', 'Backup generator', 'Fireplace'],
       ar: ['مسبح مُدفّأ', 'حديقة منسّقة', 'مرآب لسيارتين', 'تسخين مياه بالطاقة الشمسية', 'مولّد احتياطي', 'مدفأة'],
     },
-    photoStart: 1,
+    photos: ['villa-dusk', 'living-marble', 'kitchen-island', 'bedroom-tufted', 'bathroom-tub'],
     featured: true,
     listedAt: '2026-09-28',
   },
@@ -145,7 +138,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Courtyard', 'Roof terrace', 'Original cement tiles', 'Walk to the beach'],
       ar: ['باحة داخلية', 'سطح', 'بلاط أصلي', 'قريب من الشاطئ سيرًا'],
     },
-    photoStart: 2,
+    photos: ['stone-house', 'living-sectional', 'kitchen-bar', 'bedroom-modern', 'bathroom-shower'],
     listedAt: '2026-09-15',
   },
   {
@@ -178,7 +171,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Private garden', '24/7 security', 'Covered parking for 3 cars', 'Maid’s room'],
       ar: ['حديقة خاصة', 'حراسة على مدار الساعة', 'موقف مسقوف لثلاث سيارات', 'غرفة خادمة'],
     },
-    photoStart: 3,
+    photos: ['house-white-brown', 'house-pool', 'kitchen-island', 'bedroom-desk', 'bathroom-shower'],
     listedAt: '2026-10-02',
   },
   {
@@ -210,7 +203,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Sea view', 'Wraparound balcony', 'Concierge', '24-hour electricity', 'Gym', 'Two parking spaces'],
       ar: ['إطلالة بحرية', 'شرفة ملتفّة', 'خدمة استقبال', 'كهرباء 24 ساعة', 'نادٍ رياضي', 'موقفان للسيارات'],
     },
-    photoStart: 1,
+    photos: ['apartment-glass', 'infinity-pool-bay', 'living-window', 'kitchen-bar', 'bedroom-tufted'],
     featured: true,
     listedAt: '2026-10-08',
   },
@@ -243,7 +236,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Double-height ceilings', 'Mezzanine bedroom', 'Furnished', 'Generator included'],
       ar: ['أسقف مزدوجة الارتفاع', 'غرفة نوم على طابق نصفي', 'مفروش', 'اشتراك المولّد مشمول'],
     },
-    photoStart: 2,
+    photos: ['living-white-couch', 'apartment-curved', 'kitchen-bar', 'bedroom-modern', 'bathroom-shower'],
     listedAt: '2026-10-11',
   },
   {
@@ -275,7 +268,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Private garden', 'Open kitchen', 'Storage room', 'One parking space'],
       ar: ['حديقة خاصة', 'مطبخ مفتوح', 'غرفة تخزين', 'موقف سيارة واحد'],
     },
-    photoStart: 3,
+    photos: ['apartment-balconies', 'living-sectional', 'kitchen-island', 'bedroom-desk', 'bathroom-tub'],
     listedAt: '2026-09-21',
   },
   {
@@ -307,7 +300,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Furnished', 'Balcony', 'Internet ready', 'Elevator'],
       ar: ['مفروش', 'شرفة', 'جاهز للإنترنت', 'مصعد'],
     },
-    photoStart: 4,
+    photos: ['apartment-curved', 'studio-room', 'living-white-couch', 'bedroom-desk', 'bathroom-shower'],
     listedAt: '2026-10-14',
   },
   {
@@ -338,7 +331,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Open plan', 'Raised floors', 'Central A/C', '10 parking spaces', 'Backup power'],
       ar: ['تصميم مفتوح', 'أرضيات مرتفعة', 'تكييف مركزي', '10 مواقف للسيارات', 'طاقة احتياطية'],
     },
-    photoStart: 1,
+    photos: ['office-tower', 'office-meeting', 'office-corridor', 'office-lobby'],
     featured: true,
     listedAt: '2026-09-30',
   },
@@ -370,7 +363,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Double frontage', 'Mezzanine', 'Loading access', 'Signage rights'],
       ar: ['واجهتان', 'طابق نصفي', 'مدخل للتحميل', 'حق تركيب لافتات'],
     },
-    photoStart: 2,
+    photos: ['office-glass', 'office-lobby', 'office-meeting'],
     listedAt: '2026-08-27',
   },
   {
@@ -401,7 +394,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['9 m clear height', 'Two loading docks', 'Office block', 'Yard'],
       ar: ['ارتفاع صافٍ 9 أمتار', 'رصيفا تحميل', 'مبنى مكاتب', 'باحة خارجية'],
     },
-    photoStart: 3,
+    photos: ['warehouse-polished', 'warehouse-empty', 'office-corridor'],
     listedAt: '2026-09-05',
   },
   {
@@ -430,7 +423,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Residential zoning', 'Road access', 'Utilities at boundary', 'South-facing'],
       ar: ['تصنيف سكني', 'طريق وصول', 'الخدمات عند الحدود', 'متّجهة جنوبًا'],
     },
-    photoStart: 1,
+    photos: ['rolling-hills', 'valley-mountains', 'fields-mountains'],
     featured: true,
     listedAt: '2026-09-18',
   },
@@ -460,7 +453,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['≈300 olive trees', 'Private well', 'Stone terraces', 'Agricultural zoning'],
       ar: ['نحو 300 شجرة زيتون', 'بئر خاصة', 'جلول حجرية', 'تصنيف زراعي'],
     },
-    photoStart: 2,
+    photos: ['olive-stone-wall', 'olive-rows', 'farmland-trees'],
     listedAt: '2026-08-30',
   },
   {
@@ -489,7 +482,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
       en: ['Irrigation rights', 'Flat terrain', 'Road frontage', 'Annual lease'],
       ar: ['حقوق ري', 'أرض مستوية', 'واجهة على الطريق', 'إيجار سنوي'],
     },
-    photoStart: 3,
+    photos: ['fields-mountains', 'farmland-trees', 'valley-mountains'],
     listedAt: '2026-10-05',
   },
 ];

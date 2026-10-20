@@ -1,9 +1,23 @@
+/*
+ * Brand-black footer in every theme. Tokens are re-scoped here, so everything inside (wordmark,
+ * links, focus ring) adapts without per-element colours. Ratios against #0b0b0c.
+ */
 .footer {
-  margin-top: var(--space-8);
-  padding-top: var(--space-7);
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-hairline);
+  --color-text: #f7f7f7;            /* 18.4:1 */
+  --color-text-secondary: #a8a8a8;  /* 8.6:1 */
+  --color-hairline: rgba(255, 255, 255, 0.12);
+  --color-eyebrow: #d9b56a;         /* 10.4:1 */
+  --color-focus: #f7f7f7;
+  --color-accent: #f7f7f7;
+  margin-top: var(--space-9);
+  padding-top: var(--space-8);
+  background: var(--brand-ink);
+  color: var(--color-text);
   font-size: var(--text-sm);
+}
+
+.footer .heading {
+  color: var(--color-eyebrow);
 }
 
 .grid {

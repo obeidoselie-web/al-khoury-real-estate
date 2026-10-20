@@ -61,9 +61,16 @@
 }
 
 .location {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   color: var(--color-text);
   font-size: var(--text-base);
   font-weight: 500;
+}
+
+.location svg {
+  color: var(--color-text-secondary);
 }
 
 .layout {

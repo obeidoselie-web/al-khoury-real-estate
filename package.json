@@ -14,8 +14,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "images": "node scripts/generate-placeholders.mjs",
-    "brand": "node scripts/generate-brand.mjs"
+    "brand": "node scripts/generate-brand.mjs",
+    "photos": "node scripts/fetch-photos.mjs"
   },
   "dependencies": {
     "next": "^16.4.2",

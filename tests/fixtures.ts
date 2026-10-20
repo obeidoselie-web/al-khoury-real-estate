@@ -14,7 +14,7 @@ export function summary(type: PropertyType, deal: DealType, overrides: Partial<L
     bedrooms: type === 'land' || type === 'commercial' ? undefined : 2,
     bathrooms: type === 'land' ? undefined : 1,
     areaSqm: 120,
-    image: { src: '/images/placeholders/house-1.jpg', alt: '', width: 1600, height: 1067 },
+    image: { src: '/images/photos/villa-dusk.jpg', alt: '', width: 1600, height: 1067 },
     ...overrides,
   };
 }

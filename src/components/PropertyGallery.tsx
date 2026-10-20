@@ -26,8 +26,8 @@ export function PropertyGallery({ images, title, locale, t }: PropertyGalleryPro
   return (
     <section className={styles.gallery} aria-label={interpolate(t.property.photosOf, { title })}>
       <div className={styles.track} tabIndex={0} role="region" aria-label={plural(locale, images.length, t.property.photosRegion)}>
-        <ul className={styles.list}>
-          {images.map((image, index) => (
+        <ul className={styles.list} data-count={Math.min(images.length, 5)}>
+          {images.slice(0, 5).map((image, index) => (
             <li key={`${image.src}-${index}`} className={index === 0 ? styles.lead : styles.item}>
               <Image
                 src={image.src}

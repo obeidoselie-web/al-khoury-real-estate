@@ -1,0 +1,356 @@
+{
+  "_comment": "Stock photography from Unsplash (free Unsplash License: https://unsplash.com/license). Files are fetched and optimised by scripts/fetch-photos.mjs into public/images/photos/. Replace with real Al Khoury listing photos before launch.",
+  "photos": [
+    {
+      "name": "hero-villa-dusk",
+      "unsplash": "photo-1757356657991-c3fd6e2e812e",
+      "page": "q6eSeT3euLU",
+      "author": "Michael Brown",
+      "hero": true,
+      "alt": {
+        "en": "Modern villa with a lit swimming pool at dusk",
+        "ar": "فيلا حديثة مع مسبح مضاء عند الغسق"
+      }
+    },
+    {
+      "name": "villa-dusk",
+      "unsplash": "photo-1757359056339-22968344cce6",
+      "page": "G48h926L2qo",
+      "author": "Michael Brown",
+      "alt": {
+        "en": "Contemporary villa with floor-to-ceiling windows at dusk",
+        "ar": "فيلا معاصرة بنوافذ ممتدة من الأرض إلى السقف عند الغسق"
+      }
+    },
+    {
+      "name": "villa-white-path",
+      "unsplash": "photo-1762811054947-605b20298615",
+      "page": "eLG6MsOeupk",
+      "author": "RETRATO INMOBILIARIO",
+      "alt": {
+        "en": "White modern house with an illuminated garden path",
+        "ar": "منزل حديث أبيض مع ممر حديقة مضاء"
+      }
+    },
+    {
+      "name": "house-white-brown",
+      "unsplash": "photo-1580587771525-78b9dba3b914",
+      "page": "_TPTXZd9mOo",
+      "author": "Ярослав Алексеенко",
+      "alt": {
+        "en": "Two-storey family house with a landscaped front lawn",
+        "ar": "منزل عائلي من طابقين مع حديقة أمامية منسّقة"
+      }
+    },
+    {
+      "name": "house-pool",
+      "unsplash": "photo-1582610116397-edb318620f90",
+      "page": "HKr5cn6S0q0",
+      "author": "Dinuka Lankaloka",
+      "alt": {
+        "en": "Garden and swimming pool behind a white house",
+        "ar": "حديقة ومسبح خلف منزل أبيض"
+      }
+    },
+    {
+      "name": "stone-house",
+      "unsplash": "photo-1737400604966-95536db9c01b",
+      "page": "cpdrg1rK9eA",
+      "author": "Tatyana Rubleva",
+      "alt": {
+        "en": "Old stone house with blue shutters and a terracotta roof",
+        "ar": "بيت حجري قديم بنوافذ زرقاء وسقف من القرميد"
+      }
+    },
+    {
+      "name": "infinity-pool-bay",
+      "unsplash": "photo-1543489822-c49534f3271f",
+      "page": "XtnNrQYC7ts",
+      "author": "big.tiny.belly",
+      "alt": {
+        "en": "Infinity pool overlooking a blue bay",
+        "ar": "مسبح لا متناهٍ يطلّ على خليج أزرق"
+      }
+    },
+    {
+      "name": "living-marble",
+      "unsplash": "photo-1598928506311-c55ded91a20c",
+      "page": "WgkA3CSFrjc",
+      "author": "Lotus Design N Print",
+      "alt": {
+        "en": "Living room with a marble fireplace and white sofas",
+        "ar": "صالون مع مدفأة رخامية وأرائك بيضاء"
+      }
+    },
+    {
+      "name": "living-sectional",
+      "unsplash": "photo-1758448511322-8bfc73daf606",
+      "page": "yxO8YG082v8",
+      "author": "Aalo Lens",
+      "alt": {
+        "en": "Bright living room with a sectional sofa and large windows",
+        "ar": "صالون مشرق مع أريكة زاوية ونوافذ واسعة"
+      }
+    },
+    {
+      "name": "living-window",
+      "unsplash": "photo-1649429710616-dad56ce9a076",
+      "page": "HaP28Y3ZGSg",
+      "author": "sophie peng",
+      "alt": {
+        "en": "Furnished living room with a wide picture window",
+        "ar": "صالون مفروش مع نافذة عريضة"
+      }
+    },
+    {
+      "name": "living-white-couch",
+      "unsplash": "photo-1501876725168-00c445821c9e",
+      "page": "_-JR5TxKNSo",
+      "author": "ian dooley",
+      "alt": {
+        "en": "Minimal white sofa and wooden coffee table",
+        "ar": "أريكة بيضاء بسيطة وطاولة قهوة خشبية"
+      }
+    },
+    {
+      "name": "kitchen-island",
+      "unsplash": "photo-1778731660397-6a66493be391",
+      "page": "NDapMfAONIg",
+      "author": "Franco Debartolo",
+      "alt": {
+        "en": "Modern kitchen with an island and bar stools",
+        "ar": "مطبخ حديث مع جزيرة وكراسٍ عالية"
+      }
+    },
+    {
+      "name": "kitchen-bar",
+      "unsplash": "photo-1632583824020-937ae9564495",
+      "page": "vqMQN9zImG4",
+      "author": "Kam Idris",
+      "alt": {
+        "en": "Open-plan kitchen with a breakfast bar",
+        "ar": "مطبخ مفتوح مع طاولة إفطار"
+      }
+    },
+    {
+      "name": "studio-room",
+      "unsplash": "photo-1673970303139-72fafe11bc93",
+      "page": "bw4rCjv1Ddg",
+      "author": "Martin Kascak",
+      "alt": {
+        "en": "Compact studio room with a desk, shelving and a small fridge",
+        "ar": "غرفة استوديو صغيرة مع مكتب ورفوف وثلاجة صغيرة"
+      }
+    },
+    {
+      "name": "bedroom-modern",
+      "unsplash": "photo-1778731525620-ae459167c176",
+      "page": "R4C2tIp-3C4",
+      "author": "Franco Debartolo",
+      "alt": {
+        "en": "Modern bedroom with a large bed and a white bench",
+        "ar": "غرفة نوم حديثة مع سرير كبير ومقعد أبيض"
+      }
+    },
+    {
+      "name": "bedroom-tufted",
+      "unsplash": "photo-1505693416388-ac5ce068fe85",
+      "page": "iAftdIcgpFc",
+      "author": "Quilia",
+      "alt": {
+        "en": "Bedroom with a tufted headboard and soft grey bedding",
+        "ar": "غرفة نوم مع لوح رأس منجّد وأغطية رمادية"
+      }
+    },
+    {
+      "name": "bedroom-desk",
+      "unsplash": "photo-1638454668466-e8dbd5462f20",
+      "page": "WDUtNbot6Qw",
+      "author": "Lotus Design N Print",
+      "alt": {
+        "en": "Bedroom with a desk beside the window",
+        "ar": "غرفة نوم مع مكتب بجانب النافذة"
+      }
+    },
+    {
+      "name": "bathroom-tub",
+      "unsplash": "photo-1781344334947-60c704bafd51",
+      "page": "M6a_MWnHJd4",
+      "author": "Ibrar Tariq",
+      "alt": {
+        "en": "Bathroom with double sinks and a freestanding bath",
+        "ar": "حمّام مع مغسلتين ومغطس مستقل"
+      }
+    },
+    {
+      "name": "bathroom-shower",
+      "unsplash": "photo-1584622650111-993a426fbf0a",
+      "page": "g51F6-WYzyU",
+      "author": "Lotus Design N Print",
+      "alt": {
+        "en": "Modern bathroom with a walk-in shower and vanity",
+        "ar": "حمّام حديث مع دش مفتوح ومغسلة"
+      }
+    },
+    {
+      "name": "apartment-glass",
+      "unsplash": "photo-1624204386084-dd8c05e32226",
+      "page": "4453DIQWtsQ",
+      "author": "Tobias Wilden",
+      "alt": {
+        "en": "Apartment building with glass balconies",
+        "ar": "مبنى سكني بشرفات زجاجية"
+      }
+    },
+    {
+      "name": "apartment-curved",
+      "unsplash": "photo-1761509386107-9baefe0073f2",
+      "page": "UEQuNtSs0AU",
+      "author": "bahareh moradian",
+      "alt": {
+        "en": "Residential building with curved balconies and trees",
+        "ar": "مبنى سكني بشرفات منحنية وأشجار"
+      }
+    },
+    {
+      "name": "apartment-balconies",
+      "unsplash": "photo-1784853879843-f3c5aacf2569",
+      "page": "NNZ_u-WKgIo",
+      "author": "SM Rodriguez",
+      "alt": {
+        "en": "Modern apartment block with many balconies",
+        "ar": "مبنى شقق حديث بشرفات عديدة"
+      }
+    },
+    {
+      "name": "office-tower",
+      "unsplash": "photo-1574958269340-fa927503f3dd",
+      "page": "1deQbU6DhBg",
+      "author": "kaleb tapp",
+      "alt": {
+        "en": "Modern office building with blue and silver panels",
+        "ar": "مبنى مكاتب حديث بواجهة زرقاء وفضية"
+      }
+    },
+    {
+      "name": "office-glass",
+      "unsplash": "photo-1621831337128-35676ca30868",
+      "page": "Wm8opOd-MDE",
+      "author": "Kenrick Baksh",
+      "alt": {
+        "en": "Glass-fronted commercial building",
+        "ar": "مبنى تجاري بواجهة زجاجية"
+      }
+    },
+    {
+      "name": "office-meeting",
+      "unsplash": "photo-1497366811353-6870744d04b2",
+      "page": "eHD8Y1Znfpk",
+      "author": "Nastuh Abootalebi",
+      "alt": {
+        "en": "Office meeting area with a long table",
+        "ar": "منطقة اجتماعات في مكتب مع طاولة طويلة"
+      }
+    },
+    {
+      "name": "office-corridor",
+      "unsplash": "photo-1497366754035-f200968a6e72",
+      "page": "yWwob8kwOCk",
+      "author": "Nastuh Abootalebi",
+      "alt": {
+        "en": "Office corridor between glass-walled rooms",
+        "ar": "ممر مكاتب بين غرف بجدران زجاجية"
+      }
+    },
+    {
+      "name": "office-lobby",
+      "unsplash": "photo-1758448500688-3ababa93fd67",
+      "page": "pt0nGH-NvoA",
+      "author": "Aalo Lens",
+      "alt": {
+        "en": "Lobby with a marble reception desk and plants",
+        "ar": "ردهة مع مكتب استقبال رخامي ونباتات"
+      }
+    },
+    {
+      "name": "warehouse-polished",
+      "unsplash": "photo-1772300704502-410f0fbd43bb",
+      "page": "hnMqVv0EkRc",
+      "author": "Craftsman Concrete Floors",
+      "alt": {
+        "en": "Spacious empty warehouse with a polished concrete floor",
+        "ar": "مستودع واسع فارغ بأرضية خرسانية مصقولة"
+      }
+    },
+    {
+      "name": "warehouse-empty",
+      "unsplash": "photo-1694885169342-909981fb408a",
+      "page": "D7A6CiIFVk8",
+      "author": "Brian Wangenheim",
+      "alt": {
+        "en": "Large empty warehouse interior",
+        "ar": "مستودع كبير فارغ من الداخل"
+      }
+    },
+    {
+      "name": "olive-stone-wall",
+      "unsplash": "photo-1785440944109-4021897d9e13",
+      "page": "k_tUO1kGvxc",
+      "author": "Lothar Boris Piltz",
+      "alt": {
+        "en": "Olive grove with a stone wall under a blue sky",
+        "ar": "بستان زيتون مع جدار حجري تحت سماء زرقاء"
+      }
+    },
+    {
+      "name": "olive-rows",
+      "unsplash": "photo-1762202754535-d455f57fd126",
+      "page": "VcP0Ni8xu5A",
+      "author": "Alican Leblebici",
+      "alt": {
+        "en": "Rows of old olive trees in a shaded orchard (black and white)",
+        "ar": "صفوف من أشجار الزيتون المعمّرة في بستان ظليل (بالأبيض والأسود)"
+      }
+    },
+    {
+      "name": "valley-mountains",
+      "unsplash": "photo-1642670345558-6585061ebf18",
+      "page": "rXo3cBZkLC0",
+      "author": "Melissa Brown",
+      "alt": {
+        "en": "Golden grassy hills rolling into the distance",
+        "ar": "تلال عشبية ذهبية تمتدّ في الأفق"
+      }
+    },
+    {
+      "name": "rolling-hills",
+      "unsplash": "photo-1789659349526-1302d7d9165e",
+      "page": "p1_peDpT6ow",
+      "author": "Da-shika",
+      "alt": {
+        "en": "Green mountain slopes under a soft, hazy sky",
+        "ar": "سفوح جبلية خضراء تحت سماء ضبابية هادئة"
+      }
+    },
+    {
+      "name": "fields-mountains",
+      "unsplash": "photo-1601784036505-80b4fc20b70a",
+      "page": "-C1MN_veTCc",
+      "author": "Anthony Mucci",
+      "alt": {
+        "en": "Farmland with trees and mountains under a blue sky",
+        "ar": "أرض زراعية مع أشجار وجبال تحت سماء زرقاء"
+      }
+    },
+    {
+      "name": "farmland-trees",
+      "unsplash": "photo-1619893999431-601ffd8c2e1e",
+      "page": "vNH6szhfrfI",
+      "author": "Timothy Abraham",
+      "alt": {
+        "en": "Open farmland edged with green trees",
+        "ar": "أرض زراعية مفتوحة تحيط بها أشجار خضراء"
+      }
+    }
+  ]
+}
