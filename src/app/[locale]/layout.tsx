@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 
 import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
+import { WhatsAppFab } from '@/components/WhatsAppFab';
 import { LOCALES, LOCALE_META, isLocale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/dictionaries';
 import { I18nProvider } from '@/i18n/I18nProvider';
@@ -66,6 +67,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
             {children}
           </main>
           <SiteFooter locale={locale} t={t} />
+          <WhatsAppFab />
         </I18nProvider>
       </body>
     </html>

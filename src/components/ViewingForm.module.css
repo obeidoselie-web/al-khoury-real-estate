@@ -1,0 +1,58 @@
+.slots {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.slotOptions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.slot {
+  position: relative;
+  display: flex;
+}
+
+.slot input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.slot span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 3.5rem;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-align: center;
+  pointer-events: none;
+}
+
+.slot:hover span {
+  border-color: var(--color-text);
+}
+
+.slot input:checked + span {
+  background: var(--color-selected);
+  border-color: var(--color-selected);
+  color: var(--color-on-selected);
+}
+
+.slot input:focus-visible + span {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+}

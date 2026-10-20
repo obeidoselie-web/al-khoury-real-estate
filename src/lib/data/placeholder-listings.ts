@@ -76,6 +76,7 @@ const place = {
 export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   {
     id: 'villa-broummana-pine-view',
+    verified: true,
     title: { en: 'Pine-view villa in Broummana', ar: 'فيلا مطلّة على الصنوبر في برمانا' },
     type: 'house',
     deal: 'sale',
@@ -111,6 +112,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   },
   {
     id: 'stone-house-batroun-old-town',
+    verified: true,
     title: { en: 'Restored stone house, Batroun old town', ar: 'بيت حجري مرمّم في البترون القديمة' },
     type: 'house',
     deal: 'sale',
@@ -145,6 +147,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   },
   {
     id: 'family-home-rabieh',
+    verified: true,
     title: { en: 'Family home with garden in Rabieh', ar: 'منزل عائلي مع حديقة في الرابية' },
     type: 'house',
     deal: 'rent',
@@ -179,6 +182,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   },
   {
     id: 'sea-view-apartment-achrafieh',
+    verified: true,
     title: { en: 'Sea-view apartment in Achrafieh', ar: 'شقة مطلّة على البحر في الأشرفية' },
     type: 'apartment',
     deal: 'sale',
@@ -213,6 +217,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   },
   {
     id: 'loft-mar-mikhael',
+    verified: true,
     title: { en: 'Industrial loft in Mar Mikhael', ar: 'لوفت بطابع صناعي في مار مخايل' },
     type: 'apartment',
     deal: 'rent',
@@ -246,6 +251,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   },
   {
     id: 'garden-apartment-jounieh',
+    verified: true,
     title: { en: 'Garden apartment in Jounieh', ar: 'شقة مع حديقة في جونية' },
     type: 'apartment',
     deal: 'sale',
@@ -279,6 +285,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   },
   {
     id: 'studio-hamra',
+    verified: true,
     title: { en: 'Bright studio near Hamra Street', ar: 'استوديو مشرق قرب شارع الحمرا' },
     type: 'apartment',
     deal: 'rent',
@@ -312,6 +319,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   },
   {
     id: 'office-floor-downtown',
+    verified: true,
     title: { en: 'Grade-A office floor, Downtown Beirut', ar: 'طابق مكاتب فئة أولى في وسط بيروت' },
     type: 'commercial',
     deal: 'rent',
@@ -345,6 +353,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   },
   {
     id: 'retail-unit-verdun',
+    verified: true,
     title: { en: 'Corner retail unit on Verdun Street', ar: 'محل تجاري على زاوية شارع فردان' },
     type: 'commercial',
     deal: 'sale',
@@ -409,6 +418,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   },
   {
     id: 'hillside-plot-faqra',
+    verified: true,
     title: { en: 'Hillside building plot near Faqra', ar: 'أرض للبناء على تلّة قرب فقرا' },
     type: 'land',
     deal: 'sale',
@@ -440,6 +450,7 @@ export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   },
   {
     id: 'olive-grove-koura',
+    verified: true,
     title: { en: 'Olive grove in Koura', ar: 'بستان زيتون في الكورة' },
     type: 'land',
     deal: 'sale',

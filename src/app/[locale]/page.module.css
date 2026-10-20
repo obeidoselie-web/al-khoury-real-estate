@@ -214,3 +214,20 @@
   border-radius: 50%;
   box-shadow: 0 0 0 1px rgba(201, 164, 92, 0.35), 0 24px 60px rgba(0, 0, 0, 0.5);
 }
+
+.brandActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* Outline button on the black band. */
+.ghostLight {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.55);
+  color: #ffffff;
+}
+
+.ghostLight:hover {
+  background: rgba(255, 255, 255, 0.1);
+}

@@ -41,4 +41,9 @@ await writeFile(
 );
 // iOS applies its own corner mask, so the touch icon is a full square.
 await sharp(Buffer.from(tile(180, 0))).png().toFile(path.join(root, 'src/app/apple-icon.png'));
+// Web app manifest icons; the maskable one keeps the mark inside the 80% safe zone.
+await sharp(Buffer.from(tile(192, 40))).png().toFile(path.join(root, 'public/brand/icon-192.png'));
+await sharp(Buffer.from(tile(512, 108))).png().toFile(path.join(root, 'public/brand/icon-512.png'));
+const maskable = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><defs>${gradient}</defs><rect width="512" height="512" fill="#0b0b0c"/><g transform="translate(133 158) scale(2.46)">${mark}</g></svg>`;
+await sharp(Buffer.from(maskable)).png().toFile(path.join(root, 'public/brand/icon-maskable-512.png'));
 console.log('wrote src/app/icon.svg, src/app/apple-icon.png, public/brand/mark.svg');

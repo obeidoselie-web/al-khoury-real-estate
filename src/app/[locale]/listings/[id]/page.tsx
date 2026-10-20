@@ -2,16 +2,21 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { AdvisorCard } from '@/components/AdvisorCard';
 import { FavouriteButton } from '@/components/FavouriteButton';
 import { Highlights } from '@/components/Highlights';
-import { ChatIcon, PhoneIcon, PinIcon } from '@/components/icons';
+import { CalendarIcon, ChatIcon, CheckIcon, PhoneIcon, PinIcon } from '@/components/icons';
+import { ListingRow } from '@/components/ListingRow';
+import { PaymentCalculator } from '@/components/PaymentCalculator';
 import { PropertyGallery } from '@/components/PropertyGallery';
 import { ShareButton } from '@/components/ShareButton';
-import { LOCALES, isLocale, localizedPath, type Locale } from '@/i18n/config';
+import { ViewingForm } from '@/components/ViewingForm';
+import { LOCALES, LOCALE_META, isLocale, localizedPath, type Locale } from '@/i18n/config';
 import { getDictionary, type Dictionary } from '@/i18n/dictionaries';
 import { interpolate } from '@/i18n/plural';
 import { COMPANY, siteUrl, whatsappHref } from '@/lib/company';
-import { getListingById, getListingIds } from '@/lib/data/listings';
+import { advisorForRegion } from '@/lib/data/advisors';
+import { getListingById, getListingIds, getSimilarListings } from '@/lib/data/listings';
 import { listingsHref } from '@/lib/filters';
 import { formatArea, formatPlace, formatPrice } from '@/lib/format';
 import { alternates } from '@/lib/seo';
@@ -73,8 +78,15 @@ export default async function PropertyPage({ params }: Props) {
   const p = t.property;
   const phone = <span className="ltr">{COMPANY.phone.display}</span>;
   const [callBefore, callAfter = ''] = p.call.split('{phone}');
-  const whatsapp = whatsappHref(
-    interpolate(p.whatsappMessage, { title: listing.title, url: `${siteUrl()}${localizedPath(locale, `/listings/${listing.id}`)}` }),
+  const whatsappMessage = interpolate(p.whatsappMessage, {
+    title: listing.title,
+    url: `${siteUrl()}${localizedPath(locale, `/listings/${listing.id}`)}`,
+  });
+  const whatsapp = whatsappHref(whatsappMessage);
+  const advisor = advisorForRegion(listing.region);
+  const similar = await getSimilarListings(listing, locale, 6);
+  const listedOn = new Intl.DateTimeFormat(LOCALE_META[locale].intl, { dateStyle: 'long', timeZone: 'UTC' }).format(
+    new Date(`${listing.listedAt}T00:00:00Z`),
   );
 
   return (
@@ -99,6 +111,18 @@ export default async function PropertyPage({ params }: Props) {
             {t.deals[listing.deal].badge} · {t.types[listing.type].label}
           </p>
           <h1 className={styles.title}>{listing.title}</h1>
+          <ul className={styles.badges}>
+            {listing.verified && (
+              <li className={styles.verified} title={p.verifiedHint}>
+                <CheckIcon size={14} />
+                {p.verified}
+              </li>
+            )}
+            <li className={styles.listed}>
+              <CalendarIcon size={14} />
+              {interpolate(p.listedOn, { date: listedOn })}
+            </li>
+          </ul>
           <div className={styles.subhead}>
             <p className={styles.location}>
               <PinIcon size={18} />
@@ -111,7 +135,7 @@ export default async function PropertyPage({ params }: Props) {
           </div>
         </header>
 
-        <PropertyGallery images={listing.images} title={listing.title} locale={locale} t={t} />
+        <PropertyGallery images={listing.images} title={listing.title} locale={locale} t={{ property: p }} />
 
         <div className={styles.layout}>
           <div className={styles.main}>
@@ -156,6 +180,20 @@ export default async function PropertyPage({ params }: Props) {
                 </ul>
               </section>
             )}
+
+            {listing.deal === 'sale' && (
+              <div className={styles.section}>
+                <PaymentCalculator price={listing.price} />
+              </div>
+            )}
+
+            <section id="book-viewing" aria-labelledby="viewing-title" className={styles.section}>
+              <h2 id="viewing-title" className={styles.sectionTitle}>
+                {p.viewing.title}
+              </h2>
+              <p className={styles.paragraph}>{p.viewing.lead}</p>
+              <ViewingForm propertyId={listing.id} />
+            </section>
           </div>
 
           <aside className={styles.aside} aria-labelledby="contact-title">
@@ -165,7 +203,11 @@ export default async function PropertyPage({ params }: Props) {
                 {p.interestedTitle}
               </h2>
               <p className={styles.contactText}>{p.interestedText}</p>
-              <Link href={enquireHref} className="button">
+              <a href="#book-viewing" className="button">
+                <CalendarIcon size={18} />
+                {p.bookViewing}
+              </a>
+              <Link href={enquireHref} className="button button-secondary">
                 {p.enquire}
               </Link>
               <a href={whatsapp} className="button button-secondary" target="_blank" rel="noopener noreferrer">
@@ -178,17 +220,31 @@ export default async function PropertyPage({ params }: Props) {
                 {callAfter}
               </a>
             </div>
+            <AdvisorCard advisor={advisor} locale={locale} t={t} whatsappMessage={whatsappMessage} />
           </aside>
         </div>
       </div>
+
+      {similar.length > 0 && (
+        <div className={`container ${styles.narrow} ${styles.similar}`}>
+          <ListingRow
+            id="similar"
+            title={p.similarTitle}
+            href={listingsHref(locale, { type: listing.type })}
+            listings={similar}
+            locale={locale}
+            t={t}
+          />
+        </div>
+      )}
 
       {/* Phone-only sticky action bar keeps the contact action one thumb-tap away. */}
       <div className={styles.stickyBar}>
         <div className={styles.stickyInner}>
           <p className={styles.stickyPrice}>{price}</p>
-          <Link href={enquireHref} className="button">
-            {p.enquireShort}
-          </Link>
+          <a href="#book-viewing" className="button">
+            {p.bookViewing}
+          </a>
           {/* Secondary actions are icon buttons here so the price keeps its room on a 375px phone. */}
           <a
             href={COMPANY.phone.href}

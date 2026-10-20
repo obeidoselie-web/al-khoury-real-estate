@@ -150,3 +150,52 @@
   gap: var(--space-2) var(--space-5);
   margin-top: var(--space-2);
 }
+
+.resultsTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+/* Sort: a quiet inline select with an icon and chevron. */
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-target);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.sort:hover {
+  background: var(--color-fill-hover);
+}
+
+.sort:focus-within {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.sortSelect {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sortSelect:focus-visible {
+  outline: none;
+}
+
+.sortSelect option {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}

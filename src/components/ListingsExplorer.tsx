@@ -13,16 +13,19 @@ import {
   filterListings,
   filtersToQueryString,
   isDefaultFilters,
+  sortListings,
   type DealFilter,
   type ListingFilters,
   type RegionFilter,
+  type SortOrder,
   type TypeFilter,
 } from '@/lib/filters';
 import { DEAL_TYPES, PROPERTY_TYPES, REGIONS, type ListingSummary } from '@/lib/types';
 
 import { CategoryTabs } from './CategoryTabs';
+import { FiltersDialog } from './FiltersDialog';
 import { ChoiceGroup, type ChoiceOption } from './ChoiceGroup';
-import { ChevronDownIcon, PinIcon } from './icons';
+import { ChevronDownIcon, PinIcon, SortIcon } from './icons';
 import { ListingGrid } from './ListingGrid';
 import styles from './ListingsExplorer.module.css';
 
@@ -40,7 +43,7 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
   const { locale, t } = useI18n();
   const [filters, setFilters] = useState<ListingFilters>(initialFilters);
 
-  const results = useMemo(() => filterListings(listings, filters), [listings, filters]);
+  const results = useMemo(() => sortListings(filterListings(listings, filters), filters.sort), [listings, filters]);
   const counts = useMemo(() => countOptions(listings, filters), [listings, filters]);
   const summary = describeResults(results.length, filters, locale, t);
 
@@ -78,6 +81,7 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
           onChange={(type) => update({ ...filters, type })}
         />
         <div className={styles.refine}>
+          <FiltersDialog listings={listings} filters={filters} onApply={update} />
           <label className={styles.regionPicker}>
             <PinIcon size={18} />
             <span className="sr-only">{t.listings.regionLabel}</span>
@@ -102,7 +106,8 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
             showCounts={false}
             options={dealOptions}
             value={filters.deal}
-            onChange={(deal) => update({ ...filters, deal })}
+            // Budget presets differ between buying and renting, so a budget never carries across.
+            onChange={(deal) => update({ ...filters, deal, maxPrice: undefined })}
           />
         </div>
       </search>
@@ -112,11 +117,28 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
         <p className={styles.count} role="status" aria-live="polite" aria-atomic="true">
           {summary}
         </p>
-        {!isDefaultFilters(filters) && results.length > 0 && (
-          <button type="button" className={styles.clear} onClick={() => update(DEFAULT_FILTERS)}>
-            {t.listings.clear}
-          </button>
-        )}
+        <div className={styles.resultsTools}>
+          {!isDefaultFilters(filters) && results.length > 0 && (
+            <button type="button" className={styles.clear} onClick={() => update({ ...DEFAULT_FILTERS, sort: filters.sort })}>
+              {t.listings.clear}
+            </button>
+          )}
+          <label className={styles.sort}>
+            <SortIcon size={16} />
+            <span className="sr-only">{t.listings.sortLabel}</span>
+            <select
+              value={filters.sort ?? 'newest'}
+              onChange={(event) => update({ ...filters, sort: event.target.value as SortOrder })}
+              className={styles.sortSelect}
+            >
+              <option value="newest">{t.listings.sortNewest}</option>
+              <option value="price-asc">{t.listings.sortPriceAsc}</option>
+              <option value="price-desc">{t.listings.sortPriceDesc}</option>
+              <option value="size-desc">{t.listings.sortSize}</option>
+            </select>
+            <ChevronDownIcon size={14} />
+          </label>
+        </div>
       </div>
 
       {results.length > 0 ? (

@@ -606,3 +606,8 @@ select {
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;
 }
+
+/* While any modal dialog (settings, filters, photo viewer) is open, the page behind doesn't scroll. */
+:root:has(dialog[open]) {
+  overflow: hidden;
+}

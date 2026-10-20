@@ -91,6 +91,21 @@ export async function getListingById(id: string, locale: Locale): Promise<Listin
   }
 }
 
+/**
+ * Other listings most like this one: same type and deal first, then same type, then same region.
+ */
+export async function getSimilarListings(listing: Listing, locale: Locale, limit = 6): Promise<ListingSummary[]> {
+  const others = (await getListings(locale)).filter((other) => other.id !== listing.id);
+  const score = (other: Listing) =>
+    (other.type === listing.type ? 4 : 0) + (other.deal === listing.deal ? 2 : 0) + (other.region === listing.region ? 1 : 0);
+  return others
+    .map((other) => ({ other, score: score(other) }))
+    .filter(({ score }) => score >= 3)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map(({ other }) => toSummary(other));
+}
+
 /** Ids are language-independent; used for static generation of every locale. */
 export async function getListingIds(): Promise<string[]> {
   return (await getListings('en')).map((listing) => listing.id);

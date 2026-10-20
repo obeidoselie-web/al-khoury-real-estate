@@ -49,6 +49,9 @@ export function SiteFooter({ locale, t }: { locale: Locale; t: Dictionary }) {
                 <Link href={localizedPath(locale, '/about')}>{t.nav.about}</Link>
               </li>
               <li>
+                <Link href={localizedPath(locale, '/sell')}>{t.nav.listProperty}</Link>
+              </li>
+              <li>
                 <Link href={`${localizedPath(locale, '/about')}#contact`}>{t.nav.contact}</Link>
               </li>
             </ul>

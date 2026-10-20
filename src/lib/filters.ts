@@ -13,7 +13,25 @@ export interface ListingFilters {
   deal: DealFilter;
   /** Optional so callers that only filter by type/deal stay simple; missing means "anywhere". */
   region?: RegionFilter;
+  /** Budget ceiling in USD (monthly for rentals). Only applied once Buy or Rent is chosen. */
+  maxPrice?: number;
+  /** Minimum bedrooms (0 = studios and up). Listings without bedrooms (land, most commercial) drop out. */
+  minBeds?: number;
+  /** Minimum built area / plot size in m². */
+  minSize?: number;
+  sort?: SortOrder;
 }
+
+export const SORT_ORDERS = ['newest', 'price-asc', 'price-desc', 'size-desc'] as const;
+export type SortOrder = (typeof SORT_ORDERS)[number];
+
+/** Budget presets per deal: monthly rent vs sale price. */
+export const BUDGETS: Record<DealType, number[]> = {
+  rent: [1_000, 2_000, 5_000, 10_000],
+  sale: [300_000, 500_000, 1_000_000, 2_000_000],
+};
+export const BEDROOM_STEPS = [1, 2, 3, 4];
+export const SIZE_STEPS = [100, 200, 500, 1_000];
 
 export const DEFAULT_FILTERS: ListingFilters = { type: 'all', deal: 'all', region: 'all' };
 
@@ -33,6 +51,17 @@ function isDealType(value: unknown): value is DealType {
   return typeof value === 'string' && (DEAL_TYPES as readonly string[]).includes(value);
 }
 
+function isSortOrder(value: unknown): value is SortOrder {
+  return typeof value === 'string' && (SORT_ORDERS as readonly string[]).includes(value);
+}
+
+/** A whole number ≥ 1 (or ≥ 0 when allowZero), capped to keep URLs sane; anything else is ignored. */
+function positiveInt(value: string | undefined, allowZero = false): number | undefined {
+  if (!value || !/^\d{1,9}$/.test(value)) return undefined;
+  const n = Number(value);
+  return n > 0 || (allowZero && n === 0) ? n : undefined;
+}
+
 function isRegion(value: unknown): value is Region {
   return typeof value === 'string' && (REGIONS as readonly string[]).includes(value);
 }
@@ -42,11 +71,20 @@ export function parseFilters(params: ParamSource): ListingFilters {
   const type = readParam(params, 'type')?.toLowerCase();
   const deal = readParam(params, 'deal')?.toLowerCase();
   const region = readParam(params, 'region')?.toLowerCase();
-  return {
+  const filters: ListingFilters = {
     type: isPropertyType(type) ? type : 'all',
     deal: isDealType(deal) ? deal : 'all',
     region: isRegion(region) ? region : 'all',
   };
+  const maxPrice = positiveInt(readParam(params, 'maxPrice'));
+  const minBeds = positiveInt(readParam(params, 'minBeds'), true);
+  const minSize = positiveInt(readParam(params, 'minSize'));
+  const sort = readParam(params, 'sort');
+  if (maxPrice !== undefined) filters.maxPrice = maxPrice;
+  if (minBeds !== undefined && minBeds <= 10) filters.minBeds = minBeds;
+  if (minSize !== undefined) filters.minSize = minSize;
+  if (isSortOrder(sort) && sort !== 'newest') filters.sort = sort;
+  return filters;
 }
 
 /** Serialises filters to a query string (without "?"), omitting defaults so URLs stay clean. */
@@ -55,6 +93,10 @@ export function filtersToQueryString(filters: ListingFilters): string {
   if (filters.deal !== 'all') params.set('deal', filters.deal);
   if (filters.type !== 'all') params.set('type', filters.type);
   if (filters.region && filters.region !== 'all') params.set('region', filters.region);
+  if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice));
+  if (filters.minBeds !== undefined) params.set('minBeds', String(filters.minBeds));
+  if (filters.minSize) params.set('minSize', String(filters.minSize));
+  if (filters.sort && filters.sort !== 'newest') params.set('sort', filters.sort);
   return params.toString();
 }
 
@@ -64,17 +106,40 @@ export function listingsHref(locale: Locale, filters: Partial<ListingFilters> = 
   return query ? `${path}?${query}` : path;
 }
 
-type Filterable = Pick<Listing, 'type' | 'deal'> & Partial<Pick<Listing, 'region'>>;
+type Filterable = Pick<Listing, 'type' | 'deal'> & Partial<Pick<Listing, 'region' | 'price' | 'bedrooms' | 'areaSqm'>>;
 
 const inRegion = (listing: Filterable, region: RegionFilter | undefined) =>
   !region || region === 'all' || listing.region === region;
+
+/** Budget, bedrooms and size — the refinements in the Filters panel. */
+function matchesRefinements(listing: Filterable, filters: ListingFilters): boolean {
+  if (filters.maxPrice && filters.deal !== 'all' && listing.price !== undefined && listing.price > filters.maxPrice) return false;
+  if (filters.minBeds !== undefined && (listing.bedrooms === undefined || listing.bedrooms < filters.minBeds)) return false;
+  if (filters.minSize && (listing.areaSqm === undefined || listing.areaSqm < filters.minSize)) return false;
+  return true;
+}
 
 export function matchesFilters(listing: Filterable, filters: ListingFilters): boolean {
   return (
     (filters.type === 'all' || listing.type === filters.type) &&
     (filters.deal === 'all' || listing.deal === filters.deal) &&
-    inRegion(listing, filters.region)
+    inRegion(listing, filters.region) &&
+    matchesRefinements(listing, filters)
   );
+}
+
+/** How many Filters-panel refinements are active (for the button badge). */
+export function activeRefinements(filters: ListingFilters): number {
+  return (filters.maxPrice && filters.deal !== 'all' ? 1 : 0) + (filters.minBeds !== undefined ? 1 : 0) + (filters.minSize ? 1 : 0);
+}
+
+/** Returns a sorted copy. "newest" keeps the data layer's order (it already returns newest first). */
+export function sortListings<T extends Pick<Listing, 'price' | 'areaSqm'>>(listings: readonly T[], sort: SortOrder = 'newest'): T[] {
+  const copy = [...listings];
+  if (sort === 'price-asc') copy.sort((a, b) => a.price - b.price);
+  else if (sort === 'price-desc') copy.sort((a, b) => b.price - a.price);
+  else if (sort === 'size-desc') copy.sort((a, b) => b.areaSqm - a.areaSqm);
+  return copy;
 }
 
 export function filterListings<T extends Filterable>(listings: readonly T[], filters: ListingFilters): T[] {
@@ -91,8 +156,10 @@ export function countOptions(listings: readonly Filterable[], filters: ListingFi
   for (const t of PROPERTY_TYPES) byType[t] = 0;
   for (const d of DEAL_TYPES) byDeal[d] = 0;
 
+  // Bedrooms and size narrow the counts too; budget doesn't, because it depends on the deal chosen.
+  const { maxPrice: _maxPrice, ...withoutBudget } = filters;
   for (const listing of listings) {
-    if (!inRegion(listing, filters.region)) continue;
+    if (!inRegion(listing, filters.region) || !matchesRefinements(listing, withoutBudget)) continue;
     if (filters.deal === 'all' || listing.deal === filters.deal) {
       byType.all += 1;
       byType[listing.type] += 1;
@@ -129,5 +196,10 @@ export function describeResults(
 }
 
 export function isDefaultFilters(filters: ListingFilters): boolean {
-  return filters.type === 'all' && filters.deal === 'all' && (!filters.region || filters.region === 'all');
+  return (
+    filters.type === 'all' &&
+    filters.deal === 'all' &&
+    (!filters.region || filters.region === 'all') &&
+    activeRefinements({ ...filters, deal: filters.maxPrice ? 'sale' : filters.deal }) === 0
+  );
 }

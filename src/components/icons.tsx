@@ -216,3 +216,9 @@ export const ChatIcon = (p: IconProps) => (
     <path d="M9.4 8.4c.3-.4.8-.4 1 0l.7 1.4c.1.3 0 .6-.2.8l-.5.5a5.3 5.3 0 0 0 2.5 2.5l.5-.5c.2-.2.5-.3.8-.2l1.4.7c.4.2.4.7 0 1-.6.6-1.4.9-2.2.7a7.3 7.3 0 0 1-4.7-4.7c-.2-.8.1-1.6.7-2.2Z" />
   </Svg>
 );
+
+export const SortIcon = (p: IconProps) => (
+  <Svg {...p} strokeWidth={1.8}>
+    <path d="M7 4v16M3.5 16.5 7 20l3.5-3.5M17 20V4M13.5 7.5 17 4l3.5 3.5" />
+  </Svg>
+);

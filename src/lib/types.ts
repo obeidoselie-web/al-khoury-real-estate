@@ -42,6 +42,8 @@ export interface Listing {
   features: string[];
   images: ListingImage[];
   featured?: boolean;
+  /** Ownership documents checked by the agency ("Title deed verified" badge). */
+  verified?: boolean;
   /** ISO 8601 date. */
   listedAt: string;
 }

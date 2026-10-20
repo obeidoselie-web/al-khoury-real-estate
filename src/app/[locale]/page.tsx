@@ -115,9 +115,12 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
               {h.brandTitle}
             </h2>
             <p className={styles.brandLead}>{interpolate(h.brandText, { years: yearsActive })}</p>
-            <div>
+            <div className={styles.brandActions}>
               <Link href={`${localizedPath(locale, '/about')}#contact`} className="button button-large">
                 {h.brandCta}
+              </Link>
+              <Link href={localizedPath(locale, '/sell')} className={`button button-large ${styles.ghostLight}`}>
+                {t.nav.listProperty}
               </Link>
             </div>
           </div>

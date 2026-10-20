@@ -9,8 +9,9 @@ Every URL starts with a language: `/en/…` or `/ar/…`. A bare URL such as `/`
 visitor's language (see [Languages](#languages-english--arabic)).
 
 - **Home** (`/en`, `/ar`): one primary action ("Browse properties"), shortcuts by property type, and featured listings.
-- **Properties** (`/en/listings`): instant filtering by *Buy / Rent* and *property type*, with large tap targets and no typing. Filters are kept in the URL (`/en/listings?deal=rent&type=apartment`), so filtered views can be shared and bookmarked.
-- **Property detail** (`/en/listings/[id]`): swipeable photo gallery, key facts, description, features, *Share* and *Save*, and a contact card with a WhatsApp enquiry (a sticky *Enquire / Call / WhatsApp* bar on phones).
+- **Properties** (`/en/listings`): instant filtering by *Buy / Rent*, *property type* and *region*, plus a **Filters** panel (budget, bedrooms, size) and **sorting** (newest, price, size). Everything is kept in the URL (`/en/listings?deal=sale&minBeds=3&sort=price-desc`), so filtered views can be shared and bookmarked.
+- **Property detail** (`/en/listings/[id]`): photo gallery with a **full-screen viewer**, *Title deed verified* and *Listed on* badges, key facts, description, features, a **payment calculator** (sale listings), a **Book a viewing** form, the responsible **advisor** with call/WhatsApp, *Share* and *Save*, and **similar properties**. Phones get a sticky *Book a viewing / Call / WhatsApp* bar.
+- **List your property** (`/en/sell`): why list with Al Khoury and a free-valuation request form for owners.
 - **Saved properties** (`/en/saved`): every card and property page has a heart; saved properties are listed here and counted in the header (see [Saved properties, sharing and WhatsApp](#saved-properties-sharing-and-whatsapp)).
 - **About & Contact** (`/en/about`): company story, contact details and an enquiry form. Opening it from a property (`/en/about?property=<id>#contact`) pre-fills the message and attaches the property reference.
 - **Appearance & language** (the half-circle button in the header): language, theme, text size, contrast and motion.
@@ -261,6 +262,31 @@ serialises the URL contract.
 
 ---
 
+## Property-page and growth features
+
+| Feature | Where | Notes |
+| --- | --- | --- |
+| Full-screen photo viewer | `PropertyGallery.tsx` | Native `<dialog>`; previous/next, live "2 / 5" counter, thumbnails, arrow keys, Home/End, swipe; mirrored in Arabic. Every gallery photo and *Show all photos* open it. |
+| Verified + listed badges | property page | `verified` on a listing shows *Title deed verified*; `listedAt` is shown as a localised date. |
+| Advisor card | `AdvisorCard.tsx`, `lib/data/advisors.ts` | Chosen by region. **Placeholder people**: replace names, numbers and regions with the real team. Initials instead of stock photos of people. |
+| Payment calculator | `PaymentCalculator.tsx`, `lib/mortgage.ts` | Sale listings only. Down payment slider, term, rate → monthly payment, loan and total interest. Marked as an estimate, not an offer. |
+| Book a viewing | `ViewingForm.tsx`, `lib/viewing.ts`, `listings/[id]/actions.ts` | Date (tomorrow → 60 days), time of day, name, phone, notes. Server-validated; delivered as a `viewing` lead. |
+| Similar properties | `getSimilarListings()` in `lib/data/listings.ts` | Same type and deal first, then type, then region. |
+| Filters panel + sort | `FiltersDialog.tsx`, `lib/filters.ts` | Budget (presets per Buy/Rent, only once one is chosen), bedrooms (n+), size (m²+). Changes are drafted and previewed ("Show 4 properties") before applying. |
+| List your property | `/[locale]/sell`, `ValuationForm.tsx`, `lib/valuation.ts` | Owner lead form, delivered as a `valuation` lead. Linked from the footer and the home brand band. |
+| Floating WhatsApp | `WhatsAppFab.tsx` | On every page except property pages (which pre-fill the property instead). WhatsApp's darker teal keeps the icon at 4.3:1. |
+| Installable app | `app/manifest.ts`, `public/brand/icon-*.png` | Add to Home Screen on iOS/Android, opens full-screen. Offline support would additionally need a service worker. |
+
+All leads (enquiries, viewings, valuations) go through `deliverLead()` in `lib/contact-delivery.ts` to
+`CONTACT_WEBHOOK_URL` as JSON with a `kind` field (`enquiry` | `viewing` | `valuation`), so a CRM or automation can route them.
+
+### Not built yet (need decisions or real content)
+
+- **Map view and listing maps:** choose a provider (e.g. Mapbox, Google Maps or OpenStreetMap tiles) and add coordinates to each listing.
+- **Saved-search alerts and a newsletter:** need an email service (e.g. Resend, Mailchimp) and consent wording.
+- **Video tours, floor plans, price history:** need real assets and data per listing; the `Listing` type can be extended.
+- **Client reviews and area guides:** need genuine reviews and written guides. Reviews must never be invented.
+
 ## Saved properties, sharing and WhatsApp
 
 **Saved properties.** A heart sits in the top inline-end corner of every card's photo (top right in English,
@@ -324,7 +350,7 @@ WhatsApp are icon buttons with accessible names, so the price keeps its room on 
 npm test
 ```
 
-121 tests across 14 files:
+140 tests across 15 files:
 
 | File | Covers |
 | --- | --- |
@@ -338,6 +364,7 @@ npm test
 | `i18n.test.ts` | Arabic/English dictionary parity and plural completeness, placeholder consistency, path helpers, Accept-Language negotiation |
 | `proxy.test.ts` | Language redirects: prefixed URLs pass through; cookie beats Accept-Language; query strings kept; English fallback |
 | `browse-ui.test.tsx` | Search capsule (GET form, field values match the URL contract, "any" = no filter, Arabic); category tabs (radio semantics, icons, dimmed empty options); row scroller labels and disabled arrows |
+| `features.test.tsx` | Mortgage maths; budget/bedroom/size filters and sorting (URL contract included); viewing and valuation validation (date window, tampered ids); advisors; photo viewer (buttons, keys, close); calculator; filters panel (draft, preview count, disabled budget); floating WhatsApp |
 | `brand.test.tsx` | Generated icons match the `BrandMark` paths; unique gradient ids per instance; the lock-up in both languages |
 | `favourites.test.tsx` | Store parsing (corrupt/malicious data, de-duplication, cap), toggling, persistence, blocked storage, cross-tab sync, pruning; the heart toggle (aria-pressed, keyboard, kept in sync, Arabic, outside the card link); header count; the saved page (order, unsave-keeps-card, empty state, Arabic plurals) |
 | `share.test.tsx` | Share sheet when available, silent on dismiss, clipboard fallback with status message, fallback after a share error, no-clipboard message in Arabic; the encoded `wa.me` link |
