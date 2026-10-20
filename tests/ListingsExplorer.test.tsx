@@ -94,6 +94,15 @@ describe('ListingsExplorer', () => {
     expect(screen.getByRole('radio', { name: /^All types/ })).toBeChecked();
   });
 
+  it('filters by region from the dropdown and keeps it in the URL', async () => {
+    const user = userEvent.setup();
+    renderExplorer();
+    await user.selectOptions(screen.getByLabelText('Region'), 'Metn');
+    expect(resultCards()).toHaveLength(2);
+    expect(screen.getByRole('status')).toHaveTextContent('2 properties in Metn');
+    expect(replaceState).toHaveBeenLastCalledWith(window.history.state, '', '?region=metn');
+  });
+
   it('links each card to its localised detail page', () => {
     renderExplorer({ type: 'commercial', deal: 'all' });
     const [card] = resultCards();

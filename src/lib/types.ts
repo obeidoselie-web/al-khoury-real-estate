@@ -4,6 +4,10 @@ export type PropertyType = (typeof PROPERTY_TYPES)[number];
 export const DEAL_TYPES = ['sale', 'rent'] as const;
 export type DealType = (typeof DEAL_TYPES)[number];
 
+/** Search regions (Lebanese districts / cities). Labels live in the dictionaries under `regions`. */
+export const REGIONS = ['beirut', 'metn', 'keserwan', 'batroun', 'koura', 'bekaa'] as const;
+export type Region = (typeof REGIONS)[number];
+
 export interface ListingImage {
   /** Path under /public or an absolute URL on a host allowed in next.config.ts. */
   src: string;
@@ -18,6 +22,8 @@ export interface Listing {
   title: string;
   type: PropertyType;
   deal: DealType;
+  /** Search region; `location` holds the display names. */
+  region: Region;
   /** Asking price in USD. For rentals this is the monthly rent. */
   price: number;
   location: {
@@ -43,10 +49,10 @@ export interface Listing {
 /** The subset of a listing needed to render a card — keeps client payloads small. */
 export type ListingSummary = Pick<
   Listing,
-  'id' | 'title' | 'type' | 'deal' | 'price' | 'location' | 'bedrooms' | 'bathrooms' | 'areaSqm'
+  'id' | 'title' | 'type' | 'deal' | 'region' | 'price' | 'location' | 'bedrooms' | 'bathrooms' | 'areaSqm'
 > & { image: ListingImage };
 
 export function toSummary(listing: Listing): ListingSummary {
-  const { id, title, type, deal, price, location, bedrooms, bathrooms, areaSqm, images } = listing;
-  return { id, title, type, deal, price, location, bedrooms, bathrooms, areaSqm, image: images[0] };
+  const { id, title, type, deal, region, price, location, bedrooms, bathrooms, areaSqm, images } = listing;
+  return { id, title, type, deal, region, price, location, bedrooms, bathrooms, areaSqm, image: images[0] };
 }

@@ -10,6 +10,7 @@ export function summary(type: PropertyType, deal: DealType, overrides: Partial<L
     type,
     deal,
     price: deal === 'rent' ? 1500 : 450000,
+    region: type === 'house' ? 'metn' : 'beirut',
     location: { area: 'Achrafieh', city: 'Beirut' },
     bedrooms: type === 'land' || type === 'commercial' ? undefined : 2,
     bathrooms: type === 'land' ? undefined : 1,

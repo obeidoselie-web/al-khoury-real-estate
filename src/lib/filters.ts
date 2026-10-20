@@ -2,17 +2,20 @@ import { localizedPath, type Locale } from '@/i18n/config';
 import type { Dictionary } from '@/i18n/dictionaries';
 import { interpolate, plural } from '@/i18n/plural';
 
-import { DEAL_TYPES, PROPERTY_TYPES, type DealType, type Listing, type PropertyType } from './types';
+import { DEAL_TYPES, PROPERTY_TYPES, REGIONS, type DealType, type Listing, type PropertyType, type Region } from './types';
 
 export type TypeFilter = PropertyType | 'all';
 export type DealFilter = DealType | 'all';
+export type RegionFilter = Region | 'all';
 
 export interface ListingFilters {
   type: TypeFilter;
   deal: DealFilter;
+  /** Optional so callers that only filter by type/deal stay simple; missing means "anywhere". */
+  region?: RegionFilter;
 }
 
-export const DEFAULT_FILTERS: ListingFilters = { type: 'all', deal: 'all' };
+export const DEFAULT_FILTERS: ListingFilters = { type: 'all', deal: 'all', region: 'all' };
 
 type ParamSource = URLSearchParams | Record<string, string | string[] | undefined>;
 
@@ -30,13 +33,19 @@ function isDealType(value: unknown): value is DealType {
   return typeof value === 'string' && (DEAL_TYPES as readonly string[]).includes(value);
 }
 
+function isRegion(value: unknown): value is Region {
+  return typeof value === 'string' && (REGIONS as readonly string[]).includes(value);
+}
+
 /** Reads filters from URL params. Unknown or malformed values fall back to "all". */
 export function parseFilters(params: ParamSource): ListingFilters {
   const type = readParam(params, 'type')?.toLowerCase();
   const deal = readParam(params, 'deal')?.toLowerCase();
+  const region = readParam(params, 'region')?.toLowerCase();
   return {
     type: isPropertyType(type) ? type : 'all',
     deal: isDealType(deal) ? deal : 'all',
+    region: isRegion(region) ? region : 'all',
   };
 }
 
@@ -45,6 +54,7 @@ export function filtersToQueryString(filters: ListingFilters): string {
   const params = new URLSearchParams();
   if (filters.deal !== 'all') params.set('deal', filters.deal);
   if (filters.type !== 'all') params.set('type', filters.type);
+  if (filters.region && filters.region !== 'all') params.set('region', filters.region);
   return params.toString();
 }
 
@@ -54,12 +64,16 @@ export function listingsHref(locale: Locale, filters: Partial<ListingFilters> = 
   return query ? `${path}?${query}` : path;
 }
 
-type Filterable = Pick<Listing, 'type' | 'deal'>;
+type Filterable = Pick<Listing, 'type' | 'deal'> & Partial<Pick<Listing, 'region'>>;
+
+const inRegion = (listing: Filterable, region: RegionFilter | undefined) =>
+  !region || region === 'all' || listing.region === region;
 
 export function matchesFilters(listing: Filterable, filters: ListingFilters): boolean {
   return (
     (filters.type === 'all' || listing.type === filters.type) &&
-    (filters.deal === 'all' || listing.deal === filters.deal)
+    (filters.deal === 'all' || listing.deal === filters.deal) &&
+    inRegion(listing, filters.region)
   );
 }
 
@@ -78,6 +92,7 @@ export function countOptions(listings: readonly Filterable[], filters: ListingFi
   for (const d of DEAL_TYPES) byDeal[d] = 0;
 
   for (const listing of listings) {
+    if (!inRegion(listing, filters.region)) continue;
     if (filters.deal === 'all' || listing.deal === filters.deal) {
       byType.all += 1;
       byType[listing.type] += 1;
@@ -98,9 +113,11 @@ export function describeResults(
   count: number,
   filters: ListingFilters,
   locale: Locale,
-  t: Pick<Dictionary, 'types' | 'deals' | 'listings'>,
+  t: Pick<Dictionary, 'types' | 'deals' | 'listings' | 'regions'>,
 ): string {
-  const deal = filters.deal === 'all' ? '' : ` ${t.deals[filters.deal].phrase}`;
+  const where =
+    filters.region && filters.region !== 'all' ? ` ${interpolate(t.listings.inRegion, { region: t.regions[filters.region] })}` : '';
+  const deal = (filters.deal === 'all' ? '' : ` ${t.deals[filters.deal].phrase}`) + where;
 
   if (count === 0) {
     const noun = filters.type === 'all' ? t.listings.noneProperties : t.types[filters.type].none;
@@ -112,5 +129,5 @@ export function describeResults(
 }
 
 export function isDefaultFilters(filters: ListingFilters): boolean {
-  return filters.type === 'all' && filters.deal === 'all';
+  return filters.type === 'all' && filters.deal === 'all' && (!filters.region || filters.region === 'all');
 }

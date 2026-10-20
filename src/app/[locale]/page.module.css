@@ -38,7 +38,8 @@
   display: grid;
   gap: var(--space-3);
   max-width: 46rem;
-  padding: var(--space-7) var(--space-6) calc(var(--space-9) + var(--space-2));
+  /* Leaves room for the Buy/Rent toggle and the top half of the capsule, which overlap the photo. */
+  padding: var(--space-7) var(--space-6) 9.5rem;
   color: #ffffff;
 }
 
@@ -77,7 +78,7 @@
 .search {
   position: relative;
   z-index: 2;
-  margin-top: -2.25rem;
+  margin-top: -6.25rem;
   padding-inline: var(--space-5);
   animation-delay: 180ms;
 }
@@ -92,7 +93,7 @@
   }
 
   .heroContent {
-    padding: var(--space-6) var(--space-5) var(--space-9);
+    padding: var(--space-6) var(--space-5) 7.5rem;
   }
 
   .heroLead {
@@ -100,7 +101,7 @@
   }
 
   .search {
-    margin-top: -4rem;
+    margin-top: -5.5rem;
     padding-inline: var(--space-3);
   }
 }

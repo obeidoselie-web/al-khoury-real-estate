@@ -20,24 +20,25 @@ describe('SearchCapsule', () => {
     expect(within(form).getByRole('button', { name: 'Search' })).toHaveAttribute('type', 'submit');
   });
 
-  it('offers deal and type choices whose values match the listings URL contract', async () => {
+  it('offers a Buy/Rent toggle plus where and type fields matching the listings URL contract', async () => {
     const user = userEvent.setup();
     render(<SearchCapsule locale="en" t={en} />);
-    const deal = screen.getByLabelText('Looking to');
-    const type = screen.getByLabelText('Property type');
+    expect(screen.getByRole('group', { name: 'Looking to' })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Any' })).toBeChecked();
 
-    await user.selectOptions(deal, 'Rent');
-    await user.selectOptions(type, 'Apartments');
+    await user.click(screen.getByRole('radio', { name: 'Rent' }));
+    await user.selectOptions(screen.getByLabelText('Where'), 'Metn');
+    await user.selectOptions(screen.getByLabelText('Property type'), 'Apartments');
 
     const query = new URLSearchParams(new FormData(screen.getByRole('search') as HTMLFormElement) as unknown as string);
-    expect(parseFilters(query)).toEqual({ deal: 'rent', type: 'apartment' });
+    expect(parseFilters(query)).toEqual({ deal: 'rent', type: 'apartment', region: 'metn' });
   });
 
   it('treats the "any" choices as no filter', () => {
     render(<SearchCapsule locale="en" t={en} />);
     const query = new URLSearchParams(new FormData(screen.getByRole('search') as HTMLFormElement) as unknown as string);
-    expect(query.toString()).toBe('deal=&type=');
-    expect(parseFilters(query)).toEqual({ deal: 'all', type: 'all' });
+    expect(query.toString()).toBe('deal=&region=&type=');
+    expect(parseFilters(query)).toEqual({ deal: 'all', type: 'all', region: 'all' });
   });
 
   it('is translated and targets the Arabic listings page', () => {

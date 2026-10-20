@@ -23,8 +23,12 @@ describe('parseFilters', () => {
   });
 
   it('reads valid values from a record or URLSearchParams, case-insensitively', () => {
-    expect(parseFilters({ type: 'Apartment', deal: 'RENT' })).toEqual({ type: 'apartment', deal: 'rent' });
-    expect(parseFilters(new URLSearchParams('type=land&deal=sale'))).toEqual({ type: 'land', deal: 'sale' });
+    expect(parseFilters({ type: 'Apartment', deal: 'RENT' })).toEqual({ type: 'apartment', deal: 'rent', region: 'all' });
+    expect(parseFilters(new URLSearchParams('type=land&deal=sale&region=Koura'))).toEqual({
+      type: 'land',
+      deal: 'sale',
+      region: 'koura',
+    });
   });
 
   it('ignores unknown or malicious values', () => {
@@ -32,7 +36,8 @@ describe('parseFilters', () => {
   });
 
   it('uses the first value when a param is repeated', () => {
-    expect(parseFilters({ type: ['house', 'land'] })).toEqual({ type: 'house', deal: 'all' });
+    expect(parseFilters({ type: ['house', 'land'] })).toEqual({ type: 'house', deal: 'all', region: 'all' });
+    expect(parseFilters({ region: 'atlantis' }).region).toBe('all');
   });
 });
 
@@ -43,7 +48,7 @@ describe('filtersToQueryString / listingsHref', () => {
   });
 
   it('round-trips through parseFilters', () => {
-    const filters = { type: 'commercial', deal: 'rent' } as const;
+    const filters = { type: 'commercial', deal: 'rent', region: 'beirut' } as const;
     expect(parseFilters(new URLSearchParams(filtersToQueryString(filters)))).toEqual(filters);
     expect(listingsHref('ar', { type: 'land' })).toBe('/ar/listings?type=land');
   });
@@ -64,6 +69,12 @@ describe('filterListings', () => {
 
   it('filters by type only', () => {
     expect(filterListings(listings, { type: 'apartment', deal: 'all' })).toHaveLength(3);
+  });
+
+  it('filters by region, alone or combined', () => {
+    expect(filterListings(listings, { type: 'all', deal: 'all', region: 'metn' })).toHaveLength(2);
+    expect(filterListings(listings, { type: 'house', deal: 'rent', region: 'metn' })).toHaveLength(1);
+    expect(filterListings(listings, { type: 'house', deal: 'all', region: 'beirut' })).toEqual([]);
   });
 
   it('combines type and deal', () => {
@@ -100,6 +111,9 @@ describe('describeResults', () => {
     expect(describeResults(2, { type: 'apartment', deal: 'rent' }, 'en', en)).toBe('2 apartments for rent');
     expect(describeResults(1, { type: 'commercial', deal: 'sale' }, 'en', en)).toBe('1 commercial property for sale');
     expect(describeResults(0, { type: 'land', deal: 'rent' }, 'en', en)).toBe('No land plots for rent right now');
+    expect(describeResults(3, { type: 'apartment', deal: 'sale', region: 'beirut' }, 'en', en)).toBe(
+      '3 apartments for sale in Beirut',
+    );
   });
 
   it('uses every Arabic plural category', () => {
@@ -111,6 +125,7 @@ describe('describeResults', () => {
     expect(describeResults(100, all, 'ar', ar)).toBe('100 عقار');
     expect(describeResults(2, { type: 'apartment', deal: 'rent' }, 'ar', ar)).toBe('شقتان للإيجار');
     expect(describeResults(0, { type: 'house', deal: 'sale' }, 'ar', ar)).toBe('لا توجد منازل للبيع حاليًا');
+    expect(describeResults(2, { type: 'all', deal: 'rent', region: 'metn' }, 'ar', ar)).toBe('عقاران للإيجار في المتن');
   });
 });
 

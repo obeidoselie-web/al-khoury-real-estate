@@ -1,4 +1,4 @@
-import { DM_Sans, IBM_Plex_Sans_Arabic, Montserrat } from 'next/font/google';
+import { Cairo, DM_Sans, Montserrat } from 'next/font/google';
 
 /*
  * Fonts are downloaded at build time and self-hosted by next/font: no request to Google at runtime,
@@ -16,13 +16,12 @@ export const latinFont = DM_Sans({
 });
 
 /**
- * Arabic text: IBM Plex Sans Arabic — a contemporary, highly legible Arabic sans with a full weight
- * range, close in spirit to the clean geometric Arabic in the Al Khoury brand.
+ * Arabic text: Cairo — a contemporary Kufi-based Arabic sans (variable weight), widely used on
+ * Arabic-language sites and well matched to the geometric Latin type.
  * Not preloaded, so English pages never download it; Arabic pages fetch it on first paint.
  */
-export const arabicFont = IBM_Plex_Sans_Arabic({
+export const arabicFont = Cairo({
   subsets: ['arabic'],
-  weight: ['400', '500', '600', '700'],
   display: 'swap',
   preload: false,
   variable: '--font-arabic',

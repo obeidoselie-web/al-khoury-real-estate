@@ -40,6 +40,58 @@
   }
 }
 
+/* Region dropdown + Buy/Rent pills, grouped at the end of the filter bar. */
+.refine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.regionPicker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap-target);
+  padding-inline: var(--space-4) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.regionPicker:hover {
+  border-color: var(--color-text);
+}
+
+.regionPicker:focus-within {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.regionSelect {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.regionSelect:focus-visible {
+  outline: none;
+}
+
+.regionSelect option {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+
 .resultsBar {
   display: flex;
   align-items: center;

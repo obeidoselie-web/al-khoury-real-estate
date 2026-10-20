@@ -15,12 +15,14 @@ import {
   isDefaultFilters,
   type DealFilter,
   type ListingFilters,
+  type RegionFilter,
   type TypeFilter,
 } from '@/lib/filters';
-import { DEAL_TYPES, PROPERTY_TYPES, type ListingSummary } from '@/lib/types';
+import { DEAL_TYPES, PROPERTY_TYPES, REGIONS, type ListingSummary } from '@/lib/types';
 
 import { CategoryTabs } from './CategoryTabs';
 import { ChoiceGroup, type ChoiceOption } from './ChoiceGroup';
+import { ChevronDownIcon, PinIcon } from './icons';
 import { ListingGrid } from './ListingGrid';
 import styles from './ListingsExplorer.module.css';
 
@@ -75,15 +77,34 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
           value={filters.type}
           onChange={(type) => update({ ...filters, type })}
         />
-        <ChoiceGroup
-          name="deal"
-          legend={t.listings.dealLegend}
-          legendHidden
-          showCounts={false}
-          options={dealOptions}
-          value={filters.deal}
-          onChange={(deal) => update({ ...filters, deal })}
-        />
+        <div className={styles.refine}>
+          <label className={styles.regionPicker}>
+            <PinIcon size={18} />
+            <span className="sr-only">{t.listings.regionLabel}</span>
+            <select
+              value={filters.region ?? 'all'}
+              onChange={(event) => update({ ...filters, region: event.target.value as RegionFilter })}
+              className={styles.regionSelect}
+            >
+              <option value="all">{t.listings.anywhere}</option>
+              {REGIONS.map((region) => (
+                <option key={region} value={region}>
+                  {t.regions[region]}
+                </option>
+              ))}
+            </select>
+            <ChevronDownIcon size={16} />
+          </label>
+          <ChoiceGroup
+            name="deal"
+            legend={t.listings.dealLegend}
+            legendHidden
+            showCounts={false}
+            options={dealOptions}
+            value={filters.deal}
+            onChange={(deal) => update({ ...filters, deal })}
+          />
+        </div>
       </search>
 
       <div className={styles.resultsBar}>

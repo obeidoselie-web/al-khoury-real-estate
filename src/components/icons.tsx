@@ -152,3 +152,22 @@ export const PlotIcon = (p: IconProps) => (
     <path d="M9 5v11M15 8v11" />
   </Svg>
 );
+
+export const ChevronDownIcon = (p: IconProps) => (
+  <Svg {...p} strokeWidth={2}>
+    <path d="m6 9 6 6 6-6" />
+  </Svg>
+);
+
+export const TagIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1a1 1 0 0 1 .7.3l7.4 7.4a1 1 0 0 1 0 1.4l-8.1 8.1a1 1 0 0 1-1.4 0l-7.4-7.4a1 1 0 0 1-.3-.7Z" />
+    <circle cx="8.3" cy="8.3" r="1.4" />
+  </Svg>
+);
+
+export const PhoneIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M6.6 3.5h-2a1.6 1.6 0 0 0-1.6 1.8 17 17 0 0 0 15.7 15.7 1.6 1.6 0 0 0 1.8-1.6v-2a1.6 1.6 0 0 0-1.3-1.6l-3-.6a1.6 1.6 0 0 0-1.5.5l-1 1.2a13 13 0 0 1-5.3-5.3l1.2-1a1.6 1.6 0 0 0 .5-1.5l-.6-3a1.6 1.6 0 0 0-1.6-1.3Z" />
+  </Svg>
+);

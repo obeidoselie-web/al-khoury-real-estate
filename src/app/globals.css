@@ -265,11 +265,11 @@
 }
 
 /*
- * Arabic: IBM Plex Sans Arabic for every Arabic glyph; Latin characters inside Arabic text (prices,
+ * Arabic: Cairo for every Arabic glyph; Latin characters inside Arabic text (prices,
  * emails) fall through to DM Sans. No negative tracking (it breaks cursive joining) and taller lines.
  */
 :root:lang(ar) {
-  --font-sans: var(--font-arabic, 'IBM Plex Sans Arabic'), var(--font-latin, 'DM Sans'), -apple-system,
+  --font-sans: var(--font-arabic, 'Cairo'), var(--font-latin, 'DM Sans'), -apple-system,
     BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
   --tracking-body: 0;
   --tracking-tight: 0;
@@ -359,7 +359,7 @@ a:hover,
   text-decoration: underline;
 }
 
-:root[data-contrast='more'] a:not(.button) {
+:root[data-contrast='more'] main :is(p, dd, address, td) a:not(.button) {
   text-decoration: underline;
 }
 
@@ -554,7 +554,7 @@ select {
   letter-spacing: var(--tracking-tight);
 }
 
-/* Plex Arabic reads lighter than Latin at the same weight: nudge titles up one step. */
+/* Arabic titles read best one weight up. */
 :root:lang(ar) :is(h1, h2, .page-title, .section-heading) {
   font-weight: 700;
 }
