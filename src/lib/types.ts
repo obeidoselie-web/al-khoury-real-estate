@@ -46,6 +46,8 @@ export interface Listing {
   verified?: boolean;
   /** ISO 8601 date. */
   listedAt: string;
+  /** Staff member responsible for the listing (shown as the advisor card). */
+  advisorId?: string;
 }
 
 /** The subset of a listing needed to render a card — keeps client payloads small. */

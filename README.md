@@ -15,6 +15,7 @@ visitor's language (see [Languages](#languages-english--arabic)).
 - **Saved properties** (`/en/saved`): every card and property page has a heart; saved properties are listed here and counted in the header (see [Saved properties, sharing and WhatsApp](#saved-properties-sharing-and-whatsapp)).
 - **About & Contact** (`/en/about`): company story, contact details and an enquiry form. Opening it from a property (`/en/about?property=<id>#contact`) pre-fills the message and attaches the property reference.
 - **Appearance & language** (the half-circle button in the header): language, theme, text size, contrast and motion.
+- **Admin** (`/admin`, staff only): dashboard, listings editor with photo uploads, leads inbox, team & advisor profiles (see [Admin](#admin)).
 
 ---
 
@@ -24,14 +25,22 @@ Requirements: Node.js ≥ 20.9 (developed on Node 26) and npm.
 
 ```bash
 npm install
-npm run dev          # http://localhost:3000
+npm run db:seed      # create data/alkhoury.db, load the placeholder catalogue, create the first admin
+npm run dev          # http://localhost:3000 — admin at http://localhost:3000/admin
 ```
+
+The first admin is `ADMIN_EMAIL` / `ADMIN_PASSWORD` from `.env.local`. If those are unset, the seed uses
+`admin@alkhoury.example` and writes a generated password to `data/admin-credentials.txt` (gitignored). Sign in,
+change it under **My account**, then delete that file.
 
 | Script | What it does |
 | --- | --- |
-| `npm run dev` | Development server (Turbopack) |
-| `npm run build` | Production build. Home and property pages are pre-rendered for both languages (SSG) |
+| `npm run dev` | Development server (Turbopack). Applies pending database migrations first |
+| `npm run build` | Production build (migrates first). Home and property pages are pre-rendered for both languages and refreshed whenever the admin changes a listing |
 | `npm start` | Serve the production build |
+| `npm run db:seed` | Migrate, then load the placeholder listings and advisors into an empty database and create the first admin (safe to re-run) |
+| `npm run db:migrate` | Apply pending migrations from `drizzle/` |
+| `npm run db:generate` | After editing `src/db/schema.ts`: write a new SQL migration to `drizzle/` |
 | `npm test` | Run the test suite once (Vitest + Testing Library) |
 | `npm run test:watch` | Tests in watch mode |
 | `npm run typecheck` | `tsc --noEmit` (run `npx next typegen` first on a fresh clone) |
@@ -44,7 +53,11 @@ Copy `.env.example` to `.env.local`. All variables are **server-only**. None use
 
 | Variable | Purpose |
 | --- | --- |
-| `CONTACT_WEBHOOK_URL` | Contact-form enquiries are POSTed here as JSON, including the visitor's language (CRM, Zapier, Make, Slack…). If it's unset, enquiries are accepted and a log line without personal data is written. |
+| `DATABASE_URL` | Database location. Default `file:data/alkhoury.db` (local SQLite). Use a `libsql://…` URL for Turso. |
+| `DATABASE_AUTH_TOKEN` | Turso auth token (not needed for a local file). |
+| `UPLOAD_DIR` | Where uploaded listing photos are stored. Default `data/uploads`. |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | First admin account, used only by `npm run db:seed`. |
+| `CONTACT_WEBHOOK_URL` | Optional. Every lead is saved to the admin inbox; when this is set it is *also* POSTed here as JSON with its `kind` and language (CRM, Zapier, Make, Slack…). |
 | `SITE_URL` | Absolute site URL, used for Open Graph and `hreflang` links (defaults to `http://localhost:3000`). |
 | `SIMULATE_LISTINGS_ERROR` | Set to `1` in development to make the data layer throw, which lets you preview the error UI. Ignored in production. |
 
@@ -54,7 +67,13 @@ Copy `.env.example` to `.env.local`. All variables are **server-only**. None use
 
 ```
 src/
-  proxy.ts                      Redirects URLs without a language prefix (cookie → Accept-Language → English)
+  proxy.ts                      Redirects URLs without a language prefix (cookie → Accept-Language → English); gates /admin
+  db/                           Drizzle schema, libSQL connection, seed (migrations live in drizzle/)
+  app/admin/                    Staff admin: (auth)/login and (panel)/ dashboard, listings, leads, team, account
+  app/media/[...key]/route.ts   Serves uploaded photos from storage
+  lib/admin/                    Admin form parsing, permissions, queries, activity log
+  lib/auth/                     Password hashing (scrypt) and cookie sessions
+  lib/storage/                  PhotoStorage interface + local-disk implementation (sharp processing)
   i18n/
     config.ts                   Locales, direction, path helpers, Accept-Language negotiation
     dictionaries/en.ts, ar.ts   All UI strings (Arabic is type-checked against English)
@@ -210,9 +229,60 @@ values and WCAG AA ratios noted.
 
 ---
 
+## Admin
+
+A staff back office at `/admin` (English UI; listing text is edited in English and Arabic side by side).
+It is part of the same Next.js app and shares the site's tokens, so light/dark, text size and contrast settings
+carry over. It works on a phone (the sidebar becomes a top bar).
+
+| Section | Admin | Advisor |
+| --- | --- | --- |
+| **Dashboard** | New and unassigned leads, leads this week, listings by status, latest leads, recent activity | Same, scoped to their own listings and leads |
+| **Listings** | Create, edit, publish/unpublish/archive, delete; assign an advisor; feature on the home page | Create and edit their own listings (a new listing is theirs) |
+| **Photos** | Upload (drag and drop, 8 at a time), reorder, choose the cover, edit EN/AR descriptions, delete | Same, on their own listings |
+| **Leads** | Every enquiry, viewing and valuation request; filter by status, type and assignee; assign; notes | Leads routed to them |
+| **Team** | Add staff (a temporary password is generated and shown once), change role, deactivate, reset passwords, edit public advisor profiles (Arabic name, title, languages, phone/WhatsApp, regions, order, visibility) | — |
+| **My account** | Change password; edit own public profile | Same (regions and visibility stay as an admin set them) |
+
+**How it connects to the site**
+
+- The public site reads **published** listings with at least one photo from the database (`src/lib/data/db-source.ts`). Drafts and archived listings are invisible; publishing needs both languages filled in and a photo.
+- Every change in the admin rebuilds the affected public pages in both languages (`revalidatePath`), so edits are live immediately while pages stay statically served.
+- The advisor card on a property page shows the listing's advisor, or whoever covers its region if that person has no visible profile.
+- Website forms (enquiry, viewing, valuation) are saved as **leads**. A property lead is routed to that listing's advisor and a valuation to the advisor covering its region; anything else waits for an admin. The visitor only sees an error if the lead reached neither the inbox nor the webhook.
+- Every significant action is written to an activity log, shown on the dashboard and in each lead's history.
+
+**Database.** SQLite through [Drizzle ORM](https://orm.drizzle.team) and libSQL (`src/db/schema.ts`; migrations in
+`drizzle/`). Tables: `users`, `advisor_profiles`, `sessions`, `listings`, `listing_photos`, `leads`, `lead_notes`,
+`activity`, `login_attempts`. To move to Turso, set `DATABASE_URL`/`DATABASE_AUTH_TOKEN`; nothing else changes.
+For Postgres, switch the dialect imports in `schema.ts` and `src/db/index.ts` and regenerate migrations.
+
+**Photos.** Uploads are decoded with sharp (so only real JPEG/PNG/WebP/AVIF/HEIC files pass), rotated per EXIF,
+**stripped of all metadata including GPS**, capped at 2400 px and re-encoded to WebP. They are stored behind the
+`PhotoStorage` interface (`src/lib/storage/index.ts`): local disk today (`UPLOAD_DIR`, served by `/media/…` with
+immutable caching). For Cloudinary or S3, implement `put`/`get`/`delete`/`url` and return it from `getPhotoStorage()`.
+
+**Deploying.** The local-disk database and uploads need a host with a **persistent disk** (a VPS, Railway/Render
+with a volume, Fly.io volume). On serverless hosts (Vercel), use Turso for the database and an object store for
+photos. Back up `data/` (or the Turso database) regularly.
+
+**Security**
+
+- Passwords are hashed with scrypt (Node's built-in, per-user salt, cost parameters stored with the hash) and must be at least 12 characters.
+- Sessions are random 256-bit tokens in an `HttpOnly`, `SameSite=Lax` cookie scoped to `/admin` (`Secure` in production). Only a SHA-256 of the token is stored, so a leaked database can't be replayed. Sessions last 7 days and are revoked on password change, reset or deactivation.
+- Sign-in is throttled per email (5 failures per 15 minutes) and per IP (20), with a constant-time comparison and the same message for unknown emails and wrong passwords.
+- Every Server Action re-checks the session and the role (`src/lib/admin/permissions.ts`); hidden buttons are never the only guard. Other people's leads and listings return 404 to advisors. Next.js's Origin check on Server Actions protects against CSRF.
+- The proxy sends visitors without a session cookie straight to the login page, and marks every `/admin` response `noindex` and `no-store`.
+- The post-login redirect only accepts same-site `/admin` paths, so there is no open redirect.
+- There must always be one active admin: an admin can't demote or deactivate themself, or the last admin.
+- Behind a reverse proxy, make sure it sets `X-Forwarded-For`, which the per-IP limit relies on.
+
+---
+
 ## Swapping in a real data source
 
-All listing reads go through `src/lib/data/listings.ts`. UI components only depend on the types in
+The live source is the database (managed in the admin); `placeholderListingsSource` serves the bundled seed data
+and is what the unit tests use. All listing reads go through `src/lib/data/listings.ts`. UI components only depend on the types in
 `src/lib/types.ts` and the functions exported from that module (`getListings(locale)`,
 `getListingSummaries(locale)`, `getFeaturedListings(locale)`, `getListingById(id, locale)`, `getListingIds()`).
 
@@ -350,7 +420,8 @@ WhatsApp are icon buttons with accessible names, so the price keeps its room on 
 npm test
 ```
 
-140 tests across 15 files:
+162 tests across 17 files. Tests that need a database get their own migrated SQLite file in a temp folder
+(`tests/db.ts`); every other test points at an empty in-memory database, so the suite never touches `data/`.
 
 | File | Covers |
 | --- | --- |
@@ -369,6 +440,8 @@ npm test
 | `favourites.test.tsx` | Store parsing (corrupt/malicious data, de-duplication, cap), toggling, persistence, blocked storage, cross-tab sync, pruning; the heart toggle (aria-pressed, keyboard, kept in sync, Arabic, outside the card link); header count; the saved page (order, unsave-keeps-card, empty state, Arabic plurals) |
 | `share.test.tsx` | Share sheet when available, silent on dismiss, clipboard fallback with status message, fallback after a share error, no-clipboard message in Arabic; the encoded `wa.me` link |
 | `appearance.test.tsx` | Settings parsing and attributes; the pre-paint script matching `applyAppearance`; the dialog applying, persisting, restoring and resetting choices; Arabic labels |
+| `admin.test.ts` | Listing form (slug generation, numbers, enums, dates, publish-needs-both-languages, land drops rooms, markup stripped); account and profile forms; post-login redirect allow-list; role permissions; scrypt hashing and the password policy; phone normalisation; relative times |
+| `database.test.ts` | Against a real SQLite file: migrations and an idempotent seed; the DB source returns exactly the placeholder catalogue in both languages; drafts and photo-less listings hidden; advisor fallback; website leads saved and routed (listing advisor, region, unknown property id); photo uploads re-encoded to WebP without EXIF and resized; non-images and path-traversal keys rejected |
 
 Manual checks done in a browser against the production build at 375 px (mobile), 768 px (tablet) and
 1280 px (desktop): no horizontal overflow, filtering and URL sync, the property gallery and sticky contact bar,
@@ -379,6 +452,13 @@ and reduced motion, and an Arabic enquiry end to end.
 For saved properties, sharing and WhatsApp: saving by mouse and keyboard, the header badge, the saved page in both
 languages, the share fallback message, the pre-filled WhatsApp links, and the phone sticky bar in Arabic RTL in
 light and dark mode.
+For the admin, against the production build: the login redirect (with `next`), a wrong password rejected, a
+viewing request sent from a property page arriving on the dashboard and in the inbox (routed to the right advisor),
+adding a note (moves the lead to *Contacted*), creating a draft with server-side validation keeping what was
+typed, uploading photos (resized WebP served from `/media`), changing the cover, publishing and seeing the
+listing live in Arabic, editing the price, deleting the listing (files removed, public page 404), generating an
+advisor password and signing in as that advisor (Team hidden, other people's leads and listings 404, no feature
+or assign controls), the phone layout at 375 px (light theme) and the desktop layout in dark mode.
 
 ---
 
@@ -394,4 +474,5 @@ light and dark mode.
 - **Photos** are free-licence stock images from Unsplash (Unsplash License), self-hosted and credited in `public/images/photos/CREDITS.md`, with descriptive English and Arabic alt text. They illustrate the kind of property only; replace them with real listing photos before launch (edit `photos.json` or point the data source at CMS images).
 - **Saved properties are per device** (localStorage) for the same reason: they don't follow a visitor to another browser.
 - **WhatsApp number** (`COMPANY.whatsapp`) is a placeholder, like the phone number.
-- Per the brief, there are no user accounts, payments, maps or saved searches.
+- Per the brief, there are no visitor accounts, payments, maps or saved searches. Accounts exist only for staff, in the admin.
+- **Advisors** (Nadine Azar, Karim Haddad, Maya Saad) are fictional placeholders, seeded without passwords so they cannot sign in. Replace them with the real team in **Admin → Team**.

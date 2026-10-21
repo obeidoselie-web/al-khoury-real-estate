@@ -3,14 +3,16 @@ import 'server-only';
 import type { Locale } from '@/i18n/config';
 
 import { toSummary, type Listing, type ListingSummary } from '../types';
+import { databaseListingsSource } from './db-source';
 import { PLACEHOLDER_LISTINGS, localizeListing } from './placeholder-listings';
 
 /**
  * THE data-access module for listings. Every page reads listings through the functions
  * exported here, never from a source directly.
  *
- * To move to an API or CMS, implement `ListingsSource` (see README → "Swapping the data source")
- * and assign it to `source` below. Pages and components stay unchanged.
+ * The live source is the database (published listings, managed in /admin). To move to an API or CMS,
+ * implement `ListingsSource` (see README → "Swapping the data source") and assign it to `source`
+ * below. Pages and components stay unchanged.
  * Sources receive the requested locale and return listings with text already in that language.
  */
 export interface ListingsSource {
@@ -25,7 +27,8 @@ export class ListingsUnavailableError extends Error {
   }
 }
 
-const placeholderSource: ListingsSource = {
+/** The bundled placeholder catalogue (the seed data), used by tests and as a reference source. */
+export const placeholderListingsSource: ListingsSource = {
   async list(locale) {
     return PLACEHOLDER_LISTINGS.map((record) => localizeListing(record, locale));
   },
@@ -35,7 +38,7 @@ const placeholderSource: ListingsSource = {
   },
 };
 
-let source: ListingsSource = placeholderSource;
+let source: ListingsSource = databaseListingsSource;
 
 /** Test seam: lets tests (or a future composition root) inject a source. */
 export function setListingsSource(next: ListingsSource): void {
@@ -43,7 +46,7 @@ export function setListingsSource(next: ListingsSource): void {
 }
 
 export function resetListingsSource(): void {
-  source = placeholderSource;
+  source = databaseListingsSource;
 }
 
 const ID_PATTERN = /^[a-z0-9-]{1,120}$/;

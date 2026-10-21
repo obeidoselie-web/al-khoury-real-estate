@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { LOCALES } from '@/i18n/config';
 import {
@@ -8,11 +8,17 @@ import {
   getListingIds,
   getListingSummaries,
   getListings,
+  placeholderListingsSource,
   resetListingsSource,
   setListingsSource,
 } from '@/lib/data/listings';
 import { PLACEHOLDER_LISTINGS, localizeListing } from '@/lib/data/placeholder-listings';
 import { DEAL_TYPES, PROPERTY_TYPES } from '@/lib/types';
+
+// These tests exercise the module against the bundled catalogue; tests/database.test.ts covers the DB source.
+beforeEach(() => {
+  setListingsSource(placeholderListingsSource);
+});
 
 afterEach(() => {
   resetListingsSource();

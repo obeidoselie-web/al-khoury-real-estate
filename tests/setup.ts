@@ -3,6 +3,9 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
+// Never touch the developer's database: tests that need one call useTestDatabase() (tests/db.ts).
+process.env.DATABASE_URL = 'file::memory:';
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();

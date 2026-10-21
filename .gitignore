@@ -9,3 +9,6 @@ next-env.d.ts
 !.env.example
 npm-debug.log*
 .DS_Store
+
+# Local database and uploaded photos
+/data/

@@ -3,6 +3,9 @@ import type { Locale } from '@/i18n/config';
 import type { Region } from '../types';
 
 /*
+ * Public advisor profile shape. Live profiles come from the database (Admin → Team); the list below is
+ * only the PLACEHOLDER seed data.
+ *
  * PLACEHOLDER advisors — fictional names used to demonstrate the advisor card. Replace with the real
  * Al Khoury team (and their photos, if wanted) before launch. Each advisor covers a set of regions.
  */
@@ -49,8 +52,10 @@ export const ADVISORS: Advisor[] = [
 ];
 
 /** The advisor who covers a region (falls back to the first advisor). */
-export function advisorForRegion(region: Region): Advisor {
-  return ADVISORS.find((advisor) => advisor.regions.includes(region)) ?? ADVISORS[0];
+export function advisorForRegion<A extends Pick<Advisor, 'regions'>>(region: Region, advisors: readonly A[]): A;
+export function advisorForRegion(region: Region): Advisor;
+export function advisorForRegion(region: Region, advisors: readonly Pick<Advisor, 'regions'>[] = ADVISORS) {
+  return advisors.find((advisor) => advisor.regions.includes(region)) ?? advisors[0];
 }
 
 export function initials(name: string): string {

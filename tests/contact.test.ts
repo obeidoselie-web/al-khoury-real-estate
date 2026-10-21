@@ -4,6 +4,8 @@ import { submitContact } from '@/app/[locale]/about/actions';
 import { getDictionary } from '@/i18n/dictionaries';
 import { HONEYPOT_FIELD, isLikelySpam, sanitizeText, validateContact } from '@/lib/contact';
 
+import { useTestDatabase } from './db';
+
 const messages = getDictionary('en').contact.errors;
 
 function form(values: Record<string, string>): FormData {
@@ -66,6 +68,8 @@ describe('validateContact', () => {
 });
 
 describe('submitContact server action', () => {
+  useTestDatabase();
+
   afterEach(() => {
     delete process.env.CONTACT_WEBHOOK_URL;
   });
@@ -88,13 +92,26 @@ describe('submitContact server action', () => {
     expect(logged).not.toContain('example.com');
   });
 
-  it('posts to the webhook and surfaces delivery failures gracefully', async () => {
+  it('keeps the lead when only the webhook fails (it is already in the admin inbox)', async () => {
     process.env.CONTACT_WEBHOOK_URL = 'https://hooks.example.test/enquiries';
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 502 }));
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const state = await submitContact({ status: 'idle' }, form(VALID));
     expect(fetchMock).toHaveBeenCalledWith('https://hooks.example.test/enquiries', expect.objectContaining({ method: 'POST' }));
+    expect(state.status).toBe('success');
+    expect(error.mock.calls.flat().join(' ')).toMatch(/webhook failed/);
+  });
+
+  it('surfaces a failure gracefully when the lead reached neither the inbox nor the webhook', async () => {
+    const workingDb = process.env.DATABASE_URL;
+    process.env.DATABASE_URL = 'file::memory:'; // empty, unmigrated: inserts fail
+    process.env.CONTACT_WEBHOOK_URL = 'https://hooks.example.test/enquiries';
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 502 }));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const state = await submitContact({ status: 'idle' }, form(VALID));
+    process.env.DATABASE_URL = workingDb;
     expect(state.status).toBe('error');
     if (state.status === 'error') {
       expect(state.message).toMatch(/couldn’t send/);

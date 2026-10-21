@@ -15,7 +15,7 @@ import { LOCALES, LOCALE_META, isLocale, localizedPath, type Locale } from '@/i1
 import { getDictionary, type Dictionary } from '@/i18n/dictionaries';
 import { interpolate } from '@/i18n/plural';
 import { COMPANY, siteUrl, whatsappHref } from '@/lib/company';
-import { advisorForRegion } from '@/lib/data/advisors';
+import { getAdvisorForListing } from '@/lib/data/db-source';
 import { getListingById, getListingIds, getSimilarListings } from '@/lib/data/listings';
 import { listingsHref } from '@/lib/filters';
 import { formatArea, formatPlace, formatPrice } from '@/lib/format';
@@ -83,7 +83,7 @@ export default async function PropertyPage({ params }: Props) {
     url: `${siteUrl()}${localizedPath(locale, `/listings/${listing.id}`)}`,
   });
   const whatsapp = whatsappHref(whatsappMessage);
-  const advisor = advisorForRegion(listing.region);
+  const advisor = await getAdvisorForListing(listing);
   const similar = await getSimilarListings(listing, locale, 6);
   const listedOn = new Intl.DateTimeFormat(LOCALE_META[locale].intl, { dateStyle: 'long', timeZone: 'UTC' }).format(
     new Date(`${listing.listedAt}T00:00:00Z`),
@@ -220,7 +220,7 @@ export default async function PropertyPage({ params }: Props) {
                 {callAfter}
               </a>
             </div>
-            <AdvisorCard advisor={advisor} locale={locale} t={t} whatsappMessage={whatsappMessage} />
+            {advisor && <AdvisorCard advisor={advisor} locale={locale} t={t} whatsappMessage={whatsappMessage} />}
           </aside>
         </div>
       </div>
