@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -27,9 +28,17 @@ import { CategoryTabs } from './CategoryTabs';
 import { Dropdown } from './Dropdown';
 import { FiltersDialog } from './FiltersDialog';
 import { ChoiceGroup, type ChoiceOption } from './ChoiceGroup';
-import { AllIcon, ListIcon, PinIcon, SortIcon } from './icons';
+import { AllIcon, ListIcon, PinIcon, PlotIcon, SortIcon } from './icons';
 import { ListingGrid } from './ListingGrid';
 import styles from './ListingsExplorer.module.css';
+
+/** The map (and Leaflet) load only when a visitor opens the map view. */
+const MapSearch = dynamic(() => import('./MapSearch'), {
+  ssr: false,
+  loading: () => <div className={styles.mapLoading} aria-hidden="true" />,
+});
+
+type ExplorerView = ListingView | 'map';
 
 interface ListingsExplorerProps {
   listings: ListingSummary[];
@@ -44,7 +53,10 @@ interface ListingsExplorerProps {
 export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerProps) {
   const { locale, t, contact } = useI18n();
   const display = contact.listings;
-  const [view, setView] = useListingView(display.defaultView, display.allowViewSwitch);
+  const hasPins = useMemo(() => listings.some((listing) => listing.map), [listings]);
+  const [chosenView, setView] = useListingView(display.defaultView, display.allowViewSwitch);
+  // A stored "map" choice falls back to the default if no property has a location.
+  const view: ExplorerView = chosenView === 'map' && !hasPins ? display.defaultView : chosenView;
   const [filters, setFilters] = useState<ListingFilters>(initialFilters);
   const stuck = useStuck();
 
@@ -129,6 +141,7 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
                 [
                   ['grid', t.listings.viewGrid, AllIcon],
                   ['list', t.listings.viewList, ListIcon],
+                  ...(hasPins ? ([['map', t.listings.viewMap, PlotIcon]] as const) : []),
                 ] as const
               ).map(([value, label, Icon]) => (
                 <button
@@ -162,7 +175,9 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
         </div>
       </div>
 
-      {results.length > 0 ? (
+      {results.length > 0 && view === 'map' ? (
+        <MapSearch listings={results} locale={locale} t={t} display={display} />
+      ) : results.length > 0 ? (
         <ListingGrid
           listings={results}
           locale={locale}
@@ -170,7 +185,7 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
           priorityCount={3}
           label={t.listings.matching}
           headingLevel="h2"
-          view={view}
+          view={view === 'map' ? 'grid' : view}
           display={display}
         />
       ) : (
@@ -224,21 +239,21 @@ function useStuck() {
 const VIEW_KEY = 'ak-listing-view';
 
 /**
- * Grid or list. Starts with the site default (so server and first client render match), then
+ * Grid, list or map. Starts with the site default (so server and first client render match), then
  * restores the visitor's own choice on this device, if switching is allowed.
  */
-function useListingView(fallback: ListingView, allowSwitch: boolean): [ListingView, (view: ListingView) => void] {
-  const [view, setViewState] = useState<ListingView>(fallback);
+function useListingView(fallback: ListingView, allowSwitch: boolean): [ExplorerView, (view: ExplorerView) => void] {
+  const [view, setViewState] = useState<ExplorerView>(fallback);
   useEffect(() => {
     if (!allowSwitch) return;
     try {
       const saved = window.localStorage.getItem(VIEW_KEY);
-      if (saved === 'grid' || saved === 'list') setViewState(saved);
+      if (saved === 'grid' || saved === 'list' || saved === 'map') setViewState(saved);
     } catch {
       // Storage blocked (private mode): keep the default.
     }
   }, [allowSwitch]);
-  const setView = (next: ListingView) => {
+  const setView = (next: ExplorerView) => {
     setViewState(next);
     try {
       window.localStorage.setItem(VIEW_KEY, next);

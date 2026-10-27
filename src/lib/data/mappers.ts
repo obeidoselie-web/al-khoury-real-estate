@@ -6,7 +6,7 @@ import { approximate, isValidPoint } from '../site';
 import type { DealType, Listing, PropertyType, Region } from '../types';
 import type { Advisor } from './advisors';
 import type { ListingRecord } from './placeholder-listings';
-import { photo } from './placeholder-listings';
+import { PLACE_COORDS, photo } from './placeholder-listings';
 
 /*
  * Conversions between database rows and the shapes the public site renders. Pure functions, so
@@ -103,6 +103,7 @@ export function recordToRows(
       descriptionAr: record.description.ar,
       featuresEn: record.features.en,
       featuresAr: record.features.ar,
+      ...placeholderPin(record),
     },
     photos: record.photos.map((name, position) => {
       const en = photo(name, 'en');
@@ -135,4 +136,10 @@ export function profileToAdvisor(user: Pick<UserRow, 'id' | 'name'>, profile: Ad
     whatsapp: profile.phoneDigits,
     regions: profile.regions as Region[],
   };
+}
+
+/** The seeded map pin for a placeholder listing: its neighbourhood, shown as an approximate area. */
+export function placeholderPin(record: ListingRecord): { lat: number | null; lng: number | null; mapMode: 'off' | 'approximate' } {
+  const point = PLACE_COORDS[record.location.area.en];
+  return point ? { ...point, mapMode: 'approximate' } : { lat: null, lng: null, mapMode: 'off' };
 }

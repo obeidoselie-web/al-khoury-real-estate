@@ -1,8 +1,8 @@
-import { count, eq } from 'drizzle-orm';
+import { and, count, eq, isNull } from 'drizzle-orm';
 
 import { hashPassword } from '@/lib/auth/password';
 import { ADVISORS, advisorForRegion } from '@/lib/data/advisors';
-import { recordToRows } from '@/lib/data/mappers';
+import { placeholderPin, recordToRows } from '@/lib/data/mappers';
 import { PLACEHOLDER_LISTINGS } from '@/lib/data/placeholder-listings';
 
 import type { Db } from './index';
@@ -26,10 +26,12 @@ export interface SeedReport {
   adminCreated: boolean;
   advisorsCreated: number;
   listingsCreated: number;
+  /** Placeholder listings that had no map pin and were given their neighbourhood. */
+  pinsAdded: number;
 }
 
 export async function seedDatabase(db: Db, options: SeedOptions): Promise<SeedReport> {
-  const report: SeedReport = { adminCreated: false, advisorsCreated: 0, listingsCreated: 0 };
+  const report: SeedReport = { adminCreated: false, advisorsCreated: 0, listingsCreated: 0, pinsAdded: 0 };
   const email = options.adminEmail.trim().toLowerCase();
 
   const [existingAdmin] = await db.select({ id: users.id }).from(users).where(eq(users.email, email));
@@ -79,6 +81,18 @@ export async function seedDatabase(db: Db, options: SeedOptions): Promise<SeedRe
       await db.insert(listingPhotos).values(rows.photos);
       report.listingsCreated++;
     }
+  }
+
+  // Databases seeded before maps existed: give placeholder listings without a pin their neighbourhood.
+  for (const record of PLACEHOLDER_LISTINGS) {
+    const pin = placeholderPin(record);
+    if (pin.lat === null) continue;
+    const updated = await db
+      .update(listings)
+      .set(pin)
+      .where(and(eq(listings.id, record.id), isNull(listings.lat), eq(listings.mapMode, 'off')))
+      .returning({ id: listings.id });
+    report.pinsAdded += updated.length;
   }
 
   return report;

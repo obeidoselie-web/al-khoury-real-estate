@@ -256,3 +256,10 @@
     height: var(--tap-target);
   }
 }
+
+/* Placeholder while the map view loads. */
+.mapLoading {
+  height: min(70dvh, 36rem);
+  border-radius: var(--radius-lg);
+  background: var(--color-skeleton-base);
+}

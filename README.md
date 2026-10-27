@@ -9,7 +9,7 @@ Every URL starts with a language: `/en/…` or `/ar/…`. A bare URL such as `/`
 visitor's language (see [Languages](#languages-english--arabic)).
 
 - **Home** (`/en`, `/ar`): one primary action ("Browse properties"), shortcuts by property type, and featured listings.
-- **Properties** (`/en/listings`): instant filtering by *Buy / Rent*, *property type* and *region*, plus a **Filters** panel (a **price range** with a histogram, two-handle slider and Min/Max fields that accept `750k` or `1.2m`; bedrooms; size) and **sorting** (newest, price, size). Everything is kept in the URL (`/en/listings?deal=sale&minBeds=3&sort=price-desc`), so filtered views can be shared and bookmarked.
+- **Properties** (`/en/listings`): instant filtering by *Buy / Rent*, *property type* and *region*, plus a **Filters** panel (a **price range** with a histogram, two-handle slider and Min/Max fields that accept `750k` or `1.2m`; bedrooms; size) and **sorting** (newest, price, size). Everything is kept in the URL (`/en/listings?deal=sale&minBeds=3&sort=price-desc`), so filtered views can be shared and bookmarked. **Grid, List or Map** views; the map view (search by map) shows the results beside an OpenStreetMap map with price pins, nearby pins grouped into count bubbles that zoom in, a preview card per pin, and *Search as I move the map* to narrow the list to the visible area. Approximate locations are rounded on the server; listings without a location are counted, not hidden from the list.
 - **Property detail** (`/en/listings/[id]`): photo gallery with a **full-screen viewer**, *Title deed verified* and *Listed on* badges, key facts, description, features, a **payment calculator** (sale listings), a **Book a viewing** form, the responsible **advisor** with call/WhatsApp, *Share* and *Save*, and **similar properties**. Phones get a sticky *Book a viewing / Call / WhatsApp* bar.
 - **List your property** (`/en/sell`): why list with Al Khoury and a free-valuation request form for owners.
 - **Saved properties** (`/en/saved`): every card and property page has a heart; saved properties are listed here and counted in the header (see [Saved properties, sharing and WhatsApp](#saved-properties-sharing-and-whatsapp)).
@@ -457,7 +457,7 @@ WhatsApp are icon buttons with accessible names, so the price keeps its room on 
 npm test
 ```
 
-206 tests across 23 files. Tests that need a database get their own migrated SQLite file in a temp folder
+213 tests across 24 files. Tests that need a database get their own migrated SQLite file in a temp folder
 (`tests/db.ts`); every other test points at an empty in-memory database, so the suite never touches `data/`.
 
 | File | Covers |
@@ -479,6 +479,7 @@ npm test
 | `appearance.test.tsx` | Settings parsing and attributes; the pre-paint script matching `applyAppearance`; the dialog applying, persisting, restoring and resetting choices; Arabic labels |
 | `admin.test.ts` | Listing form (slug generation, numbers, enums, dates, publish-needs-both-languages, land drops rooms, markup stripped); account and profile forms; post-login redirect allow-list; role permissions; scrypt hashing and the password policy; phone normalisation; relative times |
 | `listing-display.test.tsx` | Listing display settings (range and choice validation), cards hiding badge/heart/type/location/facts, grid columns, grid ⇄ list switch remembered per device, admin default and switch turned off |
+| `map-search.test.tsx` | Pin labels (price on request has none), visible-area check, fanning out pins that share a spot, screen-space clustering, placeholder neighbourhood pins, Map offered only when a property has a location, switching to the map view |
 | `themes.test.tsx` | The new themes parse and apply (dark ones set `data-scheme`), every theme has tokens and a preview, the pre-paint script uses the site default until the visitor chooses, a choice equal to the default isn't stored, the admin default is validated, and the dialog lists every theme, starts on the default and resets to it |
 | `price-range.test.tsx` | Budget: shorthand amounts (`750k`, `1.2m`, Arabic digits), min/max in the URL, range filtering, the stepped scale and histogram, handles that never cross, typed values reordered, bad input restored, applying from the Filters panel |
 | `dropdown.test.tsx` | The filter dropdown as an ARIA combobox: opening, selected state, counts announced, arrows/Home/End/type-ahead/Enter/Escape, active descendant, outside click, form submission |

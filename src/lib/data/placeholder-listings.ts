@@ -74,6 +74,26 @@ const place = {
   zahle: { area: { en: 'Zahle', ar: 'زحلة' }, city: { en: 'Bekaa', ar: 'البقاع' } },
 } satisfies Record<string, ListingRecord['location']>;
 
+/**
+ * Neighbourhood centres (not addresses) for the placeholder listings. Seeded as "approximate" map
+ * pins, which the site rounds to about 1 km; set exact pins per listing in the admin.
+ */
+export const PLACE_COORDS: Record<string, { lat: number; lng: number }> = {
+  Broummana: { lat: 33.8828, lng: 35.6206 },
+  'Old Souk': { lat: 34.2553, lng: 35.6581 },
+  Rabieh: { lat: 33.93, lng: 35.57 },
+  Achrafieh: { lat: 33.8886, lng: 35.52 },
+  'Mar Mikhael': { lat: 33.8972, lng: 35.525 },
+  Kaslik: { lat: 33.9822, lng: 35.6164 },
+  Hamra: { lat: 33.8963, lng: 35.482 },
+  Downtown: { lat: 33.8962, lng: 35.504 },
+  Verdun: { lat: 33.8853, lng: 35.483 },
+  Dbayeh: { lat: 33.9364, lng: 35.5878 },
+  Kfardebian: { lat: 33.999, lng: 35.765 },
+  Amioun: { lat: 34.2986, lng: 35.8031 },
+  Zahle: { lat: 33.8463, lng: 35.9019 },
+};
+
 export const PLACEHOLDER_LISTINGS: ListingRecord[] = [
   {
     id: 'villa-broummana-pine-view',

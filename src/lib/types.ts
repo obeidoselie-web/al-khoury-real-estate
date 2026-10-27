@@ -61,11 +61,11 @@ export interface Listing {
 /** The subset of a listing needed to render a card — keeps client payloads small. */
 export type ListingSummary = Pick<
   Listing,
-  'id' | 'title' | 'type' | 'deal' | 'region' | 'price' | 'priceOnRequest' | 'location' | 'bedrooms' | 'bathrooms' | 'areaSqm'
+  'id' | 'title' | 'type' | 'deal' | 'region' | 'price' | 'priceOnRequest' | 'location' | 'bedrooms' | 'bathrooms' | 'areaSqm' | 'map'
 > & { image: ListingImage };
 
 export function toSummary(listing: Listing): ListingSummary {
-  const { id, title, type, deal, region, price, priceOnRequest, location, bedrooms, bathrooms, areaSqm, images } = listing;
+  const { id, title, type, deal, region, price, priceOnRequest, location, bedrooms, bathrooms, areaSqm, images, map } = listing;
   return {
     id,
     title,
@@ -79,5 +79,6 @@ export function toSummary(listing: Listing): ListingSummary {
     bathrooms,
     areaSqm,
     image: images[0],
+    ...(map && { map }),
   };
 }

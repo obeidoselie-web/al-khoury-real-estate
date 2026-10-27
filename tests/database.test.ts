@@ -35,7 +35,7 @@ describe('seed', () => {
     expect(all.filter((u) => u.role === 'advisor' && u.passwordHash === null)).toHaveLength(3);
 
     const again = await seedDatabase(db, { adminEmail: 'owner@example.com' });
-    expect(again).toEqual({ adminCreated: false, advisorsCreated: 0, listingsCreated: 0 });
+    expect(again).toEqual({ adminCreated: false, advisorsCreated: 0, listingsCreated: 0, pinsAdded: 0 });
   });
 });
 
@@ -45,7 +45,9 @@ describe('database listings source', () => {
       const fromDb = await databaseListingsSource.list(locale);
       expect(fromDb).toHaveLength(PLACEHOLDER_LISTINGS.length);
       for (const record of PLACEHOLDER_LISTINGS) {
-        const { advisorId, display, ...listing } = fromDb.find((l) => l.id === record.id)!;
+        const { advisorId, display, map, ...listing } = fromDb.find((l) => l.id === record.id)!;
+        // Placeholder listings get their neighbourhood as an approximate (rounded) pin.
+        expect(map?.exact).toBe(false);
         expect(display).toMatchObject({ hideFeatures: false, hideViewingForm: false, hideAdvisor: false });
         expect(listing).toEqual({ ...localizeListing(record, locale), featured: record.featured ?? false, verified: record.verified ?? false });
         expect(advisorId).toBe(advisorForRegion(record.region).id);

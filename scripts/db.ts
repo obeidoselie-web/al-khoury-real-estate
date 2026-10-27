@@ -47,7 +47,7 @@ async function main() {
 
   const report = await seedDatabase(await getDb(), { adminEmail, adminPassword });
   console.log(
-    `[db] seeded: ${report.listingsCreated} listings, ${report.advisorsCreated} advisors, admin ${report.adminCreated ? 'created' : 'already existed'}`,
+    `[db] seeded: ${report.listingsCreated} listings, ${report.advisorsCreated} advisors, ${report.pinsAdded} map pins, admin ${report.adminCreated ? 'created' : 'already existed'}`,
   );
 
   if (report.adminCreated && generated) {
