@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { CheckIcon } from '@/components/icons';
 import { ValuationForm } from '@/components/ValuationForm';
 import { isLocale } from '@/i18n/config';
-import { getDictionary } from '@/i18n/dictionaries';
+import { getSiteDictionary } from '@/lib/data/site-store';
 import { alternates } from '@/lib/seo';
 
 import styles from './sell.module.css';
@@ -15,7 +15,7 @@ type Props = PageProps<'/[locale]/sell'>;
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const t = await getSiteDictionary(locale);
   return { title: t.sell.metaTitle, description: t.sell.metaDescription, alternates: alternates(locale, '/sell') };
 }
 
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function SellPage({ params }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const s = getDictionary(locale).sell;
+  const s = (await getSiteDictionary(locale)).sell;
 
   return (
     <div className={`container ${styles.page}`}>

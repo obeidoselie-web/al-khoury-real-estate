@@ -8,7 +8,7 @@ import { activity } from '@/db/schema';
 export async function logActivity(
   actorId: string | null,
   action: string,
-  entity: 'listing' | 'lead' | 'user',
+  entity: 'listing' | 'lead' | 'user' | 'website',
   entityId: string,
   summary: string,
 ): Promise<void> {

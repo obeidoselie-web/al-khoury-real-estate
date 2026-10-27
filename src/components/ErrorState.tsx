@@ -5,7 +5,6 @@ import { useEffect, useRef } from 'react';
 
 import { localizedPath } from '@/i18n/config';
 import { useI18n } from '@/i18n/I18nProvider';
-import { COMPANY } from '@/lib/company';
 
 import styles from './StatusPage.module.css';
 
@@ -16,7 +15,7 @@ interface ErrorStateProps {
 
 /** Shared UI for route error boundaries: explains, offers a retry, and a way out. */
 export function ErrorState({ variant, onRetry }: ErrorStateProps) {
-  const { locale, t } = useI18n();
+  const { locale, t, contact } = useI18n();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const title = variant === 'listings' ? t.errors.listingsTitle : t.errors.genericTitle;
   const message = variant === 'listings' ? t.errors.listingsText : t.errors.genericText;
@@ -43,8 +42,8 @@ export function ErrorState({ variant, onRetry }: ErrorStateProps) {
       </div>
       <p className={styles.small}>
         {before}
-        <a href={COMPANY.phone.href} className="ltr">
-          {COMPANY.phone.display}
+        <a href={contact.phoneHref} className="ltr">
+          {contact.phone}
         </a>
         {after}
       </p>

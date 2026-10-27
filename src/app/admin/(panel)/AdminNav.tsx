@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { AllIcon, HouseIcon, MailIcon, UserIcon, UsersIcon } from '@/components/icons';
+import { AllIcon, GlobeIcon, HouseIcon, MailIcon, UserIcon, UsersIcon } from '@/components/icons';
 
 import styles from '../admin.module.css';
 
@@ -13,7 +13,12 @@ export function AdminNav({ isAdmin, newLeads }: { isAdmin: boolean; newLeads: nu
     { href: '/admin', label: 'Dashboard', Icon: AllIcon, exact: true },
     { href: '/admin/listings', label: 'Listings', Icon: HouseIcon },
     { href: '/admin/leads', label: 'Leads', Icon: MailIcon, badge: newLeads },
-    ...(isAdmin ? [{ href: '/admin/team', label: 'Team', Icon: UsersIcon }] : []),
+    ...(isAdmin
+      ? [
+          { href: '/admin/website', label: 'Website', Icon: GlobeIcon },
+          { href: '/admin/team', label: 'Team', Icon: UsersIcon },
+        ]
+      : []),
     { href: '/admin/account', label: 'My account', Icon: UserIcon },
   ];
 

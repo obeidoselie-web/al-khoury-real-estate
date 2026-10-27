@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { localizedPath, type Locale } from '@/i18n/config';
 import type { Dictionary } from '@/i18n/dictionaries';
 import { interpolate } from '@/i18n/plural';
-import { COMPANY } from '@/lib/company';
+import { telHref, type SiteSettings } from '@/lib/site';
 import { listingsHref } from '@/lib/filters';
 
 import { AppearanceSettings } from './AppearanceSettings';
@@ -17,7 +17,7 @@ import { Wordmark } from './Wordmark';
  * Logo · centred navigation · utilities (phone, saved, Enquire, language & appearance).
  * Secondary items drop away as the screen narrows, so the bar never wraps.
  */
-export function SiteHeader({ locale, t }: { locale: Locale; t: Dictionary }) {
+export function SiteHeader({ locale, t, site }: { locale: Locale; t: Dictionary; site: SiteSettings }) {
   return (
     <header className={styles.header}>
       <div className={`container ${styles.inner}`}>
@@ -55,11 +55,13 @@ export function SiteHeader({ locale, t }: { locale: Locale; t: Dictionary }) {
         </nav>
 
         <div className={styles.end}>
-          <a href={COMPANY.phone.href} className={styles.phone}>
-            <PhoneIcon size={18} />
-            <span className="sr-only">{t.nav.callUs}: </span>
-            <span className="ltr">{COMPANY.phone.display}</span>
-          </a>
+          {site.header.showPhone && (
+            <a href={telHref(site.contact.phone)} className={styles.phone}>
+              <PhoneIcon size={18} />
+              <span className="sr-only">{t.nav.callUs}: </span>
+              <span className="ltr">{site.contact.phone}</span>
+            </a>
+          )}
           <SavedLink />
           <Link href={`${localizedPath(locale, '/about')}#contact`} className={styles.cta}>
             {t.nav.enquire}

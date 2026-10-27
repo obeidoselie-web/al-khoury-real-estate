@@ -6,10 +6,11 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { SiteHeader } from '@/components/SiteHeader';
 import { WhatsAppFab } from '@/components/WhatsAppFab';
 import { LOCALES, LOCALE_META, isLocale } from '@/i18n/config';
-import { getDictionary } from '@/i18n/dictionaries';
 import { I18nProvider } from '@/i18n/I18nProvider';
 import { APPEARANCE_INIT_SCRIPT } from '@/lib/appearance';
 import { siteUrl } from '@/lib/company';
+import { getSiteDictionary, getSiteSettings } from '@/lib/data/site-store';
+import { publicContact } from '@/lib/site';
 import { alternates } from '@/lib/seo';
 
 import { arabicFont, brandFont, latinFont } from '../fonts';
@@ -22,7 +23,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const t = await getSiteDictionary(locale);
   return {
     metadataBase: new URL(siteUrl()),
     title: { default: t.meta.siteTitle, template: `%s · ${t.company.name}` },
@@ -44,7 +45,7 @@ export const viewport: Viewport = {
 export default async function LocaleLayout({ children, params }: LayoutProps<'/[locale]'>) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const t = getDictionary(locale);
+  const [t, site] = await Promise.all([getSiteDictionary(locale), getSiteSettings()]);
 
   return (
     // Appearance attributes are added by the inline script before hydration, hence suppressHydrationWarning.
@@ -58,15 +59,15 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
         <script dangerouslySetInnerHTML={{ __html: APPEARANCE_INIT_SCRIPT }} />
       </head>
       <body>
-        <I18nProvider locale={locale} dictionary={t}>
+        <I18nProvider locale={locale} dictionary={t} contact={publicContact(site)}>
           <a className="skip-link" href="#main">
             {t.nav.skip}
           </a>
-          <SiteHeader locale={locale} t={t} />
+          <SiteHeader locale={locale} t={t} site={site} />
           <main id="main" tabIndex={-1}>
             {children}
           </main>
-          <SiteFooter locale={locale} t={t} />
+          <SiteFooter locale={locale} t={t} site={site} />
           <WhatsAppFab />
         </I18nProvider>
       </body>

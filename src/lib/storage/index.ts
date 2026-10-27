@@ -28,7 +28,7 @@ export interface PhotoStorage {
 
 export const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
 export const MAX_PHOTO_EDGE = 2400;
-const KEY_PATTERN = /^listings\/[a-z0-9-]{1,120}\/[a-f0-9-]{36}\.webp$/;
+const KEY_PATTERN = /^(?:listings\/[a-z0-9-]{1,120}|site)\/[a-f0-9-]{36}\.webp$/;
 
 export function isValidKey(key: string): boolean {
   return KEY_PATTERN.test(key);
@@ -84,7 +84,16 @@ export class UploadError extends Error {}
  * AVIF or HEIC files pass), applies EXIF rotation, strips all metadata (including GPS), caps the
  * long edge at 2400px and re-encodes to WebP. Then stores it under a fresh key.
  */
-export async function storeListingPhoto(listingId: string, file: File): Promise<StoredPhoto> {
+export function storeListingPhoto(listingId: string, file: File): Promise<StoredPhoto> {
+  return storePhoto(`listings/${listingId}`, file);
+}
+
+/** Website images (the hero photo) live under site/. */
+export function storeSitePhoto(file: File): Promise<StoredPhoto> {
+  return storePhoto('site', file);
+}
+
+async function storePhoto(folder: string, file: File): Promise<StoredPhoto> {
   if (file.size === 0) throw new UploadError('The file is empty.');
   if (file.size > MAX_UPLOAD_BYTES) throw new UploadError('Photos must be 12 MB or smaller.');
 
@@ -106,7 +115,7 @@ export async function storeListingPhoto(listingId: string, file: File): Promise<
     throw new UploadError('That file is not a photo we can read.');
   }
 
-  const key = `listings/${listingId}/${crypto.randomUUID()}.webp`;
+  const key = `${folder}/${crypto.randomUUID()}.webp`;
   const store = getPhotoStorage();
   await store.put(key, output.data, 'image/webp');
   return { key, url: store.url(key), width: output.info.width, height: output.info.height };

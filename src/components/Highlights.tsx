@@ -23,11 +23,13 @@ export function Highlights({ listing, locale, t, label }: { listing: Source; loc
   if (listing.bathrooms !== undefined && listing.type !== 'land') {
     items.push({ key: 'baths', icon: <BathIcon size={22} />, text: plural(locale, listing.bathrooms, t.card.baths) });
   }
-  items.push({
-    key: 'area',
-    icon: listing.type === 'land' ? <PlotIcon size={22} /> : <AreaIcon size={22} />,
-    text: formatArea(listing.areaSqm, locale, t),
-  });
+  if (listing.areaSqm !== undefined) {
+    items.push({
+      key: 'area',
+      icon: listing.type === 'land' ? <PlotIcon size={22} /> : <AreaIcon size={22} />,
+      text: formatArea(listing.areaSqm, locale, t),
+    });
+  }
   if (listing.plotSqm !== undefined) {
     items.push({ key: 'plot', icon: <PlotIcon size={22} />, text: `${t.property.plotSize}: ${formatArea(listing.plotSqm, locale, t)}` });
   }

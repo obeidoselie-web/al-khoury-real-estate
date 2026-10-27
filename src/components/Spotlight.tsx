@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import { localizedPath, type Locale } from '@/i18n/config';
 import type { Dictionary } from '@/i18n/dictionaries';
-import { formatPlace, formatPrice } from '@/lib/format';
+import { formatPlace, listingPrice } from '@/lib/format';
 import type { Listing } from '@/lib/types';
 
 import { Highlights } from './Highlights';
@@ -41,7 +41,7 @@ export function Spotlight({ listing, locale, t }: { listing: Listing; locale: Lo
         <div className={styles.footer}>
           <p className={styles.price}>
             <span className={styles.deal}>{t.deals[listing.deal].badge}</span>
-            {formatPrice(listing.price, listing.deal, locale, t)}
+            {listingPrice(listing, locale, t)}
           </p>
           <Link href={href} className="button">
             {t.home.viewProperty}

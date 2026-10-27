@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { ListingsExplorer } from '@/components/ListingsExplorer';
 import { isLocale } from '@/i18n/config';
-import { getDictionary } from '@/i18n/dictionaries';
+import { getSiteDictionary } from '@/lib/data/site-store';
 import { getListingSummaries } from '@/lib/data/listings';
 import { filtersToQueryString, parseFilters } from '@/lib/filters';
 import { alternates } from '@/lib/seo';
@@ -13,7 +13,7 @@ import styles from './listings.module.css';
 export async function generateMetadata({ params }: PageProps<'/[locale]/listings'>): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const t = await getSiteDictionary(locale);
   return {
     title: t.meta.listingsTitle,
     description: t.meta.listingsDescription,
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps<'/[locale]/listings
 export default async function ListingsPage({ params, searchParams }: PageProps<'/[locale]/listings'>) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const t = getDictionary(locale);
+  const t = await getSiteDictionary(locale);
 
   const [query, listings] = await Promise.all([searchParams, getListingSummaries(locale)]);
   const initialFilters = parseFilters(query);

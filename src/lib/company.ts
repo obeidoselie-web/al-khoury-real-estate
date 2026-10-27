@@ -1,23 +1,8 @@
 /**
- * Language-independent company details. Translatable details (name, tagline, address, hours)
- * live in the dictionaries under `company`.
- * PLACEHOLDER values — replace with Al Khoury Real Estate's real details before launch.
+ * Contact details (phone, WhatsApp, email, founding year) are website settings, edited in
+ * Admin → Website and read with getSiteSettings(); see src/lib/site.ts for the defaults.
  */
-export const COMPANY = {
-  founded: 1998,
-  phone: {
-    display: '+961 1 234 567',
-    href: 'tel:+9611234567',
-  },
-  email: 'info@alkhoury-realestate.example',
-  /** International format, digits only (country code first, no "+" or leading zeros), as wa.me expects. */
-  whatsapp: '96170123456',
-} as const;
-
-/** A WhatsApp "click to chat" link with a pre-filled message. */
-export function whatsappHref(message: string, number: string = COMPANY.whatsapp): string {
-  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-}
+export { whatsappHref } from './site';
 
 /** Absolute site origin for links that leave the site (WhatsApp messages, Open Graph). */
 export function siteUrl(): string {

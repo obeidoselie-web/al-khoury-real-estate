@@ -45,7 +45,8 @@ describe('database listings source', () => {
       const fromDb = await databaseListingsSource.list(locale);
       expect(fromDb).toHaveLength(PLACEHOLDER_LISTINGS.length);
       for (const record of PLACEHOLDER_LISTINGS) {
-        const { advisorId, ...listing } = fromDb.find((l) => l.id === record.id)!;
+        const { advisorId, display, ...listing } = fromDb.find((l) => l.id === record.id)!;
+        expect(display).toMatchObject({ hideFeatures: false, hideViewingForm: false, hideAdvisor: false });
         expect(listing).toEqual({ ...localizeListing(record, locale), featured: record.featured ?? false, verified: record.verified ?? false });
         expect(advisorId).toBe(advisorForRegion(record.region).id);
       }
@@ -119,5 +120,26 @@ describe('photo storage', () => {
     expect(isValidKey('listings/../../etc/passwd')).toBe(false);
     expect(isValidKey('listings/x/../../a.webp')).toBe(false);
     expect(await new LocalDiskStorage().get('../secret')).toBeNull();
+  });
+});
+
+describe('website settings and edited texts', () => {
+  it('stores settings and texts, applies them to the dictionary, and resets them', async () => {
+    const { getSiteDictionary, getSiteSettings, saveOverrides, saveSiteSettings, getOverrides } = await import('@/lib/data/site-store');
+    const { DEFAULT_SITE } = await import('@/lib/site');
+
+    expect(await getSiteSettings()).toEqual(DEFAULT_SITE);
+    await saveSiteSettings({ ...DEFAULT_SITE, contact: { ...DEFAULT_SITE.contact, phone: '+961 3 999 888' } });
+    expect((await getSiteSettings()).contact.phone).toBe('+961 3 999 888');
+
+    await saveOverrides([
+      { locale: 'en', path: 'home.heroTitle', value: 'Homes by the sea.' },
+      { locale: 'ar', path: 'company.address', value: ['شارع الحمرا', 'بيروت'] },
+    ]);
+    expect((await getSiteDictionary('en')).home.heroTitle).toBe('Homes by the sea.');
+    expect((await getSiteDictionary('ar')).company.address).toEqual(['شارع الحمرا', 'بيروت']);
+
+    await saveOverrides([{ locale: 'en', path: 'home.heroTitle', value: null }]);
+    expect(await getOverrides('en')).toEqual({});
   });
 });

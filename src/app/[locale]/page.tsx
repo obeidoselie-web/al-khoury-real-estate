@@ -6,10 +6,9 @@ import { ListingRow } from '@/components/ListingRow';
 import { SearchCapsule } from '@/components/SearchCapsule';
 import { Spotlight } from '@/components/Spotlight';
 import { isLocale, localizedPath } from '@/i18n/config';
-import { getDictionary } from '@/i18n/dictionaries';
 import { formatNumber, interpolate } from '@/i18n/plural';
-import { COMPANY } from '@/lib/company';
 import { getFeaturedListings, getListingById, getListingSummaries } from '@/lib/data/listings';
+import { getSiteDictionary, getSiteSettings } from '@/lib/data/site-store';
 import { listingsHref } from '@/lib/filters';
 import { PROPERTY_TYPES } from '@/lib/types';
 
@@ -22,12 +21,14 @@ import styles from './page.module.css';
 export default async function HomePage({ params }: PageProps<'/[locale]'>) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const t = getDictionary(locale);
+  const [t, site] = await Promise.all([getSiteDictionary(locale), getSiteSettings()]);
   const h = t.home;
+  const show = site.home;
+  const founded = site.contact.founded;
 
   const [featured, listings] = await Promise.all([getFeaturedListings(locale, 8), getListingSummaries(locale)]);
   const spotlight = featured[0] ? await getListingById(featured[0].id, locale) : null;
-  const yearsActive = new Date().getFullYear() - COMPANY.founded;
+  const yearsActive = new Date().getFullYear() - founded;
 
   return (
     <>
@@ -35,7 +36,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
         <div className={`container ${styles.heroFrame}`}>
           <div className={styles.heroMedia}>
             <Image
-              src="/images/photos/hero-villa-dusk.jpg"
+              src={site.hero.image.src}
               alt=""
               fill
               priority
@@ -51,19 +52,22 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
               <p className={`${styles.heroLead} animate-rise`}>{h.heroLead}</p>
             </div>
           </div>
-          <div className={`${styles.search} animate-rise`}>
-            <SearchCapsule locale={locale} t={t} />
-          </div>
+          {site.hero.showSearch && (
+            <div className={`${styles.search} animate-rise`}>
+              <SearchCapsule locale={locale} t={t} />
+            </div>
+          )}
         </div>
       </section>
 
-      {spotlight && (
+      {show.showSpotlight && spotlight && (
         <div className={`container ${styles.block}`}>
           <Spotlight listing={spotlight} locale={locale} t={t} />
         </div>
       )}
 
       <div className={`container ${styles.rows}`}>
+        {show.showFeatured && (
         <ListingRow
           id="featured"
           title={h.featuredTitle}
@@ -72,7 +76,9 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
           locale={locale}
           t={t}
         />
-        {PROPERTY_TYPES.map((type) => (
+        )}
+        {show.showTypeRows &&
+          PROPERTY_TYPES.map((type) => (
           <ListingRow
             key={type}
             id={`row-${type}`}
@@ -86,6 +92,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
         ))}
       </div>
 
+      {show.showStats && (
       <section className={`container ${styles.block}`} aria-label={h.trustLabel}>
         <dl className={styles.trust}>
           <div>
@@ -94,11 +101,11 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
           </div>
           <div>
             <dt>{t.about.stats.placed}</dt>
-            <dd>{formatNumber(2400, locale)}+</dd>
+            <dd>{formatNumber(site.stats.placed, locale)}+</dd>
           </div>
           <div>
             <dt>{t.about.stats.regions}</dt>
-            <dd>{formatNumber(6, locale)}</dd>
+            <dd>{formatNumber(site.stats.regions, locale)}</dd>
           </div>
           <div>
             <dt>{h.trustAdvisorText}</dt>
@@ -106,11 +113,13 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
           </div>
         </dl>
       </section>
+      )}
 
+      {show.showBrandBand && (
       <section className={`container ${styles.block}`} aria-labelledby="brand-title">
         <div className={styles.brandBand}>
           <div className={styles.brandText}>
-            <p className="kicker">{interpolate(h.brandEyebrow, { year: COMPANY.founded })}</p>
+            <p className="kicker">{interpolate(h.brandEyebrow, { year: founded })}</p>
             <h2 id="brand-title" className={styles.brandTitle}>
               {h.brandTitle}
             </h2>
@@ -134,6 +143,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
           />
         </div>
       </section>
+      )}
     </>
   );
 }

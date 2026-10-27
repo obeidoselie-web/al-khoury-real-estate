@@ -241,8 +241,24 @@ carry over. It works on a phone (the sidebar becomes a top bar).
 | **Listings** | Create, edit, publish/unpublish/archive, delete; assign an advisor; feature on the home page | Create and edit their own listings (a new listing is theirs) |
 | **Photos** | Upload (drag and drop, 8 at a time), reorder, choose the cover, edit EN/AR descriptions, delete | Same, on their own listings |
 | **Leads** | Every enquiry, viewing and valuation request; filter by status, type and assignee; assign; notes | Leads routed to them |
+| **Website** | Contact details, office map, social links, the home page photo, which page sections show, the numbers, and **every text on the site** in English and Arabic (see below) | — |
 | **Team** | Add staff (a temporary password is generated and shown once), change role, deactivate, reset passwords, edit public advisor profiles (Arabic name, title, languages, phone/WhatsApp, regions, order, visibility) | — |
 | **My account** | Change password; edit own public profile | Same (regions and visibility stay as an admin set them) |
+
+**Website editor (Admin → Website, admins only)**
+
+- **Contact & map**: office phone, WhatsApp number, email and founding year (used in the header, footer, About page, property pages and error pages); show/hide the header phone and the floating WhatsApp button; the **office map pin** (click the map, paste a Google Maps / OpenStreetMap link, or type coordinates); address and opening hours in both languages; company name and tagline; social links (shown in the footer under “Follow us” when filled in); the WhatsApp greeting messages.
+- **Home page**: replace or restore the hero photo (processed like listing photos), show/hide the search bar, spotlight, featured row, rows by type, the numbers and the brand band; edit the headline, numbers and every heading.
+- **About page**: show/hide the numbers, “How we work” and opening hours; edit every text.
+- **All texts**: every string on the public site, grouped by section, searchable in either language, with an *Edited only* filter. Each text shows *Edited* when changed and has *Reset to default*. Placeholders such as `{year}` or `{count}` are filled in by the site, so a text that drops one is refused.
+
+How it works: settings are one JSON document (`site_settings`, merged over the defaults in `src/lib/site.ts`), and edited texts are stored per language and path (`content_overrides`, e.g. `ar` / `home.heroTitle`) and applied over the bundled dictionaries by `getSiteDictionary()`. An untouched text keeps following the code. If the database can't be read, the site renders with the defaults instead of failing.
+
+**What each listing shows (Admin → listing → “What the website shows”)**
+
+Each listing can hide: the price (“Price on request”, also left out of budget filters and sorted last), the neighbourhood (city only), bedrooms, bathrooms, size, plot, year built, the “Listed on” date, the features list, the payment calculator, the viewing form (its buttons then lead to the enquiry form), the advisor card and similar properties. Hidden values are removed on the server, so they are not in the page or its data. Advisors can set these on their own listings.
+
+**Maps.** A listing can show no map, an **approximate area** (rounded to about 1 km on the server, no pin, with a note that the address is shared at the viewing) or the **exact location** with a pin. Maps are OpenStreetMap embeds with a “Open in Maps” / “Get directions” link: no API key, no tracking script. The admin picker uses Leaflet with OpenStreetMap tiles.
 
 **How it connects to the site**
 
@@ -253,7 +269,7 @@ carry over. It works on a phone (the sidebar becomes a top bar).
 - Every significant action is written to an activity log, shown on the dashboard and in each lead's history.
 
 **Database.** SQLite through [Drizzle ORM](https://orm.drizzle.team) and libSQL (`src/db/schema.ts`; migrations in
-`drizzle/`). Tables: `users`, `advisor_profiles`, `sessions`, `listings`, `listing_photos`, `leads`, `lead_notes`,
+`drizzle/`). Tables: `users`, `advisor_profiles`, `sessions`, `listings`, `listing_photos`, `leads`, `lead_notes`, `site_settings`, `content_overrides`,
 `activity`, `login_attempts`. To move to Turso, set `DATABASE_URL`/`DATABASE_AUTH_TOKEN`; nothing else changes.
 For Postgres, switch the dialect imports in `schema.ts` and `src/db/index.ts` and regenerate migrations.
 
@@ -420,7 +436,7 @@ WhatsApp are icon buttons with accessible names, so the price keeps its room on 
 npm test
 ```
 
-162 tests across 17 files. Tests that need a database get their own migrated SQLite file in a temp folder
+177 tests across 18 files. Tests that need a database get their own migrated SQLite file in a temp folder
 (`tests/db.ts`); every other test points at an empty in-memory database, so the suite never touches `data/`.
 
 | File | Covers |
@@ -441,7 +457,8 @@ npm test
 | `share.test.tsx` | Share sheet when available, silent on dismiss, clipboard fallback with status message, fallback after a share error, no-clipboard message in Arabic; the encoded `wa.me` link |
 | `appearance.test.tsx` | Settings parsing and attributes; the pre-paint script matching `applyAppearance`; the dialog applying, persisting, restoring and resetting choices; Arabic labels |
 | `admin.test.ts` | Listing form (slug generation, numbers, enums, dates, publish-needs-both-languages, land drops rooms, markup stripped); account and profile forms; post-login redirect allow-list; role permissions; scrypt hashing and the password policy; phone normalisation; relative times |
-| `database.test.ts` | Against a real SQLite file: migrations and an idempotent seed; the DB source returns exactly the placeholder catalogue in both languages; drafts and photo-less listings hidden; advisor fallback; website leads saved and routed (listing advisor, region, unknown property id); photo uploads re-encoded to WebP without EXIF and resized; non-images and path-traversal keys rejected |
+| `website.test.ts` | Text flattening, overrides and placeholder protection; settings merge and validation (unticked switches, bad phone/email/year/URL/zoom); tel/WhatsApp/map links; pasted Google/OSM link parsing; hidden listing details stripped on the server (price, area, rooms, size, features) and the approximate pin rounded; price-on-request in budget filters and sorting; listing-form display switches and map pin |
+| `database.test.ts` | Against a real SQLite file: migrations and an idempotent seed; website settings and edited texts saved, applied to the dictionary and reset; the DB source returns exactly the placeholder catalogue in both languages; drafts and photo-less listings hidden; advisor fallback; website leads saved and routed (listing advisor, region, unknown property id); photo uploads re-encoded to WebP without EXIF and resized; non-images and path-traversal keys rejected |
 
 Manual checks done in a browser against the production build at 375 px (mobile), 768 px (tablet) and
 1280 px (desktop): no horizontal overflow, filtering and URL sync, the property gallery and sticky contact bar,
@@ -470,9 +487,8 @@ or assign controls), the phone layout at 375 px (light theme) and the desktop la
 - **Appearance settings are per device** (localStorage), since there are no user accounts.
 - **Filtering** is single-choice per group (one deal type, one property type). That gives the simplest phone UI and keeps URLs readable. Price, bedroom filters and sorting were left out to stay within scope.
 - **Contact** is through a form that posts to a webhook, plus phone (`tel:`) and email links. No email provider or CRM is assumed.
-- **Company details** (`src/lib/company.ts` and the `company` section of the dictionaries: phone, email, address, founding year, stats on the About page) are **placeholders**, and the email uses the reserved `.example` domain.
+- **Company details** (phone, WhatsApp, email, address, founding year, the numbers) are **placeholders** until changed in **Admin → Website**; the defaults live in `src/lib/site.ts` and the dictionaries, and the email uses the reserved `.example` domain.
 - **Photos** are free-licence stock images from Unsplash (Unsplash License), self-hosted and credited in `public/images/photos/CREDITS.md`, with descriptive English and Arabic alt text. They illustrate the kind of property only; replace them with real listing photos before launch (edit `photos.json` or point the data source at CMS images).
 - **Saved properties are per device** (localStorage) for the same reason: they don't follow a visitor to another browser.
-- **WhatsApp number** (`COMPANY.whatsapp`) is a placeholder, like the phone number.
-- Per the brief, there are no visitor accounts, payments, maps or saved searches. Accounts exist only for staff, in the admin.
+- There are no visitor accounts, payments or saved searches. Maps were added on request (OpenStreetMap, no key). Accounts exist only for staff, in the admin.
 - **Advisors** (Nadine Azar, Karim Haddad, Maya Saad) are fictional placeholders, seeded without passwords so they cannot sign in. Replace them with the real team in **Admin → Team**.

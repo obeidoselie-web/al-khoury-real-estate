@@ -150,3 +150,8 @@
   background: var(--color-surface);
   font-size: var(--text-sm);
 }
+
+/* Office map under the contact details. */
+.officeMap {
+  margin-top: var(--space-5);
+}

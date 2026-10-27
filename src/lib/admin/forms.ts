@@ -1,6 +1,8 @@
-import { LEAD_STATUSES, LISTING_STATUSES, ROLES, type LeadStatus, type ListingStatus, type Role } from '@/db/schema';
+import { LEAD_STATUSES, LISTING_STATUSES, MAP_MODES, ROLES, type LeadStatus, type ListingStatus, type MapMode, type Role } from '@/db/schema';
 
 import { sanitizeText } from '../contact';
+import { DISPLAY_FLAGS, compactDisplay, type ListingDisplay } from '../listing-display';
+import { isValidPoint } from '../site';
 import { slugify } from './slug';
 import { DEAL_TYPES, PROPERTY_TYPES, REGIONS, type DealType, type PropertyType, type Region } from '../types';
 
@@ -92,6 +94,10 @@ export interface ListingInput {
   descriptionAr: string[];
   featuresEn: string[];
   featuresAr: string[];
+  display: Partial<ListingDisplay>;
+  mapMode: MapMode;
+  lat: number | null;
+  lng: number | null;
 }
 
 /** Text fields echoed back to the form after a failed save. */
@@ -143,6 +149,14 @@ export function parseListingForm(form: FormData, { today = new Date() } = {}): P
 
   const advisorId = line(form, 'advisorId', 64) || null;
 
+  const display = compactDisplay(Object.fromEntries(DISPLAY_FLAGS.map((flag) => [flag, form.get(`display.${flag}`) === 'on'])));
+  const mapMode = oneOf(MAP_MODES, form.get('mapMode')) ?? 'off';
+  const latRaw = line(form, 'lat', 20);
+  const lngRaw = line(form, 'lng', 20);
+  const lat = latRaw ? Number(latRaw) : null;
+  const lng = lngRaw ? Number(lngRaw) : null;
+  if (mapMode !== 'off' && !isValidPoint(lat, lng)) errors.lat = 'Pick the location on the map, or set the map to “Don’t show”.';
+
   const text = {
     titleEn,
     titleAr: line(form, 'titleAr', 120),
@@ -190,6 +204,10 @@ export function parseListingForm(form: FormData, { today = new Date() } = {}): P
       descriptionAr,
       featuresEn,
       featuresAr,
+      display,
+      mapMode,
+      lat: isValidPoint(lat, lng) ? lat : null,
+      lng: isValidPoint(lat, lng) ? lng : null,
     },
   };
 }

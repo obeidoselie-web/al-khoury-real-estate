@@ -49,6 +49,7 @@ export const ar: Dictionary = {
     whatsappChat: 'تواصل معنا عبر واتساب',
     whatsappHello: 'مرحبًا الخوري للعقارات، لديّ سؤال.',
     enquire: 'استفسر',
+    follow: 'تابعونا',
   },
   home: {
     heroTitle: 'اعثر على مكانك في لبنان.',
@@ -221,6 +222,7 @@ export const ar: Dictionary = {
   },
   card: {
     keyFacts: 'معلومات أساسية',
+    priceOnRequest: 'السعر عند الطلب',
     studio: 'استوديو',
     beds: {
       zero: 'بلا غرف نوم',
@@ -245,6 +247,10 @@ export const ar: Dictionary = {
     area: '{value} م²',
   },
   property: {
+    mapTitle: 'الموقع',
+    mapApproximate: 'موقع تقريبي — نشارك العنوان الدقيق عند حجز موعد المعاينة.',
+    mapFrameTitle: 'خريطة موقع العقار',
+    openInMaps: 'افتح في الخرائط',
     loading: 'جارٍ تحميل العقار…',
     factsTitle: 'معلومات أساسية',
     price: 'السعر',
@@ -425,6 +431,8 @@ export const ar: Dictionary = {
     phone: 'الهاتف',
     email: 'البريد الإلكتروني',
     office: 'المكتب',
+    mapFrameTitle: 'خريطة مكتبنا',
+    directions: 'احصل على الاتجاهات',
     hours: 'ساعات العمل',
     regarding: 'بخصوص:',
     brandImageAlt: 'صورة هوية الخوري للعقارات: فيلا حجرية حديثة على شكل الشعار، عند الغروب فوق الساحل.',

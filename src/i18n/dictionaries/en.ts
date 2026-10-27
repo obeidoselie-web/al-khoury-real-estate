@@ -47,6 +47,7 @@ export const en = {
     whatsappChat: 'Chat with us on WhatsApp',
     whatsappHello: 'Hello Al Khoury Real Estate, I have a question.',
     enquire: 'Enquire',
+    follow: 'Follow us',
   },
   home: {
     heroTitle: 'Find your place in Lebanon.',
@@ -163,6 +164,7 @@ export const en = {
   },
   card: {
     keyFacts: 'Key facts',
+    priceOnRequest: 'Price on request',
     studio: 'Studio',
     beds: { one: '{count} bed', other: '{count} beds' } as PluralForms,
     baths: { one: '{count} bath', other: '{count} baths' } as PluralForms,
@@ -173,6 +175,10 @@ export const en = {
     area: '{value} m²',
   },
   property: {
+    mapTitle: 'Location',
+    mapApproximate: 'Approximate location — the exact address is shared when you book a viewing.',
+    mapFrameTitle: 'Map of the property location',
+    openInMaps: 'Open in Maps',
     loading: 'Loading property…',
     factsTitle: 'Key facts',
     price: 'Price',
@@ -329,6 +335,8 @@ export const en = {
     phone: 'Phone',
     email: 'Email',
     office: 'Office',
+    mapFrameTitle: 'Map of our office',
+    directions: 'Get directions',
     hours: 'Opening hours',
     regarding: 'About:',
     brandImageAlt:

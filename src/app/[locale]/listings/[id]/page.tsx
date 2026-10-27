@@ -7,18 +7,21 @@ import { FavouriteButton } from '@/components/FavouriteButton';
 import { Highlights } from '@/components/Highlights';
 import { CalendarIcon, ChatIcon, CheckIcon, PhoneIcon, PinIcon } from '@/components/icons';
 import { ListingRow } from '@/components/ListingRow';
+import { LocationMap } from '@/components/LocationMap';
 import { PaymentCalculator } from '@/components/PaymentCalculator';
 import { PropertyGallery } from '@/components/PropertyGallery';
 import { ShareButton } from '@/components/ShareButton';
 import { ViewingForm } from '@/components/ViewingForm';
 import { LOCALES, LOCALE_META, isLocale, localizedPath, type Locale } from '@/i18n/config';
-import { getDictionary, type Dictionary } from '@/i18n/dictionaries';
+import type { Dictionary } from '@/i18n/dictionaries';
 import { interpolate } from '@/i18n/plural';
-import { COMPANY, siteUrl, whatsappHref } from '@/lib/company';
+import { siteUrl } from '@/lib/company';
 import { getAdvisorForListing } from '@/lib/data/db-source';
+import { getSiteDictionary, getSiteSettings } from '@/lib/data/site-store';
+import { telHref, whatsappHref } from '@/lib/site';
 import { getListingById, getListingIds, getSimilarListings } from '@/lib/data/listings';
 import { listingsHref } from '@/lib/filters';
-import { formatArea, formatPlace, formatPrice } from '@/lib/format';
+import { formatArea, formatPlace, listingPrice } from '@/lib/format';
 import { alternates } from '@/lib/seo';
 import type { Listing } from '@/lib/types';
 
@@ -34,7 +37,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const t = await getSiteDictionary(locale);
   const listing = await getListingById(id, locale);
   if (!listing) return { title: t.meta.propertyNotFound };
   return {
@@ -52,11 +55,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 function keyFacts(listing: Listing, locale: Locale, t: Dictionary): { label: string; value: string }[] {
   const p = t.property;
   const facts = [
-    { label: p.price, value: formatPrice(listing.price, listing.deal, locale, t) },
+    { label: p.price, value: listingPrice(listing, locale, t) },
     { label: p.type, value: t.types[listing.type].label },
     { label: p.listing, value: t.deals[listing.deal].badge },
-    { label: listing.type === 'land' ? p.plotSize : p.builtArea, value: formatArea(listing.areaSqm, locale, t) },
   ];
+  if (listing.areaSqm !== undefined) {
+    facts.push({ label: listing.type === 'land' ? p.plotSize : p.builtArea, value: formatArea(listing.areaSqm, locale, t) });
+  }
   if (listing.bedrooms !== undefined) {
     facts.push({ label: p.bedrooms, value: listing.bedrooms === 0 ? t.card.studio : String(listing.bedrooms) });
   }
@@ -69,22 +74,33 @@ function keyFacts(listing: Listing, locale: Locale, t: Dictionary): { label: str
 export default async function PropertyPage({ params }: Props) {
   const { locale, id } = await params;
   if (!isLocale(locale)) notFound();
-  const t = getDictionary(locale);
-  const listing = await getListingById(id, locale);
+  const [t, site, listing] = await Promise.all([getSiteDictionary(locale), getSiteSettings(), getListingById(id, locale)]);
   if (!listing) notFound();
+  const show = {
+    listedDate: !listing.display?.hideListedDate,
+    calculator: !listing.display?.hideCalculator && listing.deal === 'sale' && !listing.priceOnRequest,
+    viewing: !listing.display?.hideViewingForm,
+    advisor: !listing.display?.hideAdvisor,
+    similar: !listing.display?.hideSimilar,
+  };
+  const officePhone = site.contact.phone;
 
   const enquireHref = `${localizedPath(locale, '/about')}?property=${encodeURIComponent(listing.id)}#contact`;
-  const price = formatPrice(listing.price, listing.deal, locale, t);
+  const price = listingPrice(listing, locale, t);
   const p = t.property;
-  const phone = <span className="ltr">{COMPANY.phone.display}</span>;
+  const phone = <span className="ltr">{officePhone}</span>;
   const [callBefore, callAfter = ''] = p.call.split('{phone}');
   const whatsappMessage = interpolate(p.whatsappMessage, {
     title: listing.title,
     url: `${siteUrl()}${localizedPath(locale, `/listings/${listing.id}`)}`,
   });
-  const whatsapp = whatsappHref(whatsappMessage);
-  const advisor = await getAdvisorForListing(listing);
-  const similar = await getSimilarListings(listing, locale, 6);
+  const whatsapp = whatsappHref(whatsappMessage, site.contact.whatsapp);
+  const [advisor, similar] = await Promise.all([
+    show.advisor ? getAdvisorForListing(listing) : null,
+    show.similar ? getSimilarListings(listing, locale, 6) : [],
+  ]);
+  // Without the viewing form, the "Book a viewing" actions go to the enquiry form instead.
+  const viewingHref = show.viewing ? '#book-viewing' : enquireHref;
   const listedOn = new Intl.DateTimeFormat(LOCALE_META[locale].intl, { dateStyle: 'long', timeZone: 'UTC' }).format(
     new Date(`${listing.listedAt}T00:00:00Z`),
   );
@@ -118,10 +134,12 @@ export default async function PropertyPage({ params }: Props) {
                 {p.verified}
               </li>
             )}
-            <li className={styles.listed}>
-              <CalendarIcon size={14} />
-              {interpolate(p.listedOn, { date: listedOn })}
-            </li>
+            {show.listedDate && (
+              <li className={styles.listed}>
+                <CalendarIcon size={14} />
+                {interpolate(p.listedOn, { date: listedOn })}
+              </li>
+            )}
           </ul>
           <div className={styles.subhead}>
             <p className={styles.location}>
@@ -181,19 +199,36 @@ export default async function PropertyPage({ params }: Props) {
               </section>
             )}
 
-            {listing.deal === 'sale' && (
+            {listing.map && (
+              <section aria-labelledby="map-title" className={styles.section}>
+                <h2 id="map-title" className={styles.sectionTitle}>
+                  {p.mapTitle}
+                </h2>
+                <LocationMap
+                  point={listing.map}
+                  exact={listing.map.exact}
+                  title={p.mapFrameTitle}
+                  linkLabel={p.openInMaps}
+                  note={listing.map.exact ? undefined : p.mapApproximate}
+                />
+              </section>
+            )}
+
+            {show.calculator && (
               <div className={styles.section}>
                 <PaymentCalculator price={listing.price} />
               </div>
             )}
 
-            <section id="book-viewing" aria-labelledby="viewing-title" className={styles.section}>
-              <h2 id="viewing-title" className={styles.sectionTitle}>
-                {p.viewing.title}
-              </h2>
-              <p className={styles.paragraph}>{p.viewing.lead}</p>
-              <ViewingForm propertyId={listing.id} />
-            </section>
+            {show.viewing && (
+              <section id="book-viewing" aria-labelledby="viewing-title" className={styles.section}>
+                <h2 id="viewing-title" className={styles.sectionTitle}>
+                  {p.viewing.title}
+                </h2>
+                <p className={styles.paragraph}>{p.viewing.lead}</p>
+                <ViewingForm propertyId={listing.id} />
+              </section>
+            )}
           </div>
 
           <aside className={styles.aside} aria-labelledby="contact-title">
@@ -203,7 +238,7 @@ export default async function PropertyPage({ params }: Props) {
                 {p.interestedTitle}
               </h2>
               <p className={styles.contactText}>{p.interestedText}</p>
-              <a href="#book-viewing" className="button">
+              <a href={viewingHref} className="button">
                 <CalendarIcon size={18} />
                 {p.bookViewing}
               </a>
@@ -214,13 +249,13 @@ export default async function PropertyPage({ params }: Props) {
                 <ChatIcon size={20} />
                 {p.whatsappLabel}
               </a>
-              <a href={COMPANY.phone.href} className="button button-secondary">
+              <a href={telHref(officePhone)} className="button button-secondary">
                 {callBefore}
                 {phone}
                 {callAfter}
               </a>
             </div>
-            {advisor && <AdvisorCard advisor={advisor} locale={locale} t={t} whatsappMessage={whatsappMessage} />}
+            {show.advisor && advisor && <AdvisorCard advisor={advisor} locale={locale} t={t} whatsappMessage={whatsappMessage} />}
           </aside>
         </div>
       </div>
@@ -242,14 +277,14 @@ export default async function PropertyPage({ params }: Props) {
       <div className={styles.stickyBar}>
         <div className={styles.stickyInner}>
           <p className={styles.stickyPrice}>{price}</p>
-          <a href="#book-viewing" className="button">
+          <a href={viewingHref} className="button">
             {p.bookViewing}
           </a>
           {/* Secondary actions are icon buttons here so the price keeps its room on a 375px phone. */}
           <a
-            href={COMPANY.phone.href}
+            href={telHref(officePhone)}
             className={`button button-secondary ${styles.stickyIcon}`}
-            aria-label={interpolate(p.call, { phone: COMPANY.phone.display })}
+            aria-label={interpolate(p.call, { phone: officePhone })}
           >
             <PhoneIcon size={22} />
           </a>

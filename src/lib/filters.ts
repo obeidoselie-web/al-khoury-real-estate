@@ -106,14 +106,18 @@ export function listingsHref(locale: Locale, filters: Partial<ListingFilters> = 
   return query ? `${path}?${query}` : path;
 }
 
-type Filterable = Pick<Listing, 'type' | 'deal'> & Partial<Pick<Listing, 'region' | 'price' | 'bedrooms' | 'areaSqm'>>;
+type Filterable = Pick<Listing, 'type' | 'deal'> &
+  Partial<Pick<Listing, 'region' | 'price' | 'priceOnRequest' | 'bedrooms' | 'areaSqm'>>;
 
 const inRegion = (listing: Filterable, region: RegionFilter | undefined) =>
   !region || region === 'all' || listing.region === region;
 
 /** Budget, bedrooms and size — the refinements in the Filters panel. */
 function matchesRefinements(listing: Filterable, filters: ListingFilters): boolean {
-  if (filters.maxPrice && filters.deal !== 'all' && listing.price !== undefined && listing.price > filters.maxPrice) return false;
+  if (filters.maxPrice && filters.deal !== 'all') {
+    // A budget filter can't vouch for an unpublished price, so those listings drop out.
+    if (listing.priceOnRequest || (listing.price !== undefined && listing.price > filters.maxPrice)) return false;
+  }
   if (filters.minBeds !== undefined && (listing.bedrooms === undefined || listing.bedrooms < filters.minBeds)) return false;
   if (filters.minSize && (listing.areaSqm === undefined || listing.areaSqm < filters.minSize)) return false;
   return true;
@@ -134,11 +138,17 @@ export function activeRefinements(filters: ListingFilters): number {
 }
 
 /** Returns a sorted copy. "newest" keeps the data layer's order (it already returns newest first). */
-export function sortListings<T extends Pick<Listing, 'price' | 'areaSqm'>>(listings: readonly T[], sort: SortOrder = 'newest'): T[] {
+export function sortListings<T extends Pick<Listing, 'price' | 'priceOnRequest' | 'areaSqm'>>(
+  listings: readonly T[],
+  sort: SortOrder = 'newest',
+): T[] {
   const copy = [...listings];
-  if (sort === 'price-asc') copy.sort((a, b) => a.price - b.price);
-  else if (sort === 'price-desc') copy.sort((a, b) => b.price - a.price);
-  else if (sort === 'size-desc') copy.sort((a, b) => b.areaSqm - a.areaSqm);
+  // Listings without a published price or size sort after the rest.
+  const byPrice = (dir: 1 | -1) => (a: T, b: T) =>
+    Number(Boolean(a.priceOnRequest)) - Number(Boolean(b.priceOnRequest)) || dir * (a.price - b.price);
+  if (sort === 'price-asc') copy.sort(byPrice(1));
+  else if (sort === 'price-desc') copy.sort(byPrice(-1));
+  else if (sort === 'size-desc') copy.sort((a, b) => (b.areaSqm ?? -1) - (a.areaSqm ?? -1));
   return copy;
 }
 

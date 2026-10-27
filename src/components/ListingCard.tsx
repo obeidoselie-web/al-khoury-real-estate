@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { localizedPath, type Locale } from '@/i18n/config';
 import type { Dictionary } from '@/i18n/dictionaries';
 import { cardFacts } from '@/lib/facts';
-import { formatPlace, formatPrice, formatPriceSpoken } from '@/lib/format';
+import { formatPlace, listingPrice, listingPriceSpoken } from '@/lib/format';
 import type { ListingSummary } from '@/lib/types';
 
 import { FavouriteButton } from './FavouriteButton';
@@ -56,9 +56,9 @@ export function ListingCard({ listing, locale, t, priority = false, headingLevel
           ))}
         </ul>
         <p className={styles.price}>
-          <span aria-hidden="true">{formatPrice(listing.price, listing.deal, locale, t)}</span>
+          <span aria-hidden="true">{listingPrice(listing, locale, t)}</span>
           <span className="sr-only">
-            {deal.badge}, {formatPriceSpoken(listing.price, listing.deal, locale, t)}
+            {deal.badge}, {listingPriceSpoken(listing, locale, t)}
           </span>
         </p>
       </div>

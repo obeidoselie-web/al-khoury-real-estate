@@ -2,7 +2,7 @@ import type { Locale } from '@/i18n/config';
 import type { Dictionary } from '@/i18n/dictionaries';
 import { formatNumber, interpolate } from '@/i18n/plural';
 
-import type { DealType } from './types';
+import type { DealType, Listing } from './types';
 
 /**
  * Prices are shown as "$1,250,000" in both languages — the form Lebanese listings use.
@@ -28,9 +28,26 @@ export function formatPriceSpoken(price: number, deal: DealType, locale: Locale,
   return deal === 'rent' ? interpolate(t.format.perMonthSpoken, { amount }) : amount;
 }
 
-/** "Achrafieh, Beirut" / "الأشرفية، بيروت" — Arabic uses its own comma. */
+/** A listing's price, or "Price on request" when the admin hid it. */
+export function listingPrice(
+  listing: Pick<Listing, 'price' | 'deal' | 'priceOnRequest'>,
+  locale: Locale,
+  t: Pick<Dictionary, 'format' | 'card'>,
+): string {
+  return listing.priceOnRequest ? t.card.priceOnRequest : formatPrice(listing.price, listing.deal, locale, t);
+}
+
+export function listingPriceSpoken(
+  listing: Pick<Listing, 'price' | 'deal' | 'priceOnRequest'>,
+  locale: Locale,
+  t: Pick<Dictionary, 'format' | 'card'>,
+): string {
+  return listing.priceOnRequest ? t.card.priceOnRequest : formatPriceSpoken(listing.price, listing.deal, locale, t);
+}
+
+/** "Achrafieh, Beirut" / "الأشرفية، بيروت" — Arabic uses its own comma. The area may be hidden (empty). */
 export function formatPlace(location: { area: string; city: string }, locale: Locale): string {
-  return `${location.area}${locale === 'ar' ? '، ' : ', '}${location.city}`;
+  return [location.area, location.city].filter(Boolean).join(locale === 'ar' ? '، ' : ', ');
 }
 
 export function formatArea(sqm: number, locale: Locale, t: FormatStrings): string {

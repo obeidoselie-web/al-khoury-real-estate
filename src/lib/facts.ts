@@ -16,6 +16,6 @@ export function cardFacts(listing: FactSource, locale: Locale, t: Pick<Dictionar
   if (listing.bathrooms !== undefined && listing.type !== 'land') {
     facts.push(plural(locale, listing.bathrooms, t.card.baths));
   }
-  facts.push(formatArea(listing.areaSqm, locale, t));
+  if (listing.areaSqm !== undefined) facts.push(formatArea(listing.areaSqm, locale, t));
   return facts;
 }

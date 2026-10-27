@@ -1,3 +1,5 @@
+import type { ListingDisplay } from './listing-display';
+
 export const PROPERTY_TYPES = ['house', 'apartment', 'commercial', 'land'] as const;
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
@@ -24,8 +26,10 @@ export interface Listing {
   deal: DealType;
   /** Search region; `location` holds the display names. */
   region: Region;
-  /** Asking price in USD. For rentals this is the monthly rent. */
+  /** Asking price in USD. For rentals this is the monthly rent. 0 when priceOnRequest. */
   price: number;
+  /** The price is not published ("Price on request"); `price` is then 0. */
+  priceOnRequest?: boolean;
   location: {
     area: string;
     city: string;
@@ -33,8 +37,8 @@ export interface Listing {
   /** Omitted for land and most commercial units. */
   bedrooms?: number;
   bathrooms?: number;
-  /** Built-up area in square metres (plot size for land). */
-  areaSqm: number;
+  /** Built-up area in square metres (plot size for land). Omitted when hidden. */
+  areaSqm?: number;
   plotSqm?: number;
   yearBuilt?: number;
   summary: string;
@@ -48,15 +52,32 @@ export interface Listing {
   listedAt: string;
   /** Staff member responsible for the listing (shown as the advisor card). */
   advisorId?: string;
+  /** Page sections to leave out (Admin → listing → What the website shows). */
+  display?: Pick<ListingDisplay, 'hideListedDate' | 'hideFeatures' | 'hideCalculator' | 'hideViewingForm' | 'hideAdvisor' | 'hideSimilar'>;
+  /** Map pin; already rounded on the server when the location is approximate. */
+  map?: { lat: number; lng: number; exact: boolean };
 }
 
 /** The subset of a listing needed to render a card — keeps client payloads small. */
 export type ListingSummary = Pick<
   Listing,
-  'id' | 'title' | 'type' | 'deal' | 'region' | 'price' | 'location' | 'bedrooms' | 'bathrooms' | 'areaSqm'
+  'id' | 'title' | 'type' | 'deal' | 'region' | 'price' | 'priceOnRequest' | 'location' | 'bedrooms' | 'bathrooms' | 'areaSqm'
 > & { image: ListingImage };
 
 export function toSummary(listing: Listing): ListingSummary {
-  const { id, title, type, deal, region, price, location, bedrooms, bathrooms, areaSqm, images } = listing;
-  return { id, title, type, deal, region, price, location, bedrooms, bathrooms, areaSqm, image: images[0] };
+  const { id, title, type, deal, region, price, priceOnRequest, location, bedrooms, bathrooms, areaSqm, images } = listing;
+  return {
+    id,
+    title,
+    type,
+    deal,
+    region,
+    price,
+    ...(priceOnRequest && { priceOnRequest }),
+    location,
+    bedrooms,
+    bathrooms,
+    areaSqm,
+    image: images[0],
+  };
 }

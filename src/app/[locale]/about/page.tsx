@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { ContactForm } from '@/components/ContactForm';
+import { LocationMap } from '@/components/LocationMap';
 import { isLocale, localizedPath } from '@/i18n/config';
-import { getDictionary } from '@/i18n/dictionaries';
 import { formatNumber, interpolate } from '@/i18n/plural';
-import { COMPANY } from '@/lib/company';
 import { getListingById } from '@/lib/data/listings';
+import { getSiteDictionary, getSiteSettings } from '@/lib/data/site-store';
+import { telHref } from '@/lib/site';
 import { alternates } from '@/lib/seo';
 
 import styles from './about.module.css';
@@ -18,21 +19,22 @@ type Props = PageProps<'/[locale]/about'>;
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const t = await getSiteDictionary(locale);
   return { title: t.meta.aboutTitle, description: t.meta.aboutDescription, alternates: alternates(locale, '/about') };
 }
 
 export default async function AboutPage({ params, searchParams }: Props) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const t = getDictionary(locale);
+  const [t, site] = await Promise.all([getSiteDictionary(locale), getSiteSettings()]);
   const a = t.about;
+  const { phone, email, founded } = site.contact;
 
   const query = await searchParams;
   const propertyParam = Array.isArray(query.property) ? query.property[0] : query.property;
   // A failed lookup must never block someone from contacting us.
   const property = propertyParam ? await getListingById(propertyParam, locale).catch(() => null) : null;
-  const yearsActive = new Date().getFullYear() - COMPANY.founded;
+  const yearsActive = new Date().getFullYear() - founded;
 
   return (
     <>
@@ -40,9 +42,10 @@ export default async function AboutPage({ params, searchParams }: Props) {
         <div className={styles.introText}>
           <p className="eyebrow">{a.eyebrow}</p>
           <h1 id="about-title" className={styles.title}>
-            {interpolate(a.title, { year: COMPANY.founded })}
+            {interpolate(a.title, { year: founded })}
           </h1>
           <p className={styles.lead}>{a.lead}</p>
+          {site.about.showStats && (
           <dl className={styles.stats}>
             <div>
               <dt>{a.stats.years}</dt>
@@ -50,13 +53,14 @@ export default async function AboutPage({ params, searchParams }: Props) {
             </div>
             <div>
               <dt>{a.stats.placed}</dt>
-              <dd>{formatNumber(2400, locale)}+</dd>
+              <dd>{formatNumber(site.stats.placed, locale)}+</dd>
             </div>
             <div>
               <dt>{a.stats.regions}</dt>
-              <dd>{formatNumber(6, locale)}</dd>
+              <dd>{formatNumber(site.stats.regions, locale)}</dd>
             </div>
           </dl>
+          )}
         </div>
         <Image
           src="/images/brand/al-khoury-brand.webp"
@@ -69,6 +73,7 @@ export default async function AboutPage({ params, searchParams }: Props) {
         />
       </section>
 
+      {site.about.showValues && (
       <section className="section" aria-labelledby="values-title">
         <div className="container">
           <h2 id="values-title" className="section-heading">
@@ -84,6 +89,7 @@ export default async function AboutPage({ params, searchParams }: Props) {
           </ul>
         </div>
       </section>
+      )}
 
       <section id="contact" className={`section ${styles.contactSection}`} aria-labelledby="contact-title">
         <div className={`container ${styles.contactLayout}`}>
@@ -96,16 +102,16 @@ export default async function AboutPage({ params, searchParams }: Props) {
               <div>
                 <dt>{a.phone}</dt>
                 <dd>
-                  <a href={COMPANY.phone.href} className="ltr">
-                    {COMPANY.phone.display}
+                  <a href={telHref(phone)} className="ltr">
+                    {phone}
                   </a>
                 </dd>
               </div>
               <div>
                 <dt>{a.email}</dt>
                 <dd>
-                  <a href={`mailto:${COMPANY.email}`} className="ltr">
-                    {COMPANY.email}
+                  <a href={`mailto:${email}`} className="ltr">
+                    {email}
                   </a>
                 </dd>
               </div>
@@ -121,6 +127,7 @@ export default async function AboutPage({ params, searchParams }: Props) {
                   </address>
                 </dd>
               </div>
+              {site.about.showHours && (
               <div>
                 <dt>{a.hours}</dt>
                 <dd>
@@ -131,7 +138,18 @@ export default async function AboutPage({ params, searchParams }: Props) {
                   ))}
                 </dd>
               </div>
+              )}
             </dl>
+            {site.office.showMap && (
+              <div className={styles.officeMap}>
+                <LocationMap
+                  point={{ lat: site.office.lat, lng: site.office.lng }}
+                  zoom={site.office.zoom}
+                  title={a.mapFrameTitle}
+                  linkLabel={a.directions}
+                />
+              </div>
+            )}
           </div>
 
           <div className={styles.formCard}>

@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import { LOCALES, LOCALE_META, localizedPath, type Locale } from '@/i18n/config';
 import type { Dictionary } from '@/i18n/dictionaries';
-import { COMPANY, whatsappHref } from '@/lib/company';
+import { SOCIAL_NETWORKS, telHref, whatsappHref, type SiteSettings } from '@/lib/site';
 import { listingsHref } from '@/lib/filters';
 import { PROPERTY_TYPES } from '@/lib/types';
 
@@ -11,11 +11,19 @@ import { LanguageLink } from './NavLink';
 import styles from './SiteFooter.module.css';
 import { Wordmark } from './Wordmark';
 
+const SOCIAL_LABELS = { facebook: 'Facebook', instagram: 'Instagram', linkedin: 'LinkedIn', tiktok: 'TikTok', youtube: 'YouTube' } as const;
+
 /**
  * Compact brand-black footer: logo and quick contact, two link groups set as inline rows,
  * then a slim bar with copyright, address and the language switch.
  */
-export function SiteFooter({ locale, t }: { locale: Locale; t: Dictionary }) {
+export function SiteFooter({ locale, t, site }: { locale: Locale; t: Dictionary; site: SiteSettings }) {
+  const { phone, whatsapp, email } = site.contact;
+  const social = SOCIAL_NETWORKS.filter((network) => site.social[network]).map((network) => ({
+    network,
+    href: site.social[network],
+    label: SOCIAL_LABELS[network],
+  }));
   const browse = [
     { href: listingsHref(locale, { deal: 'sale' }), label: t.nav.buy },
     { href: listingsHref(locale, { deal: 'rent' }), label: t.nav.rent },
@@ -40,19 +48,19 @@ export function SiteFooter({ locale, t }: { locale: Locale; t: Dictionary }) {
         </div>
         <ul className={styles.contact} aria-label={t.nav.contact}>
           <li>
-            <a href={COMPANY.phone.href} className={styles.chip}>
+            <a href={telHref(phone)} className={styles.chip}>
               <PhoneIcon size={16} />
-              <span className="ltr">{COMPANY.phone.display}</span>
+              <span className="ltr">{phone}</span>
             </a>
           </li>
           <li>
-            <a href={whatsappHref(t.nav.whatsappHello)} className={styles.chip} target="_blank" rel="noopener noreferrer">
+            <a href={whatsappHref(t.nav.whatsappHello, whatsapp)} className={styles.chip} target="_blank" rel="noopener noreferrer">
               <ChatIcon size={16} />
               {t.property.whatsapp}
             </a>
           </li>
           <li>
-            <a href={`mailto:${COMPANY.email}`} className={styles.chip} aria-label={`${t.contact.email}: ${COMPANY.email}`}>
+            <a href={`mailto:${email}`} className={styles.chip} aria-label={`${t.contact.email}: ${email}`}>
               <MailIcon size={16} />
               {t.contact.email}
             </a>
@@ -81,6 +89,20 @@ export function SiteFooter({ locale, t }: { locale: Locale; t: Dictionary }) {
             ))}
           </ul>
         </div>
+        {social.length > 0 && (
+          <div className={styles.group}>
+            <h2 className={styles.heading}>{t.nav.follow}</h2>
+            <ul className={styles.list}>
+              {social.map((link) => (
+                <li key={link.network}>
+                  <a href={link.href} target="_blank" rel="noopener noreferrer" lang="en">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </nav>
 
       <div className={`container ${styles.bottom}`}>

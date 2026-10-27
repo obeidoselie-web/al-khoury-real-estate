@@ -52,15 +52,4 @@ export function timeAgo(iso: string, now = Date.now()): string {
   );
 }
 
-/**
- * International digits for tel:/wa.me links. Visitors often type local Lebanese numbers
- * ("03 123 456"), so a leading 0 becomes +961; "00" becomes "+".
- */
-export function internationalDigits(phone: string, countryCode = '961'): string {
-  const trimmed = phone.trim();
-  const digits = trimmed.replace(/\D/g, '');
-  if (trimmed.startsWith('+')) return digits;
-  if (digits.startsWith('00')) return digits.slice(2);
-  if (digits.startsWith('0')) return countryCode + digits.slice(1);
-  return digits;
-}
+export { internationalDigits } from '../site';

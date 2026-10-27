@@ -4,9 +4,11 @@ import { useActionState, useEffect, useRef, useState, type ReactNode } from 'rea
 
 import type { ListingRow } from '@/db/schema';
 import { slugify } from '@/lib/admin/slug';
+import { DISPLAY_GROUPS } from '@/lib/listing-display';
 import { DEAL_TYPES, PROPERTY_TYPES, REGIONS } from '@/lib/types';
 
 import styles from '../../admin.module.css';
+import { MapPicker } from '../MapPicker';
 import { useKeepValuesSubmit } from '../useKeepValuesSubmit';
 import type { ListingFormState } from './actions';
 
@@ -37,6 +39,7 @@ export function ListingForm({ action, listing, staff, regionLabels, canAssign, c
   const isNew = listing === null;
   const [type, setType] = useState<string>(listing?.type ?? 'apartment');
   const [status, setStatus] = useState<string>(listing?.status ?? 'draft');
+  const [mapMode, setMapMode] = useState<string>(listing?.mapMode ?? 'off');
   const [titleEn, setTitleEn] = useState(listing?.titleEn ?? '');
   const [slug, setSlug] = useState(listing?.id ?? '');
   const [slugTouched, setSlugTouched] = useState(!isNew);
@@ -226,6 +229,65 @@ export function ListingForm({ action, listing, staff, regionLabels, canAssign, c
           {field('listedAt', 'Listed on', <input {...text('listedAt')} type="date" defaultValue={v('listedAt')} />, {
             optional: isNew,
           })}
+        </div>
+      </section>
+
+      <section className={styles.section} aria-labelledby="sec-display">
+        <div className={styles.sectionHead}>
+          <h2 id="sec-display" className={styles.sectionTitle}>
+            What the website shows
+          </h2>
+          <p className={styles.sectionHint}>Everything is shown unless you hide it. Hidden details are never sent to visitors’ browsers.</p>
+        </div>
+        {DISPLAY_GROUPS.map((group) => (
+          <fieldset key={group.title} className={styles.textField}>
+            <legend className={styles.label}>{group.title}</legend>
+            <div className={styles.toggles}>
+              {group.flags.map((flag) => (
+                <label key={flag.key} className={styles.toggle}>
+                  <input type="checkbox" name={`display.${flag.key}`} defaultChecked={listing?.display?.[flag.key] === true} />
+                  <span>
+                    <span className={styles.toggleLabel}>{flag.label}</span>
+                    {flag.hint && <span className={styles.hint}>{flag.hint}</span>}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ))}
+      </section>
+
+      <section className={styles.section} aria-labelledby="sec-map">
+        <div className={styles.sectionHead}>
+          <h2 id="sec-map" className={styles.sectionTitle}>
+            Location on the map
+          </h2>
+          <p className={styles.sectionHint}>
+            “Approximate” shows the neighbourhood (about 1 km) without a pin, and the exact point never leaves the server.
+          </p>
+        </div>
+        <fieldset className={styles.checks} style={{ border: 0, padding: 0, margin: 0 }}>
+          <legend className="sr-only">Map</legend>
+          {(
+            [
+              ['off', 'Don’t show a map'],
+              ['approximate', 'Approximate area'],
+              ['exact', 'Exact location (with pin)'],
+            ] as const
+          ).map(([value, label]) => (
+            <label key={value} className={styles.check}>
+              <input type="radio" name="mapMode" value={value} checked={mapMode === value} onChange={() => setMapMode(value)} />
+              {label}
+            </label>
+          ))}
+        </fieldset>
+        <div hidden={mapMode === 'off'}>
+          <MapPicker
+            latName="lat"
+            lngName="lng"
+            initial={listing?.lat != null && listing?.lng != null ? { lat: listing.lat, lng: listing.lng } : null}
+            error={errors.lat}
+          />
         </div>
       </section>
 

@@ -1,6 +1,8 @@
 import type { AdvisorProfileRow, ListingPhotoRow, ListingRow, UserRow, listingPhotos, listings } from '@/db/schema';
 import type { Locale } from '@/i18n/config';
 
+import { resolveDisplay } from '../listing-display';
+import { approximate, isValidPoint } from '../site';
 import type { DealType, Listing, PropertyType, Region } from '../types';
 import type { Advisor } from './advisors';
 import type { ListingRecord } from './placeholder-listings';
@@ -13,24 +15,46 @@ import { photo } from './placeholder-listings';
 
 const pick = <T>(locale: Locale, en: T, ar: T): T => (locale === 'ar' ? ar : en);
 
+/**
+ * Builds the public listing. Details the admin chose to hide are left out here, on the server, so
+ * they never reach the browser; an approximate map pin is rounded before it leaves too.
+ */
 export function rowToListing(row: ListingRow, photos: ListingPhotoRow[], locale: Locale): Listing {
   const ordered = [...photos].sort((a, b) => a.position - b.position);
+  const hide = resolveDisplay(row.display);
+  const hasPin = row.mapMode !== 'off' && row.lat !== null && row.lng !== null && isValidPoint(row.lat, row.lng);
+  const pin = hasPin ? { lat: row.lat!, lng: row.lng! } : null;
   return {
     id: row.id,
     title: pick(locale, row.titleEn, row.titleAr),
     type: row.type as PropertyType,
     deal: row.deal as DealType,
     region: row.region as Region,
-    price: row.price,
-    location: { area: pick(locale, row.areaEn, row.areaAr), city: pick(locale, row.cityEn, row.cityAr) },
-    ...(row.bedrooms !== null && { bedrooms: row.bedrooms }),
-    ...(row.bathrooms !== null && { bathrooms: row.bathrooms }),
-    areaSqm: row.areaSqm,
-    ...(row.plotSqm !== null && { plotSqm: row.plotSqm }),
-    ...(row.yearBuilt !== null && { yearBuilt: row.yearBuilt }),
+    price: hide.hidePrice ? 0 : row.price,
+    ...(hide.hidePrice && { priceOnRequest: true }),
+    location: {
+      area: hide.hideArea ? '' : pick(locale, row.areaEn, row.areaAr),
+      city: pick(locale, row.cityEn, row.cityAr),
+    },
+    ...(row.bedrooms !== null && !hide.hideBedrooms && { bedrooms: row.bedrooms }),
+    ...(row.bathrooms !== null && !hide.hideBathrooms && { bathrooms: row.bathrooms }),
+    ...(!hide.hideSize && { areaSqm: row.areaSqm }),
+    ...(row.plotSqm !== null && !hide.hidePlot && !hide.hideSize && { plotSqm: row.plotSqm }),
+    ...(row.yearBuilt !== null && !hide.hideYearBuilt && { yearBuilt: row.yearBuilt }),
     summary: pick(locale, row.summaryEn, row.summaryAr),
     description: pick(locale, row.descriptionEn, row.descriptionAr),
-    features: pick(locale, row.featuresEn, row.featuresAr),
+    features: hide.hideFeatures ? [] : pick(locale, row.featuresEn, row.featuresAr),
+    display: {
+      hideListedDate: hide.hideListedDate,
+      hideFeatures: hide.hideFeatures,
+      hideCalculator: hide.hideCalculator || hide.hidePrice || row.deal !== 'sale',
+      hideViewingForm: hide.hideViewingForm,
+      hideAdvisor: hide.hideAdvisor,
+      hideSimilar: hide.hideSimilar,
+    },
+    ...(pin && {
+      map: row.mapMode === 'exact' ? { ...pin, exact: true } : { ...approximate(pin), exact: false },
+    }),
     images: ordered.map((p) => ({
       src: p.src,
       // Arabic alt text falls back to English rather than leaving an image unnamed.

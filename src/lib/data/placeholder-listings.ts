@@ -19,6 +19,7 @@ export interface ListingRecord
   summary: Localized<string>;
   description: Localized<string[]>;
   features: Localized<string[]>;
+  areaSqm: number;
   /** Photo names from photos.json, cover photo first. */
   photos: PhotoName[];
 }

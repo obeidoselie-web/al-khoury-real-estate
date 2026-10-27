@@ -1,5 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { index, integer, primaryKey, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+
+import type { ListingDisplay } from '@/lib/listing-display';
 
 /*
  * Al Khoury Real Estate database (SQLite via libSQL). Written with Drizzle's SQLite dialect, so the
@@ -14,6 +16,9 @@ export type Role = (typeof ROLES)[number];
 
 export const LISTING_STATUSES = ['draft', 'published', 'archived'] as const;
 export type ListingStatus = (typeof LISTING_STATUSES)[number];
+
+export const MAP_MODES = ['off', 'approximate', 'exact'] as const;
+export type MapMode = (typeof MAP_MODES)[number];
 
 export const LEAD_KINDS = ['enquiry', 'viewing', 'valuation'] as const;
 export type LeadKind = (typeof LEAD_KINDS)[number];
@@ -99,6 +104,12 @@ export const listings = sqliteTable(
     descriptionAr: text('description_ar', { mode: 'json' }).$type<string[]>().notNull(),
     featuresEn: text('features_en', { mode: 'json' }).$type<string[]>().notNull(),
     featuresAr: text('features_ar', { mode: 'json' }).$type<string[]>().notNull(),
+    /** Which details the public page shows (see src/lib/listing-display.ts). */
+    display: text('display', { mode: 'json' }).$type<Partial<ListingDisplay>>().notNull().default(sql`'{}'`),
+    /** Map pin; mapMode decides whether it is shown and how precisely. */
+    lat: real('lat'),
+    lng: real('lng'),
+    mapMode: text('map_mode', { enum: MAP_MODES }).notNull().default('off'),
     createdAt: text('created_at').notNull().default(now),
     updatedAt: text('updated_at').notNull().default(now),
   },
@@ -182,6 +193,25 @@ export const loginAttempts = sqliteTable(
     at: text('at').notNull().default(now),
   },
   (t) => [index('login_attempts_key_idx').on(t.key, t.at)],
+);
+
+/** Website settings (contact details, map, hero, section visibility) as one JSON document per key. */
+export const siteSettings = sqliteTable('site_settings', {
+  key: text('key').primaryKey(),
+  value: text('value', { mode: 'json' }).$type<unknown>().notNull(),
+  updatedAt: text('updated_at').notNull().default(now),
+});
+
+/** Edited website text: replaces the dictionary string at `path` (e.g. home.heroTitle) for one language. */
+export const contentOverrides = sqliteTable(
+  'content_overrides',
+  {
+    locale: text('locale').notNull(),
+    path: text('path').notNull(),
+    value: text('value', { mode: 'json' }).$type<string | string[]>().notNull(),
+    updatedAt: text('updated_at').notNull().default(now),
+  },
+  (t) => [primaryKey({ columns: [t.locale, t.path] })],
 );
 
 export type UserRow = typeof users.$inferSelect;
