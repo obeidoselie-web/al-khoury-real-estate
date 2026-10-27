@@ -163,13 +163,21 @@ export function filterListings<T extends Filterable>(listings: readonly T[], fil
 export function countOptions(listings: readonly Filterable[], filters: ListingFilters) {
   const byType = { all: 0 } as Record<TypeFilter, number>;
   const byDeal = { all: 0 } as Record<DealFilter, number>;
+  const byRegion = { all: 0 } as Record<RegionFilter, number>;
   for (const t of PROPERTY_TYPES) byType[t] = 0;
   for (const d of DEAL_TYPES) byDeal[d] = 0;
+  for (const r of REGIONS) byRegion[r] = 0;
 
   // Bedrooms and size narrow the counts too; budget doesn't, because it depends on the deal chosen.
   const { maxPrice: _maxPrice, ...withoutBudget } = filters;
   for (const listing of listings) {
-    if (!inRegion(listing, filters.region) || !matchesRefinements(listing, withoutBudget)) continue;
+    if (!matchesRefinements(listing, withoutBudget)) continue;
+    // Region counts: what each area would show with the current type and deal.
+    if ((filters.type === 'all' || listing.type === filters.type) && (filters.deal === 'all' || listing.deal === filters.deal)) {
+      byRegion.all += 1;
+      if (listing.region) byRegion[listing.region] += 1;
+    }
+    if (!inRegion(listing, filters.region)) continue;
     if (filters.deal === 'all' || listing.deal === filters.deal) {
       byType.all += 1;
       byType[listing.type] += 1;
@@ -179,7 +187,7 @@ export function countOptions(listings: readonly Filterable[], filters: ListingFi
       byDeal[listing.deal] += 1;
     }
   }
-  return { byType, byDeal };
+  return { byType, byDeal, byRegion };
 }
 
 /**

@@ -122,28 +122,9 @@
   border-color: var(--color-text);
 }
 
-.regionPicker:focus-within {
+.regionPicker:focus-visible {
   outline: var(--focus-width) solid var(--color-focus);
   outline-offset: 2px;
-}
-
-.regionSelect {
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.regionSelect:focus-visible {
-  outline: none;
-}
-
-.regionSelect option {
-  background: var(--color-surface-raised);
-  color: var(--color-text);
 }
 
 .resultsBar {
@@ -230,26 +211,48 @@
   background: var(--color-fill-hover);
 }
 
-.sort:focus-within {
+.sort:focus-visible {
   outline: var(--focus-width) solid var(--color-focus);
   outline-offset: 2px;
 }
 
-.sortSelect {
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 0;
+
+
+
+/* Grid / list switch, beside the sort menu. */
+.views {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--color-fill-active);
+}
+
+.viewButton {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
   border: 0;
+  border-radius: var(--radius-pill);
   background: transparent;
-  font-weight: 600;
+  color: var(--color-text-secondary);
   cursor: pointer;
 }
 
-.sortSelect:focus-visible {
-  outline: none;
+.viewButton:hover {
+  color: var(--color-text);
 }
 
-.sortSelect option {
-  background: var(--color-surface-raised);
+.viewButton[aria-pressed='true'] {
+  background: var(--color-bg);
   color: var(--color-text);
+  box-shadow: var(--shadow-small);
+}
+
+@media (pointer: coarse) {
+  .viewButton {
+    width: var(--tap-target);
+    height: var(--tap-target);
+  }
 }

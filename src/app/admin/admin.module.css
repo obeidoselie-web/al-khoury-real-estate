@@ -1199,6 +1199,73 @@ textarea.input {
   outline-offset: 2px;
 }
 
+
+.choice {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
+.choiceOptions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-2);
+}
+
+.choiceOption {
+  position: relative;
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  cursor: pointer;
+}
+
+.choiceOption:hover {
+  border-color: var(--color-text-secondary);
+}
+
+.choiceOption:has(input:checked) {
+  border-color: var(--color-text);
+  box-shadow: inset 0 0 0 1px var(--color-text);
+}
+
+.choiceOption:has(input:focus-visible) {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.choiceOption input {
+  position: absolute;
+  top: var(--space-3);
+  inset-inline-end: var(--space-3);
+  accent-color: var(--color-inverse);
+}
+
+/* Little sketches of each option (photo shapes, grid columns). */
+.choicePreview {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  height: 2.75rem;
+}
+
+.choicePreview span {
+  display: block;
+  border-radius: 3px;
+  background: var(--color-border-strong);
+}
+
+.choiceOption:has(input:checked) .choicePreview span {
+  background: var(--brand-gold);
+}
+
 /* ---------- Phones and tablets ---------- */
 @media (max-width: 960px) {
   .detail {

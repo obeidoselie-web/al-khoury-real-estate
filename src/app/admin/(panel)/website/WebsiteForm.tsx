@@ -200,3 +200,37 @@ export function OfficeMapField({ lat, lng, zoom }: { lat: number; lng: number; z
     <MapPicker latName="s.office.lat" lngName="s.office.lng" zoomName="s.office.zoom" initial={{ lat, lng }} initialZoom={zoom} error={error} />
   );
 }
+
+/** One of a few options, as large labelled radio cards. */
+export function SettingChoice({
+  path,
+  label,
+  value,
+  options,
+  hint,
+}: {
+  path: string;
+  label: string;
+  value: string | number;
+  options: { value: string | number; label: string; hint?: string; preview?: ReactNode }[];
+  hint?: string;
+}) {
+  const name = `s.${path}`;
+  return (
+    <fieldset className={styles.choice}>
+      <legend className={styles.label}>{label}</legend>
+      {hint && <p className={styles.hint}>{hint}</p>}
+      <div className={styles.choiceOptions}>
+        {options.map((option) => (
+          <label key={option.value} className={styles.choiceOption}>
+            <input type="radio" name={name} value={option.value} defaultChecked={String(value) === String(option.value)} />
+            {option.preview && <span className={styles.choicePreview} aria-hidden="true">{option.preview}</span>}
+            <span className={styles.toggleLabel}>{option.label}</span>
+            {option.hint && <span className={styles.hint}>{option.hint}</span>}
+          </label>
+        ))}
+      </div>
+      <FieldError name={name} />
+    </fieldset>
+  );
+}

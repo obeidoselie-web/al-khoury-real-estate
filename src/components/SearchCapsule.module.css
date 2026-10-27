@@ -98,7 +98,7 @@
   box-shadow: var(--shadow-panel);
 }
 
-.field:has(.select:focus-visible) {
+.field:has(:focus-visible) {
   outline: var(--focus-width) solid var(--color-focus);
   outline-offset: -2px;
 }
@@ -116,6 +116,35 @@
   :root:not([data-theme='light']) .fieldIcon {
     color: var(--color-eyebrow);
   }
+}
+
+/* The custom dropdown fills the field; its icon takes the brand gold. */
+.field > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.trigger {
+  --dropdown-icon: var(--brand-gold-deep);
+  width: 100%;
+  gap: var(--space-3);
+  min-height: 3.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+:root[data-theme='dark'] .trigger {
+  --dropdown-icon: var(--color-eyebrow);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .trigger {
+    --dropdown-icon: var(--color-eyebrow);
+  }
+}
+
+.trigger:focus-visible {
+  outline: none;
 }
 
 .fieldText {

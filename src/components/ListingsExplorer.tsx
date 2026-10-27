@@ -20,12 +20,14 @@ import {
   type SortOrder,
   type TypeFilter,
 } from '@/lib/filters';
+import type { ListingView } from '@/lib/site';
 import { DEAL_TYPES, PROPERTY_TYPES, REGIONS, type ListingSummary } from '@/lib/types';
 
 import { CategoryTabs } from './CategoryTabs';
+import { Dropdown } from './Dropdown';
 import { FiltersDialog } from './FiltersDialog';
 import { ChoiceGroup, type ChoiceOption } from './ChoiceGroup';
-import { ChevronDownIcon, PinIcon, SortIcon } from './icons';
+import { AllIcon, ListIcon, PinIcon, SortIcon } from './icons';
 import { ListingGrid } from './ListingGrid';
 import styles from './ListingsExplorer.module.css';
 
@@ -40,7 +42,9 @@ interface ListingsExplorerProps {
  * and the server renders the same filtered result on first load.
  */
 export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerProps) {
-  const { locale, t } = useI18n();
+  const { locale, t, contact } = useI18n();
+  const display = contact.listings;
+  const [view, setView] = useListingView(display.defaultView, display.allowViewSwitch);
   const [filters, setFilters] = useState<ListingFilters>(initialFilters);
   const stuck = useStuck();
 
@@ -83,23 +87,18 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
         />
         <div className={styles.refine}>
           <FiltersDialog listings={listings} filters={filters} onApply={update} />
-          <label className={styles.regionPicker}>
-            <PinIcon size={18} />
-            <span className="sr-only">{t.listings.regionLabel}</span>
-            <select
-              value={filters.region ?? 'all'}
-              onChange={(event) => update({ ...filters, region: event.target.value as RegionFilter })}
-              className={styles.regionSelect}
-            >
-              <option value="all">{t.listings.anywhere}</option>
-              {REGIONS.map((region) => (
-                <option key={region} value={region}>
-                  {t.regions[region]}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon size={16} />
-          </label>
+          <Dropdown<RegionFilter>
+            label={t.listings.regionLabel}
+            icon={<PinIcon size={18} />}
+            value={filters.region ?? 'all'}
+            onChange={(region) => update({ ...filters, region })}
+            triggerClassName={styles.regionPicker}
+            countLabel={(count) => plural(locale, count, t.listings.optionCount)}
+            options={[
+              { value: 'all', label: t.listings.anywhere, count: counts.byRegion.all },
+              ...REGIONS.map((region) => ({ value: region, label: t.regions[region], count: counts.byRegion[region] })),
+            ]}
+          />
           <ChoiceGroup
             name="deal"
             legend={t.listings.dealLegend}
@@ -124,21 +123,42 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
               {t.listings.clear}
             </button>
           )}
-          <label className={styles.sort}>
-            <SortIcon size={16} />
-            <span className="sr-only">{t.listings.sortLabel}</span>
-            <select
-              value={filters.sort ?? 'newest'}
-              onChange={(event) => update({ ...filters, sort: event.target.value as SortOrder })}
-              className={styles.sortSelect}
-            >
-              <option value="newest">{t.listings.sortNewest}</option>
-              <option value="price-asc">{t.listings.sortPriceAsc}</option>
-              <option value="price-desc">{t.listings.sortPriceDesc}</option>
-              <option value="size-desc">{t.listings.sortSize}</option>
-            </select>
-            <ChevronDownIcon size={14} />
-          </label>
+          {display.allowViewSwitch && (
+            <div className={styles.views} role="group" aria-label={t.listings.viewLabel}>
+              {(
+                [
+                  ['grid', t.listings.viewGrid, AllIcon],
+                  ['list', t.listings.viewList, ListIcon],
+                ] as const
+              ).map(([value, label, Icon]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={styles.viewButton}
+                  aria-pressed={view === value}
+                  aria-label={label}
+                  title={label}
+                  onClick={() => setView(value)}
+                >
+                  <Icon size={18} />
+                </button>
+              ))}
+            </div>
+          )}
+          <Dropdown<SortOrder>
+            label={t.listings.sortLabel}
+            icon={<SortIcon size={16} />}
+            value={filters.sort ?? 'newest'}
+            onChange={(sort) => update({ ...filters, sort })}
+            triggerClassName={styles.sort}
+            align="end"
+            options={[
+              { value: 'newest', label: t.listings.sortNewest },
+              { value: 'price-asc', label: t.listings.sortPriceAsc },
+              { value: 'price-desc', label: t.listings.sortPriceDesc },
+              { value: 'size-desc', label: t.listings.sortSize },
+            ]}
+          />
         </div>
       </div>
 
@@ -150,6 +170,8 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
           priorityCount={3}
           label={t.listings.matching}
           headingLevel="h2"
+          view={view}
+          display={display}
         />
       ) : (
         <div className={styles.empty}>
@@ -197,4 +219,32 @@ function useStuck() {
     };
   }, []);
   return { ref, value };
+}
+
+const VIEW_KEY = 'ak-listing-view';
+
+/**
+ * Grid or list. Starts with the site default (so server and first client render match), then
+ * restores the visitor's own choice on this device, if switching is allowed.
+ */
+function useListingView(fallback: ListingView, allowSwitch: boolean): [ListingView, (view: ListingView) => void] {
+  const [view, setViewState] = useState<ListingView>(fallback);
+  useEffect(() => {
+    if (!allowSwitch) return;
+    try {
+      const saved = window.localStorage.getItem(VIEW_KEY);
+      if (saved === 'grid' || saved === 'list') setViewState(saved);
+    } catch {
+      // Storage blocked (private mode): keep the default.
+    }
+  }, [allowSwitch]);
+  const setView = (next: ListingView) => {
+    setViewState(next);
+    try {
+      window.localStorage.setItem(VIEW_KEY, next);
+    } catch {
+      // Not remembered, but the switch still works for this visit.
+    }
+  };
+  return [allowSwitch ? view : fallback, setView];
 }

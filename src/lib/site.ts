@@ -30,7 +30,35 @@ export interface SiteSettings {
   stats: { placed: number; regions: number };
   header: { showPhone: boolean };
   whatsappButton: { show: boolean };
+  listings: ListingDisplaySettings;
 }
+
+export const LISTING_VIEWS = ['grid', 'list'] as const;
+export type ListingView = (typeof LISTING_VIEWS)[number];
+export const PHOTO_SHAPES = ['square', 'landscape', 'portrait'] as const;
+export type PhotoShape = (typeof PHOTO_SHAPES)[number];
+
+/** How property cards and the Properties page look (Admin → Website → Listings). */
+export interface ListingDisplaySettings {
+  /** What the Properties page opens with. */
+  defaultView: ListingView;
+  /** Let visitors switch between grid and list. */
+  allowViewSwitch: boolean;
+  /** Cards per row on wide screens (2–5); smaller screens fit what they can. */
+  columns: number;
+  photoShape: PhotoShape;
+  showBadge: boolean;
+  showFavourite: boolean;
+  showType: boolean;
+  showLocation: boolean;
+  showFacts: boolean;
+}
+
+/** Allowed values for choice settings, checked when the admin saves. */
+export const SETTING_CHOICES: Record<string, readonly string[]> = {
+  'listings.defaultView': LISTING_VIEWS,
+  'listings.photoShape': PHOTO_SHAPES,
+};
 
 export const SOCIAL_NETWORKS = ['facebook', 'instagram', 'linkedin', 'tiktok', 'youtube'] as const;
 export type SocialNetwork = (typeof SOCIAL_NETWORKS)[number];
@@ -56,6 +84,17 @@ export const DEFAULT_SITE: SiteSettings = {
   stats: { placed: 2400, regions: 6 },
   header: { showPhone: true },
   whatsappButton: { show: true },
+  listings: {
+    defaultView: 'grid',
+    allowViewSwitch: true,
+    columns: 4,
+    photoShape: 'square',
+    showBadge: true,
+    showFavourite: true,
+    showType: true,
+    showLocation: true,
+    showFacts: true,
+  },
 };
 
 type Plain = Record<string, unknown>;
@@ -72,7 +111,12 @@ export function resolveSite(stored: unknown, defaults: SiteSettings = DEFAULT_SI
     }
     return out;
   };
-  return merge(defaults as unknown as Plain, stored) as unknown as SiteSettings;
+  const site = merge(defaults as unknown as Plain, stored) as unknown as SiteSettings;
+  const l = site.listings;
+  if (!LISTING_VIEWS.includes(l.defaultView)) l.defaultView = defaults.listings.defaultView;
+  if (!PHOTO_SHAPES.includes(l.photoShape)) l.photoShape = defaults.listings.photoShape;
+  l.columns = Math.min(5, Math.max(2, Math.round(l.columns) || defaults.listings.columns));
+  return site;
 }
 
 /**
@@ -102,6 +146,7 @@ export interface PublicContact {
   whatsapp: string;
   email: string;
   showWhatsappButton: boolean;
+  listings: ListingDisplaySettings;
 }
 
 export function publicContact(site: SiteSettings): PublicContact {
@@ -111,6 +156,7 @@ export function publicContact(site: SiteSettings): PublicContact {
     whatsapp: site.contact.whatsapp,
     email: site.contact.email,
     showWhatsappButton: site.whatsappButton.show,
+    listings: site.listings,
   };
 }
 

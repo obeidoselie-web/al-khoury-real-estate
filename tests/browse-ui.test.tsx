@@ -27,8 +27,11 @@ describe('SearchCapsule', () => {
     expect(screen.getByRole('radio', { name: 'Any' })).toBeChecked();
 
     await user.click(screen.getByRole('radio', { name: 'Rent' }));
-    await user.selectOptions(screen.getByLabelText('Where'), 'Metn');
-    await user.selectOptions(screen.getByLabelText('Property type'), 'Apartments');
+    await user.click(screen.getByRole('combobox', { name: 'Where' }));
+    await user.click(screen.getByRole('option', { name: 'Metn' }));
+    await user.click(screen.getByRole('combobox', { name: 'Property type' }));
+    await user.click(screen.getByRole('option', { name: 'Apartments' }));
+    expect(screen.getByRole('combobox', { name: 'Property type' })).toHaveTextContent('Apartments');
 
     const query = new URLSearchParams(new FormData(screen.getByRole('search') as HTMLFormElement) as unknown as string);
     expect(parseFilters(query)).toEqual({ deal: 'rent', type: 'apartment', region: 'metn' });
@@ -44,7 +47,7 @@ describe('SearchCapsule', () => {
   it('is translated and targets the Arabic listings page', () => {
     render(<SearchCapsule locale="ar" t={ar} />);
     expect(screen.getByRole('search', { name: 'ابحث عن عقار' })).toHaveAttribute('action', '/ar/listings');
-    expect(screen.getByLabelText('نوع العقار')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'نوع العقار' })).toBeInTheDocument();
   });
 });
 

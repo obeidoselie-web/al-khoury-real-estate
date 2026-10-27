@@ -3,7 +3,7 @@ import type { Dictionary } from '@/i18n/dictionaries';
 
 import { sanitizeText } from '../contact';
 import { getAt, overrideProblem, type TextValue } from '../content/texts';
-import { internationalDigits, isValidPoint, resolveSite, type SiteSettings } from '../site';
+import { SETTING_CHOICES, internationalDigits, isValidPoint, resolveSite, type SiteSettings } from '../site';
 
 /*
  * Parsing for Admin → Website forms. Field names:
@@ -56,6 +56,8 @@ export function parseSettings(
         errors[field] = `Enter a year between 1900 and ${thisYear}.`;
       } else if (path.startsWith('stats.') && (!Number.isInteger(value) || value < 0 || value > 10_000_000)) {
         errors[field] = 'Enter a whole number.';
+      } else if (path === 'listings.columns' && (!Number.isInteger(value) || value < 2 || value > 5)) {
+        errors[field] = 'Choose 2 to 5 cards per row.';
       } else if (path === 'office.zoom' && (!Number.isInteger(value) || value < 3 || value > 19)) {
         errors[field] = 'Zoom goes from 3 (country) to 19 (building).';
       } else setAt(settings, path, value);
@@ -64,6 +66,12 @@ export function parseSettings(
 
     // Strings
     const value = sanitizeText(raw, { maxLength: 300 });
+    const choices = SETTING_CHOICES[path];
+    if (choices) {
+      if (choices.includes(value)) setAt(settings, path, value);
+      else errors[field] = 'Choose one of the options.';
+      continue;
+    }
     if (path === 'contact.email' && !EMAIL.test(value)) errors[field] = 'Enter a valid email address.';
     else if ((path === 'contact.phone' || path === 'contact.whatsapp') && !/^\d{8,15}$/.test(internationalDigits(value))) {
       errors[field] = 'Use the international format, e.g. +961 1 234 567.';

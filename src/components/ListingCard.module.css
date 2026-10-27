@@ -9,6 +9,7 @@
 
 .media {
   position: relative;
+  flex: none;
   aspect-ratio: 20 / 19;
   border-radius: var(--radius-md);
   background: var(--color-skeleton-base);
@@ -17,6 +18,71 @@
 
 .image {
   object-fit: cover;
+}
+
+/* Photo shape (Admin → Website → Listings). */
+.square {
+  aspect-ratio: 20 / 19;
+}
+
+.landscape {
+  aspect-ratio: 3 / 2;
+}
+
+.portrait {
+  aspect-ratio: 4 / 5;
+}
+
+/* List view: photo beside the text, a bit more room for the title. */
+.listView {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.listView .media {
+  width: min(22rem, 42%);
+  aspect-ratio: 3 / 2;
+}
+
+.listView .body {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-base);
+  gap: var(--space-1);
+}
+
+.listView .title {
+  font-size: var(--text-lg);
+  white-space: normal;
+}
+
+.listView .price {
+  font-size: var(--text-lg);
+}
+
+@media (max-width: 559px) {
+  .listView {
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  .listView .media {
+    width: 40%;
+    aspect-ratio: 1;
+  }
+
+  .listView .body {
+    font-size: var(--text-sm);
+  }
+
+  .listView .title {
+    font-size: var(--text-base);
+  }
+
+  .listView .price {
+    font-size: var(--text-base);
+  }
 }
 
 .badge {

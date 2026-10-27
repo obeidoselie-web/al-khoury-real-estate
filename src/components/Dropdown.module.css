@@ -1,0 +1,249 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.wrap > .trigger {
+  max-width: 100%;
+}
+
+/* ---------- Button ---------- */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  min-height: var(--tap-target);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+/* Hosts can tint the icon and size the caption with --dropdown-icon / --dropdown-caption. */
+.leading {
+  display: inline-flex;
+  flex: none;
+  color: var(--dropdown-icon, var(--color-text-secondary));
+}
+
+.value {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.caption {
+  font-size: var(--dropdown-caption, var(--text-xs));
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.valueText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex: none;
+  color: var(--color-text-secondary);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.wrap[data-open] .chevron {
+  transform: rotate(180deg);
+}
+
+/* ---------- Panel ---------- */
+.panel {
+  z-index: 80;
+  max-width: min(22rem, calc(100vw - 2rem));
+  padding: var(--space-2);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-raised);
+  transform-origin: top;
+  animation: panel-in var(--duration-fast) var(--ease-out);
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+:root[data-motion='reduce'] .panel {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+
+.sheetTitle {
+  display: none;
+}
+
+.list {
+  display: grid;
+  gap: 2px;
+  max-height: min(22rem, 60vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  outline: none;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-target);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.option[data-active] {
+  background: var(--color-fill-active);
+}
+
+.option[aria-selected='true'] {
+  font-weight: 700;
+}
+
+.option[data-empty] {
+  color: var(--color-text-secondary);
+}
+
+.optionIcon {
+  display: inline-flex;
+  flex: none;
+  color: var(--color-text-secondary);
+}
+
+.option[aria-selected='true'] .optionIcon {
+  color: var(--color-text);
+}
+
+.optionLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.count {
+  flex: none;
+  min-width: 1.75rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-fill-subtle);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.check {
+  display: inline-flex;
+  flex: none;
+  width: 1rem;
+  color: var(--brand-gold-deep);
+}
+
+:root[data-theme='dark'] .check {
+  color: var(--color-action);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .check {
+    color: var(--color-action);
+  }
+}
+
+.backdrop {
+  display: none;
+}
+
+@media (forced-colors: active) {
+  .option[data-active] {
+    outline: 2px solid Highlight;
+  }
+}
+
+/* ---------- Phones: a bottom sheet with big targets ---------- */
+@media (max-width: 559px) {
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 79;
+    background: var(--color-backdrop);
+    animation: fade-in var(--duration-fast) ease;
+  }
+
+  .panel[data-sheet] {
+    position: fixed;
+    inset: auto 0 0 0;
+    top: auto;
+    bottom: 0;
+    min-width: 0;
+    max-width: none;
+    padding: var(--space-2) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transform-origin: bottom;
+    animation: sheet-in var(--duration-base) var(--ease-out);
+  }
+
+  .sheetTitle {
+    display: block;
+    padding: var(--space-3) var(--space-2) var(--space-2);
+    font-size: var(--text-base);
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .sheetTitle::before {
+    content: '';
+    display: block;
+    width: 2.5rem;
+    height: 4px;
+    margin: 0 auto var(--space-3);
+    border-radius: 2px;
+    background: var(--color-border-strong);
+  }
+
+  .list {
+    max-height: 60vh;
+  }
+
+  .option {
+    min-height: 3.25rem;
+    font-size: var(--text-base);
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}

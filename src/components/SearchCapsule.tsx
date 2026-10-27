@@ -2,7 +2,8 @@ import { localizedPath, type Locale } from '@/i18n/config';
 import type { Dictionary } from '@/i18n/dictionaries';
 import { DEAL_TYPES, PROPERTY_TYPES, REGIONS } from '@/lib/types';
 
-import { ChevronDownIcon, HouseIcon, PinIcon, SearchIcon } from './icons';
+import { Dropdown } from './Dropdown';
+import { HouseIcon, PROPERTY_TYPE_ICONS, PinIcon, SearchIcon } from './icons';
 import styles from './SearchCapsule.module.css';
 
 /**
@@ -33,39 +34,39 @@ export function SearchCapsule({
       </fieldset>
 
       <div className={styles.capsule}>
-        <label className={styles.field}>
-          <PinIcon size={22} className={styles.fieldIcon} />
-          <span className={styles.fieldText}>
-            <span className={styles.label}>{s.where}</span>
-            <select name="region" defaultValue="" className={styles.select}>
-              <option value="">{s.whereAny}</option>
-              {REGIONS.map((region) => (
-                <option key={region} value={region}>
-                  {t.regions[region]}
-                </option>
-              ))}
-            </select>
-          </span>
-          <ChevronDownIcon size={16} className={styles.chevron} />
-        </label>
+        <div className={styles.field}>
+          <Dropdown
+            name="region"
+            label={s.where}
+            caption={s.where}
+            icon={<PinIcon size={22} />}
+            defaultValue=""
+            triggerClassName={styles.trigger}
+            nativeClassName={styles.select}
+            options={[
+              { value: '', label: s.whereAny, icon: <PinIcon size={18} /> },
+              ...REGIONS.map((region) => ({ value: region, label: t.regions[region], icon: <PinIcon size={18} /> })),
+            ]}
+          />
+        </div>
 
         <span className={styles.divider} aria-hidden="true" />
 
-        <label className={styles.field}>
-          <HouseIcon size={22} className={styles.fieldIcon} />
-          <span className={styles.fieldText}>
-            <span className={styles.label}>{s.type}</span>
-            <select name="type" defaultValue="" className={styles.select}>
-              <option value="">{s.typeAny}</option>
-              {PROPERTY_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {t.types[type].short}
-                </option>
-              ))}
-            </select>
-          </span>
-          <ChevronDownIcon size={16} className={styles.chevron} />
-        </label>
+        <div className={styles.field}>
+          <Dropdown
+            name="type"
+            label={s.type}
+            caption={s.type}
+            icon={<HouseIcon size={22} />}
+            defaultValue=""
+            triggerClassName={styles.trigger}
+            nativeClassName={styles.select}
+            options={[
+              { value: '', label: s.typeAny, icon: <TypeIcon type="all" /> },
+              ...PROPERTY_TYPES.map((type) => ({ value: type, label: t.types[type].short, icon: <TypeIcon type={type} /> })),
+            ]}
+          />
+        </div>
 
         <button type="submit" className={styles.submit}>
           <SearchIcon size={18} />
@@ -74,4 +75,9 @@ export function SearchCapsule({
       </div>
     </form>
   );
+}
+
+function TypeIcon({ type }: { type: keyof typeof PROPERTY_TYPE_ICONS }) {
+  const Icon = PROPERTY_TYPE_ICONS[type];
+  return <Icon size={18} />;
 }

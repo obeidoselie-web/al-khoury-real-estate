@@ -285,6 +285,7 @@ export default async function PropertyPage({ params }: Props) {
       {similar.length > 0 && (
         <div className={`container ${styles.narrow} ${styles.similar}`}>
           <ListingRow
+            options={site.listings}
             id="similar"
             title={p.similarTitle}
             href={listingsHref(locale, { type: listing.type })}

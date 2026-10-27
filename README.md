@@ -250,6 +250,7 @@ carry over. It works on a phone (the sidebar becomes a top bar).
 - **Contact & map**: office phone, WhatsApp number, email and founding year (used in the header, footer, About page, property pages and error pages); show/hide the header phone and the floating WhatsApp button; the **office map pin** (click the map, paste a Google Maps / OpenStreetMap link, or type coordinates); address and opening hours in both languages; company name and tagline; social links (shown in the footer under “Follow us” when filled in); the WhatsApp greeting messages.
 - **Home page**: replace or restore the hero photo (processed like listing photos), show/hide the search bar, spotlight, featured row, rows by type, the numbers and the brand band; edit the headline, numbers and every heading.
 - **About page**: show/hide the numbers, “How we work” and opening hours; edit every text.
+- **Listings**: the Properties page opens as a **grid or list**, whether visitors may switch (remembered on their device), **cards per row** on wide screens (2–5), the **photo shape** (square, landscape, portrait), and which card details show (sale/rent badge, save heart, type, location, rooms and size). Applies to the Properties page, home rows, similar and saved properties.
 - **All texts**: every string on the public site, grouped by section, searchable in either language, with an *Edited only* filter. Each text shows *Edited* when changed and has *Reset to default*. Placeholders such as `{year}` or `{count}` are filled in by the site, so a text that drops one is refused.
 
 How it works: settings are one JSON document (`site_settings`, merged over the defaults in `src/lib/site.ts`), and edited texts are stored per language and path (`content_overrides`, e.g. `ar` / `home.heroTitle`) and applied over the bundled dictionaries by `getSiteDictionary()`. An untouched text keeps following the code. If the database can't be read, the site renders with the defaults instead of failing.
@@ -444,7 +445,7 @@ WhatsApp are icon buttons with accessible names, so the price keeps its room on 
 npm test
 ```
 
-180 tests across 19 files. Tests that need a database get their own migrated SQLite file in a temp folder
+191 tests across 21 files. Tests that need a database get their own migrated SQLite file in a temp folder
 (`tests/db.ts`); every other test points at an empty in-memory database, so the suite never touches `data/`.
 
 | File | Covers |
@@ -465,6 +466,8 @@ npm test
 | `share.test.tsx` | Share sheet when available, silent on dismiss, clipboard fallback with status message, fallback after a share error, no-clipboard message in Arabic; the encoded `wa.me` link |
 | `appearance.test.tsx` | Settings parsing and attributes; the pre-paint script matching `applyAppearance`; the dialog applying, persisting, restoring and resetting choices; Arabic labels |
 | `admin.test.ts` | Listing form (slug generation, numbers, enums, dates, publish-needs-both-languages, land drops rooms, markup stripped); account and profile forms; post-login redirect allow-list; role permissions; scrypt hashing and the password policy; phone normalisation; relative times |
+| `listing-display.test.tsx` | Listing display settings (range and choice validation), cards hiding badge/heart/type/location/facts, grid columns, grid ⇄ list switch remembered per device, admin default and switch turned off |
+| `dropdown.test.tsx` | The filter dropdown as an ARIA combobox: opening, selected state, counts announced, arrows/Home/End/type-ahead/Enter/Escape, active descendant, outside click, form submission |
 | `seo.test.ts` | Agency and listing JSON-LD (absolute URLs, social profiles, office location), no price published for “Price on request”, no coordinates for approximate pins, breadcrumbs, script-safe serialisation |
 | `website.test.ts` | Text flattening, overrides and placeholder protection; settings merge and validation (unticked switches, bad phone/email/year/URL/zoom); tel/WhatsApp/map links; pasted Google/OSM link parsing; hidden listing details stripped on the server (price, area, rooms, size, features) and the approximate pin rounded; price-on-request in budget filters and sorting; listing-form display switches and map pin |
 | `database.test.ts` | Against a real SQLite file: migrations and an idempotent seed; website settings and edited texts saved, applied to the dictionary and reset; the DB source returns exactly the placeholder catalogue in both languages; drafts and photo-less listings hidden; advisor fallback; website leads saved and routed (listing advisor, region, unknown property id); photo uploads re-encoded to WebP without EXIF and resized; non-images and path-traversal keys rejected |

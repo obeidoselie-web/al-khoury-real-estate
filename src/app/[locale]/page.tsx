@@ -75,6 +75,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
       <div className={`container ${styles.rows}`}>
         {show.showFeatured && (
         <ListingRow
+          options={site.listings}
           id="featured"
           title={h.featuredTitle}
           href={localizedPath(locale, '/listings')}
@@ -86,6 +87,7 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
         {show.showTypeRows &&
           PROPERTY_TYPES.map((type) => (
           <ListingRow
+            options={site.listings}
             key={type}
             id={`row-${type}`}
             title={t.types[type].short}

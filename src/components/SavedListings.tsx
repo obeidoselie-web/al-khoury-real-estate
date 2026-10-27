@@ -21,7 +21,7 @@ import styles from './SavedListings.module.css';
  * a mis-tap can be undone, and keyboard focus is never dropped because a card vanished.
  */
 export function SavedListings({ listings }: { listings: ListingSummary[] }) {
-  const { locale, t } = useI18n();
+  const { locale, t, contact } = useI18n();
   const ids = useFavourites();
   const hydrated = useHydrated();
 
@@ -50,7 +50,15 @@ export function SavedListings({ listings }: { listings: ListingSummary[] }) {
         {ids.length > 0 ? plural(locale, ids.length, t.saved.count) : ''}
       </p>
       {visible.length > 0 ? (
-        <ListingGrid listings={visible} locale={locale} t={t} priorityCount={3} label={t.saved.listLabel} headingLevel="h2" />
+        <ListingGrid
+          listings={visible}
+          locale={locale}
+          t={t}
+          priorityCount={3}
+          label={t.saved.listLabel}
+          headingLevel="h2"
+          display={contact.listings}
+        />
       ) : (
         <div className={styles.empty}>
           <HeartIcon size={32} className={styles.emptyIcon} />

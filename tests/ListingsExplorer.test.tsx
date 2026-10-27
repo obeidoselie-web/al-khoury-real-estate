@@ -97,7 +97,11 @@ describe('ListingsExplorer', () => {
   it('filters by region from the dropdown and keeps it in the URL', async () => {
     const user = userEvent.setup();
     renderExplorer();
-    await user.selectOptions(screen.getByLabelText('Region'), 'Metn');
+    await user.click(screen.getByRole('combobox', { name: 'Region' }));
+    // Each area shows how many properties it has.
+    expect(screen.getByRole('option', { name: /^Metn/ })).toHaveTextContent('2');
+    await user.click(screen.getByRole('option', { name: /^Metn/ }));
+    expect(screen.queryByRole('listbox')).toBeNull();
     expect(resultCards()).toHaveLength(2);
     expect(screen.getByRole('status')).toHaveTextContent('2 properties in Metn');
     expect(replaceState).toHaveBeenLastCalledWith(window.history.state, '', '?region=metn');

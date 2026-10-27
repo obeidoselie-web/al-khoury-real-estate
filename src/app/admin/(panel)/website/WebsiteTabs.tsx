@@ -9,6 +9,7 @@ const TABS = [
   { href: '/admin/website', label: 'Contact & map' },
   { href: '/admin/website/home', label: 'Home page' },
   { href: '/admin/website/about', label: 'About page' },
+  { href: '/admin/website/listings', label: 'Listings' },
   { href: '/admin/website/texts', label: 'All texts' },
 ];
 

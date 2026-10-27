@@ -298,3 +298,11 @@ export const StarIcon = ({ filled = false, ...p }: IconProps & { filled?: boolea
     />
   </Svg>
 );
+
+export const ListIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="5" width="6" height="5" rx="1.2" />
+    <rect x="3.5" y="14" width="6" height="5" rx="1.2" />
+    <path d="M12.5 6.5h8M12.5 9h5M12.5 15.5h8M12.5 18h5" />
+  </Svg>
+);

@@ -5,7 +5,7 @@ import type { Dictionary } from '@/i18n/dictionaries';
 import type { ListingSummary } from '@/lib/types';
 
 import { ArrowEndIcon } from './icons';
-import { ListingCard } from './ListingCard';
+import { ListingCard, type CardOptions } from './ListingCard';
 import styles from './ListingRow.module.css';
 import { RowScroller } from './RowScroller';
 
@@ -18,10 +18,12 @@ interface ListingRowProps {
   locale: Locale;
   t: Dictionary;
   priority?: boolean;
+  /** Card look from the website settings. */
+  options?: CardOptions;
 }
 
 /** A titled horizontal row of listing cards; the title links to the full filtered list. */
-export function ListingRow({ id, title, subtitle, href, listings, locale, t, priority = false }: ListingRowProps) {
+export function ListingRow({ id, title, subtitle, href, listings, locale, t, priority = false, options }: ListingRowProps) {
   if (listings.length === 0) return null;
   const headingId = `${id}-title`;
 
@@ -50,7 +52,7 @@ export function ListingRow({ id, title, subtitle, href, listings, locale, t, pri
         <ul className={styles.list}>
           {listings.map((listing, index) => (
             <li key={listing.id} className={styles.item}>
-              <ListingCard listing={listing} locale={locale} t={t} priority={priority && index < 3} headingLevel="h3" />
+              <ListingCard listing={listing} locale={locale} t={t} priority={priority && index < 3} headingLevel="h3" options={options} />
             </li>
           ))}
         </ul>
