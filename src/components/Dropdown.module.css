@@ -163,12 +163,12 @@
   color: var(--brand-gold-deep);
 }
 
-:root[data-theme='dark'] .check {
+:root[data-scheme='dark'] .check {
   color: var(--color-action);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .check {
+  :root:not([data-theme]) .check {
     color: var(--color-action);
   }
 }

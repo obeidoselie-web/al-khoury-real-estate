@@ -217,10 +217,22 @@ to the button. On phones it opens as a bottom sheet. It holds:
 | Setting | Options | How it works |
 | --- | --- | --- |
 | Language | English / العربية | Same page in the other language; remembered in a cookie |
-| Theme | System / Light / Dark | `data-theme` on `<html>`. "System" follows `prefers-color-scheme` |
+| Theme | System / Light / Dark / Ivory / Cedar / Coastal / Midnight | `data-theme` on `<html>` (dark themes also set `data-scheme="dark"`). "System" follows `prefers-color-scheme`. Visitors who haven't chosen get the site default from **Admin → Website → Home page** |
 | Text size | Default / Large / Larger | `data-text` scales the root font size (100 / 112.5 / 125%). Every size is in rem |
 | Contrast | System / Increased | `data-contrast="more"` darkens secondary text and borders, thickens focus rings and underlines links. "System" honours `prefers-contrast: more` |
 | Motion | System / Reduced | `data-motion="reduce"` stops all animation and smooth scrolling. "System" honours `prefers-reduced-motion` |
+
+**Colour themes.** Each redefines the neutrals and the action colour (the logo stays gold), with every text pair at
+WCAG AA and input borders at 3:1 or more:
+
+| Theme | Character | Page / text / action |
+| --- | --- | --- |
+| Light | The brand baseline: white, ink, gold |  /  /  |
+| Dark | Charcoal and gold |  /  /  |
+| Ivory | Warm cream and espresso with gold: Mediterranean luxury; flatters stone and interiors |  /  /  |
+| Cedar | Sage-white and deep cedar green: calm and natural; suits land, mountain homes, villas |  /  /  |
+| Coastal | White and deep navy: the most trusted pairing in property and finance; seafront and commercial |  /  /  |
+| Midnight | Navy-black and gold: a premium dark that makes evening photography glow |  /  /  |
 
 Choices are saved in `localStorage` (`ak-appearance`). A tiny inline script in `<head>` applies them **before first
 paint**, so a saved dark theme never flashes light, and pages stay statically generated. That script is covered by
@@ -445,7 +457,7 @@ WhatsApp are icon buttons with accessible names, so the price keeps its room on 
 npm test
 ```
 
-200 tests across 22 files. Tests that need a database get their own migrated SQLite file in a temp folder
+206 tests across 23 files. Tests that need a database get their own migrated SQLite file in a temp folder
 (`tests/db.ts`); every other test points at an empty in-memory database, so the suite never touches `data/`.
 
 | File | Covers |
@@ -467,6 +479,7 @@ npm test
 | `appearance.test.tsx` | Settings parsing and attributes; the pre-paint script matching `applyAppearance`; the dialog applying, persisting, restoring and resetting choices; Arabic labels |
 | `admin.test.ts` | Listing form (slug generation, numbers, enums, dates, publish-needs-both-languages, land drops rooms, markup stripped); account and profile forms; post-login redirect allow-list; role permissions; scrypt hashing and the password policy; phone normalisation; relative times |
 | `listing-display.test.tsx` | Listing display settings (range and choice validation), cards hiding badge/heart/type/location/facts, grid columns, grid ⇄ list switch remembered per device, admin default and switch turned off |
+| `themes.test.tsx` | The new themes parse and apply (dark ones set `data-scheme`), every theme has tokens and a preview, the pre-paint script uses the site default until the visitor chooses, a choice equal to the default isn't stored, the admin default is validated, and the dialog lists every theme, starts on the default and resets to it |
 | `price-range.test.tsx` | Budget: shorthand amounts (`750k`, `1.2m`, Arabic digits), min/max in the URL, range filtering, the stepped scale and histogram, handles that never cross, typed values reordered, bad input restored, applying from the Filters panel |
 | `dropdown.test.tsx` | The filter dropdown as an ARIA combobox: opening, selected state, counts announced, arrows/Home/End/type-ahead/Enter/Escape, active descendant, outside click, form submission |
 | `seo.test.ts` | Agency and listing JSON-LD (absolute URLs, social profiles, office location), no price published for “Price on request”, no coordinates for approximate pins, breadcrumbs, script-safe serialisation |

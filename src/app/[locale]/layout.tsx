@@ -7,7 +7,7 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { WhatsAppFab } from '@/components/WhatsAppFab';
 import { LOCALES, LOCALE_META, isLocale } from '@/i18n/config';
 import { I18nProvider } from '@/i18n/I18nProvider';
-import { APPEARANCE_INIT_SCRIPT } from '@/lib/appearance';
+import { appearanceInitScript } from '@/lib/appearance';
 import { siteUrl } from '@/lib/company';
 import { getSiteDictionary, getSiteSettings } from '@/lib/data/site-store';
 import { publicContact } from '@/lib/site';
@@ -56,7 +56,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: APPEARANCE_INIT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: appearanceInitScript(site.appearance.defaultTheme) }} />
       </head>
       <body>
         <I18nProvider locale={locale} dictionary={t} contact={publicContact(site)}>

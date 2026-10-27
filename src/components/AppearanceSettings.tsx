@@ -6,10 +6,11 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { LOCALES, LOCALE_COOKIE, LOCALE_META, switchLocalePath, type Locale } from '@/i18n/config';
 import { useI18n } from '@/i18n/I18nProvider';
 import {
-  DEFAULT_APPEARANCE,
   applyAppearance,
+  isDefaultAppearance,
   loadAppearance,
   saveAppearance,
+  siteDefaults,
   type Appearance,
   type AppearanceKey,
 } from '@/lib/appearance';
@@ -86,33 +87,35 @@ function Switch({ label, hint, checked, onChange }: { label: string; hint: strin
  * instantly (the page behind updates live) and is saved on this device.
  */
 export function AppearanceSettings() {
-  const { locale, t } = useI18n();
+  const { locale, t, contact } = useI18n();
+  // The site default theme (Admin → Website) is what "no choice" and Reset mean here.
+  const defaults = siteDefaults(contact.defaultTheme);
   const pathname = usePathname() ?? '/';
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const descId = useId();
-  const [settings, setSettings] = useState<Appearance>(DEFAULT_APPEARANCE);
+  const [settings, setSettings] = useState<Appearance>(defaults);
 
   useEffect(() => {
-    setSettings(loadAppearance());
-  }, []);
+    setSettings(loadAppearance(defaults));
+  }, [contact.defaultTheme]);
 
   function update<K extends AppearanceKey>(key: K, value: Appearance[K]) {
     const next = { ...settings, [key]: value };
     setSettings(next);
     applyAppearance(next, document.documentElement);
-    saveAppearance(next);
+    saveAppearance(next, defaults);
   }
 
   function reset() {
-    setSettings(DEFAULT_APPEARANCE);
-    applyAppearance(DEFAULT_APPEARANCE, document.documentElement);
-    saveAppearance(DEFAULT_APPEARANCE);
+    setSettings(defaults);
+    applyAppearance(defaults, document.documentElement);
+    saveAppearance(defaults, defaults);
   }
 
   function open() {
-    setSettings(loadAppearance());
+    setSettings(loadAppearance(defaults));
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (typeof dialog.showModal === 'function') dialog.showModal();
@@ -128,12 +131,16 @@ export function AppearanceSettings() {
   }
 
   const s = t.settings;
-  const isDefault = (Object.keys(DEFAULT_APPEARANCE) as AppearanceKey[]).every((k) => settings[k] === DEFAULT_APPEARANCE[k]);
+  const isDefault = isDefaultAppearance(settings, defaults);
 
   const themes: { value: Appearance['theme']; label: string; hint?: string }[] = [
     { value: 'system', label: s.themeSystem, hint: s.themeSystemHint },
     { value: 'light', label: s.themeLight },
     { value: 'dark', label: s.themeDark },
+    { value: 'ivory', label: s.themeIvory, hint: s.themeIvoryHint },
+    { value: 'cedar', label: s.themeCedar, hint: s.themeCedarHint },
+    { value: 'coastal', label: s.themeCoastal, hint: s.themeCoastalHint },
+    { value: 'midnight', label: s.themeMidnight, hint: s.themeMidnightHint },
   ];
   const textSizes: { value: Appearance['text']; label: string }[] = [
     { value: 'default', label: s.textDefault },

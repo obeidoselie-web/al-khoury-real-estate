@@ -624,32 +624,32 @@ a.stat:hover {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .pill_new {
+  :root:not([data-theme]) .pill_new {
     background: #3a2d12;
     color: #f3dc9e;
   }
-  :root:not([data-theme='light']) .pill_contacted {
+  :root:not([data-theme]) .pill_contacted {
     background: #16263d;
     color: #a9c6f0;
   }
-  :root:not([data-theme='light']) .pill_published,
-  :root:not([data-theme='light']) .pill_closed {
+  :root:not([data-theme]) .pill_published,
+  :root:not([data-theme]) .pill_closed {
     background: #11301c;
     color: #8fd6a5;
   }
 }
 
-:root[data-theme='dark'] .pill_new {
+:root[data-scheme='dark'] .pill_new {
   background: #3a2d12;
   color: #f3dc9e;
 }
 
-:root[data-theme='dark'] .pill_contacted {
+:root[data-scheme='dark'] .pill_contacted {
   background: #16263d;
   color: #a9c6f0;
 }
 
-:root[data-theme='dark'] :is(.pill_published, .pill_closed) {
+:root[data-scheme='dark'] :is(.pill_published, .pill_closed) {
   background: #11301c;
   color: #8fd6a5;
 }

@@ -293,6 +293,7 @@
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
   --preview-ink: #222222;
   --preview-muted: #dddddd;
+  --preview-action: var(--brand-gold);
 }
 
 .preview[data-preview='dark'] {
@@ -300,6 +301,36 @@
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
   --preview-ink: #f7f7f7;
   --preview-muted: #3d3d3d;
+}
+
+/* Each colour theme previews its own page, text and button colours. */
+.preview[data-preview='ivory'] {
+  background: #fbf8f3;
+  --preview-ink: #2a241d;
+  --preview-muted: #e2d9cb;
+  --preview-action: #c9a45c;
+}
+
+.preview[data-preview='cedar'] {
+  background: #f8f9f6;
+  --preview-ink: #1c2a21;
+  --preview-muted: #d8dfd6;
+  --preview-action: #2f5d43;
+}
+
+.preview[data-preview='coastal'] {
+  background: #ffffff;
+  --preview-ink: #13233a;
+  --preview-muted: #d9e0e9;
+  --preview-action: #1d4e89;
+}
+
+.preview[data-preview='midnight'] {
+  background: #0d1626;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  --preview-ink: #eef2f7;
+  --preview-muted: #2b3b56;
+  --preview-action: #d9b56a;
 }
 
 /* System: light on one side, dark on the other. */
@@ -332,7 +363,7 @@
   width: 1.6rem;
   height: 0.55rem;
   border-radius: 1rem;
-  background: var(--brand-gold);
+  background: var(--preview-action);
 }
 
 .preview[data-preview='system'] .previewBar,

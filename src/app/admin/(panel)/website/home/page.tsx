@@ -7,9 +7,28 @@ import { PROPERTY_TYPES } from '@/lib/types';
 import styles from '../../../admin.module.css';
 import { HeroImageForm } from '../HeroImageForm';
 import { buildTextFields } from '../text-fields';
-import { Section, SettingInput, SettingToggle, TextField, WebsiteForm } from '../WebsiteForm';
+import { Section, SettingChoice, SettingInput, SettingToggle, TextField, WebsiteForm } from '../WebsiteForm';
 
 export const metadata: Metadata = { title: 'Website · Home page' };
+
+/** Page, text and button colours of each theme, for the swatches. */
+const THEME_SWATCHES = [
+  { value: 'system', label: 'Follow device', hint: 'Light or dark, as the visitor’s phone or computer is set', colors: ['#ffffff', '#121212', '#c9a45c'] },
+  { value: 'light', label: 'Light', hint: 'White, ink and gold', colors: ['#ffffff', '#222222', '#c9a45c'] },
+  { value: 'dark', label: 'Dark', hint: 'Charcoal and gold', colors: ['#121212', '#f7f7f7', '#d9b56a'] },
+  { value: 'ivory', label: 'Ivory', hint: 'Warm cream and gold — luxury, Mediterranean', colors: ['#fbf8f3', '#2a241d', '#c9a45c'] },
+  { value: 'cedar', label: 'Cedar', hint: 'Sage and cedar green — calm, natural', colors: ['#f8f9f6', '#1c2a21', '#2f5d43'] },
+  { value: 'coastal', label: 'Coastal', hint: 'White and navy — trust, clarity', colors: ['#ffffff', '#13233a', '#1d4e89'] },
+  { value: 'midnight', label: 'Midnight', hint: 'Navy and gold — premium dark', colors: ['#0d1626', '#eef2f7', '#d9b56a'] },
+];
+
+const swatch = (colors: string[]) => (
+  <>
+    {colors.map((color, i) => (
+      <span key={i} style={{ width: i === 0 ? 30 : 14, height: i === 0 ? '2.5rem' : '1.5rem', background: color, boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.12)' }} />
+    ))}
+  </>
+);
 
 export default async function WebsiteHomePage() {
   const site = await getSiteSettings();
@@ -48,6 +67,7 @@ export default async function WebsiteHomePage() {
   ]);
 
   const settings = [
+    'appearance.defaultTheme',
     'hero.showSearch',
     'home.showSpotlight',
     'home.showFeatured',
@@ -62,6 +82,18 @@ export default async function WebsiteHomePage() {
     <div className={styles.form}>
       <HeroImageForm image={site.hero.image} isDefault={site.hero.image.src === DEFAULT_SITE.hero.image.src} />
       <WebsiteForm page="home" settings={settings}>
+        <Section
+          title="Colour theme"
+          hint="What visitors see until they choose their own in Appearance & language (their choice is kept on their device)."
+        >
+          <SettingChoice
+            path="appearance.defaultTheme"
+            label="Website theme"
+            value={site.appearance.defaultTheme}
+            options={THEME_SWATCHES.map((theme) => ({ value: theme.value, label: theme.label, hint: theme.hint, preview: swatch(theme.colors) }))}
+          />
+        </Section>
+
         <Section title="Hero" hint="The big photo at the top of the home page.">
           <SettingToggle path="hero.showSearch" label="Show the search bar on the photo" checked={site.hero.showSearch} />
           {hero.map((field) => (

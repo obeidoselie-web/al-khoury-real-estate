@@ -108,12 +108,12 @@
   color: var(--brand-gold-deep);
 }
 
-:root[data-theme='dark'] .fieldIcon {
+:root[data-scheme='dark'] .fieldIcon {
   color: var(--color-eyebrow);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .fieldIcon {
+  :root:not([data-theme]) .fieldIcon {
     color: var(--color-eyebrow);
   }
 }
@@ -133,12 +133,12 @@
   font-weight: 500;
 }
 
-:root[data-theme='dark'] .trigger {
+:root[data-scheme='dark'] .trigger {
   --dropdown-icon: var(--color-eyebrow);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .trigger {
+  :root:not([data-theme]) .trigger {
     --dropdown-icon: var(--color-eyebrow);
   }
 }

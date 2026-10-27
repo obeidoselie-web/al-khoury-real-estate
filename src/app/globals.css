@@ -7,7 +7,8 @@
    reserved for the logo, the search button and the single primary action on a page.
 
    Contrast ratios (WCAG AA) are noted against the page background of each theme.
-   Theme resolution: no data-theme → follows the OS; data-theme="light|dark" → explicit choice.
+   Theme resolution: no data-theme → follows the OS; data-theme="light|dark|ivory|cedar|coastal|midnight" →
+   explicit choice. Dark themes also set data-scheme="dark" for component tweaks.
    ========================================================================== */
 :root {
   color-scheme: light;
@@ -141,7 +142,7 @@
 
 /* Dark tokens — declared twice: for "System" when the OS is dark, and for an explicit "Dark" choice. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root:not([data-theme]) {
     color-scheme: dark;
     --color-bg: #121212;
     --color-surface: #1e1e1e;
@@ -236,6 +237,178 @@
   --shadow-search: 0 0 0 1px #3d3d3d, 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-panel: 0 0 0 1px #3d3d3d, 0 6px 16px rgba(0, 0, 0, 0.5);
   --shadow-raised: 0 0 0 1px #3d3d3d, 0 8px 28px rgba(0, 0, 0, 0.7);
+}
+
+/* --------------------------------------------------------------------------
+   Colour themes beyond light and dark (Appearance → Theme; the site default is set in
+   Admin → Website). Each redefines the neutrals and the action colour; the brand mark stays
+   gold everywhere. Ratios are against each theme's page background; input borders ≥ 3:1.
+   -------------------------------------------------------------------------- */
+
+/* Ivory — warm cream and espresso with gold actions: the Mediterranean luxury look. */
+:root[data-theme='ivory'] {
+  color-scheme: light;
+  --color-bg: #fbf8f3;
+  --color-surface: #f2ece2;
+  --color-surface-raised: #fffdf9;
+  --color-text: #2a241d;            /* 14.5:1 */
+  --color-text-body: #2a241d;
+  --color-text-secondary: #6b6152;  /* 5.7:1 on bg, 5.2:1 on surface */
+  --color-text-disabled: #c9c0b2;
+  --color-border: #e2d9cb;
+  --color-border-strong: #94866e;   /* 3.4:1 */
+  --color-hairline: #ebe4d8;
+  --color-fill-hover: #f4eee5;
+  --color-fill-active: #eae2d5;
+  --color-fill-subtle: rgba(60, 40, 10, 0.05);
+  --color-skeleton: #ebe4d8;
+  --color-skeleton-base: #f4eee5;
+  --color-action: #c9a45c;          /* espresso text 6.5:1 */
+  --color-action-hover: #b8913f;
+  --color-on-action: #2a241d;
+  --color-inverse: #2a241d;
+  --color-inverse-hover: #000000;
+  --color-on-inverse: #fffdf9;
+  --color-accent: #2a241d;
+  --color-eyebrow: #876221;         /* 5.2:1 */
+  --color-selected: #2a241d;
+  --color-on-selected: #fffdf9;
+  --color-focus: #2a241d;
+  --color-focus-soft: rgba(42, 36, 29, 0.2);
+  --color-header-bg: #fbf8f3;
+  --color-badge-bg: #fffdf9;
+  --color-badge-text: #2a241d;
+  --color-selection: #f0dca8;
+  --contrast-text-secondary: #4a4237;
+  --contrast-border: #6e6250;
+  --contrast-eyebrow: #654812;
+}
+
+/* Cedar — sage-white and deep cedar green: calm, natural, at home with land and mountain houses. */
+:root[data-theme='cedar'] {
+  color-scheme: light;
+  --color-bg: #f8f9f6;
+  --color-surface: #eef2eb;
+  --color-surface-raised: #ffffff;
+  --color-text: #1c2a21;            /* 14.2:1 */
+  --color-text-body: #1c2a21;
+  --color-text-secondary: #556158;  /* 6.1:1 on bg, 5.7:1 on surface */
+  --color-text-disabled: #c4cbc4;
+  --color-border: #d8dfd6;
+  --color-border-strong: #84918a;   /* 3.1:1 */
+  --color-hairline: #e5eae2;
+  --color-fill-hover: #f0f3ed;
+  --color-fill-active: #e2e8de;
+  --color-fill-subtle: rgba(20, 50, 30, 0.05);
+  --color-skeleton: #e5eae2;
+  --color-skeleton-base: #f0f3ed;
+  --color-action: #2f5d43;          /* white text 7.6:1 */
+  --color-action-hover: #244a35;
+  --color-on-action: #ffffff;
+  --color-inverse: #1c2a21;
+  --color-inverse-hover: #0d1811;
+  --color-on-inverse: #ffffff;
+  --color-accent: #1c2a21;
+  --color-eyebrow: #2f5d43;         /* 7.2:1 */
+  --color-selected: #1c2a21;
+  --color-on-selected: #ffffff;
+  --color-focus: #2f5d43;
+  --color-focus-soft: rgba(47, 93, 67, 0.25);
+  --color-header-bg: #f8f9f6;
+  --color-badge-bg: #ffffff;
+  --color-badge-text: #1c2a21;
+  --color-selection: #cfe3d3;
+  --contrast-text-secondary: #39443c;
+  --contrast-border: #5f6b63;
+  --contrast-eyebrow: #1f4430;
+}
+
+/* Coastal — white and deep navy: the most trusted pairing in property and finance. */
+:root[data-theme='coastal'] {
+  color-scheme: light;
+  --color-bg: #ffffff;
+  --color-surface: #f2f5f9;
+  --color-surface-raised: #ffffff;
+  --color-text: #13233a;            /* 15.8:1 */
+  --color-text-body: #13233a;
+  --color-text-secondary: #526174;  /* 6.3:1 on bg, 5.8:1 on surface */
+  --color-text-disabled: #c3cbd6;
+  --color-border: #d9e0e9;
+  --color-border-strong: #8794a6;   /* 3.1:1 */
+  --color-hairline: #e6ebf1;
+  --color-fill-hover: #f2f5f9;
+  --color-fill-active: #e3e9f0;
+  --color-fill-subtle: rgba(10, 30, 60, 0.05);
+  --color-skeleton: #e6ebf1;
+  --color-skeleton-base: #f2f5f9;
+  --color-action: #1d4e89;          /* white text 8.4:1 */
+  --color-action-hover: #163d6c;
+  --color-on-action: #ffffff;
+  --color-inverse: #13233a;
+  --color-inverse-hover: #08121f;
+  --color-on-inverse: #ffffff;
+  --color-accent: #13233a;
+  --color-eyebrow: #1d4e89;         /* 8.4:1 */
+  --color-selected: #13233a;
+  --color-on-selected: #ffffff;
+  --color-focus: #1d4e89;
+  --color-focus-soft: rgba(29, 78, 137, 0.25);
+  --color-header-bg: #ffffff;
+  --color-badge-bg: #ffffff;
+  --color-badge-text: #13233a;
+  --color-selection: #cfe0f4;
+  --contrast-text-secondary: #36445a;
+  --contrast-border: #5d6b80;
+  --contrast-eyebrow: #143a68;
+}
+
+/* Midnight — deep navy-black with gold: a warmer, more premium dark that makes evening photos glow. */
+:root[data-theme='midnight'] {
+  color-scheme: dark;
+  --color-bg: #0d1626;
+  --color-surface: #152238;
+  --color-surface-raised: #182740;
+  --color-text: #eef2f7;            /* 16.1:1 */
+  --color-text-body: #eef2f7;
+  --color-text-secondary: #a8b5c7;  /* 8.7:1 on bg, 7.7:1 on surface */
+  --color-text-disabled: #4d5b70;
+  --color-border: #2b3b56;
+  --color-border-strong: #647593;   /* 3.9:1 */
+  --color-hairline: #1f2e47;
+  --color-fill-hover: #152238;
+  --color-fill-active: #22324d;
+  --color-fill-subtle: rgba(255, 255, 255, 0.07);
+  --color-skeleton: #22324d;
+  --color-skeleton-base: #152238;
+  --color-action: #d9b56a;          /* navy text 9.3:1 */
+  --color-action-hover: #c9a45c;
+  --color-on-action: #0d1626;
+  --color-inverse: #eef2f7;
+  --color-inverse-hover: #ffffff;
+  --color-on-inverse: #0d1626;
+  --color-accent: #eef2f7;
+  --color-eyebrow: #d9b56a;         /* 9.3:1 */
+  --color-selected: #eef2f7;
+  --color-on-selected: #0d1626;
+  --color-on-selected-fill: rgba(0, 0, 0, 0.12);
+  --color-success: #4cd07d;
+  --color-success-surface: #0f2a1f;
+  --color-danger: #ff8a73;
+  --color-danger-surface: #33190f;
+  --color-focus: #eef2f7;
+  --color-focus-soft: rgba(238, 242, 247, 0.25);
+  --color-header-bg: #0d1626;
+  --color-badge-bg: #182740;
+  --color-badge-text: #eef2f7;
+  --color-selection: #4e3f1c;
+  --color-backdrop: rgba(0, 0, 0, 0.7);
+  --image-filter: brightness(0.92);
+  --contrast-text-secondary: #dbe3ee;
+  --contrast-border: #8796ad;
+  --contrast-eyebrow: #f3dc9e;
+  --shadow-search: 0 0 0 1px #2b3b56, 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-panel: 0 0 0 1px #2b3b56, 0 6px 16px rgba(0, 0, 0, 0.5);
+  --shadow-raised: 0 0 0 1px #2b3b56, 0 8px 28px rgba(0, 0, 0, 0.7);
 }
 
 /* Increased contrast — explicit choice, or the OS preference when no choice is stored. */

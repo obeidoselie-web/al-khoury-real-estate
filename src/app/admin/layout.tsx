@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 
-import { APPEARANCE_INIT_SCRIPT } from '@/lib/appearance';
+import { appearanceInitScript } from '@/lib/appearance';
+import { getSiteSettings } from '@/lib/data/site-store';
 
 import { arabicFont, brandFont, latinFont } from '../fonts';
 import '../globals.css';
@@ -14,7 +15,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#0b0b0c' };
 
-export default function AdminRootLayout({ children }: { children: ReactNode }) {
+export default async function AdminRootLayout({ children }: { children: ReactNode }) {
+  const site = await getSiteSettings();
   return (
     <html
       lang="en"
@@ -24,7 +26,7 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
     >
       <head>
         {/* Same appearance preferences (theme, text size, contrast) as the public site. */}
-        <script dangerouslySetInnerHTML={{ __html: APPEARANCE_INIT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: appearanceInitScript(site.appearance.defaultTheme) }} />
       </head>
       <body>{children}</body>
     </html>

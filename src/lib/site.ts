@@ -1,3 +1,5 @@
+import { THEMES, isTheme, type Theme } from './appearance';
+
 /*
  * Website settings that aren't translated text: contact numbers, social links, the office map pin,
  * the hero photo and which page sections are shown. Stored as one JSON document (Admin → Website)
@@ -31,6 +33,8 @@ export interface SiteSettings {
   header: { showPhone: boolean };
   whatsappButton: { show: boolean };
   listings: ListingDisplaySettings;
+  /** Colour theme for visitors who haven't picked one ("system" follows their device). */
+  appearance: { defaultTheme: Theme };
 }
 
 export const LISTING_VIEWS = ['grid', 'list'] as const;
@@ -58,6 +62,7 @@ export interface ListingDisplaySettings {
 export const SETTING_CHOICES: Record<string, readonly string[]> = {
   'listings.defaultView': LISTING_VIEWS,
   'listings.photoShape': PHOTO_SHAPES,
+  'appearance.defaultTheme': THEMES,
 };
 
 export const SOCIAL_NETWORKS = ['facebook', 'instagram', 'linkedin', 'tiktok', 'youtube'] as const;
@@ -95,6 +100,7 @@ export const DEFAULT_SITE: SiteSettings = {
     showLocation: true,
     showFacts: true,
   },
+  appearance: { defaultTheme: 'system' },
 };
 
 type Plain = Record<string, unknown>;
@@ -116,6 +122,7 @@ export function resolveSite(stored: unknown, defaults: SiteSettings = DEFAULT_SI
   if (!LISTING_VIEWS.includes(l.defaultView)) l.defaultView = defaults.listings.defaultView;
   if (!PHOTO_SHAPES.includes(l.photoShape)) l.photoShape = defaults.listings.photoShape;
   l.columns = Math.min(5, Math.max(2, Math.round(l.columns) || defaults.listings.columns));
+  if (!isTheme(site.appearance.defaultTheme)) site.appearance.defaultTheme = defaults.appearance.defaultTheme;
   return site;
 }
 
@@ -147,6 +154,7 @@ export interface PublicContact {
   email: string;
   showWhatsappButton: boolean;
   listings: ListingDisplaySettings;
+  defaultTheme: Theme;
 }
 
 export function publicContact(site: SiteSettings): PublicContact {
@@ -157,6 +165,7 @@ export function publicContact(site: SiteSettings): PublicContact {
     email: site.contact.email,
     showWhatsappButton: site.whatsappButton.show,
     listings: site.listings,
+    defaultTheme: site.appearance.defaultTheme,
   };
 }
 
