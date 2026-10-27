@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { AdvisorCard } from '@/components/AdvisorCard';
 import { FavouriteButton } from '@/components/FavouriteButton';
 import { Highlights } from '@/components/Highlights';
+import { JsonLd } from '@/components/JsonLd';
 import { CalendarIcon, ChatIcon, CheckIcon, PhoneIcon, PinIcon } from '@/components/icons';
 import { ListingRow } from '@/components/ListingRow';
 import { LocationMap } from '@/components/LocationMap';
@@ -21,8 +22,9 @@ import { getSiteDictionary, getSiteSettings } from '@/lib/data/site-store';
 import { telHref, whatsappHref } from '@/lib/site';
 import { getListingById, getListingIds, getSimilarListings } from '@/lib/data/listings';
 import { listingsHref } from '@/lib/filters';
-import { formatArea, formatPlace, listingPrice } from '@/lib/format';
+import { formatArea, formatPlace, formatPrice, listingPrice } from '@/lib/format';
 import { alternates } from '@/lib/seo';
+import { breadcrumbJsonLd, listingJsonLd } from '@/lib/structured-data';
 import type { Listing } from '@/lib/types';
 
 import styles from './property.module.css';
@@ -107,6 +109,19 @@ export default async function PropertyPage({ params }: Props) {
 
   return (
     <article className={styles.page}>
+      <JsonLd
+        data={[
+          listingJsonLd(listing, t, locale, siteUrl()),
+          breadcrumbJsonLd(
+            [
+              { name: t.nav.properties, path: localizedPath(locale, '/listings') },
+              { name: t.types[listing.type].short, path: listingsHref(locale, { type: listing.type }) },
+              { name: listing.title, path: localizedPath(locale, `/listings/${listing.id}`) },
+            ],
+            siteUrl(),
+          ),
+        ]}
+      />
       <div className={`container ${styles.narrow}`}>
         <nav aria-label={t.nav.breadcrumb} className={styles.breadcrumb}>
           <ol>
@@ -127,6 +142,13 @@ export default async function PropertyPage({ params }: Props) {
             {t.deals[listing.deal].badge} · {t.types[listing.type].label}
           </p>
           <h1 className={styles.title}>{listing.title}</h1>
+          {/* On phones and tablets the price card sits far below; repeat the price under the title. */}
+          <p className={styles.headerPrice}>
+            {price}
+            {!listing.priceOnRequest && listing.deal === 'sale' && listing.areaSqm ? (
+              <span className={styles.perSqm}>{interpolate(p.perSqm, { amount: formatPrice(Math.round(listing.price / listing.areaSqm), 'sale', locale, t) })}</span>
+            ) : null}
+          </p>
           <ul className={styles.badges}>
             {listing.verified && (
               <li className={styles.verified} title={p.verifiedHint}>

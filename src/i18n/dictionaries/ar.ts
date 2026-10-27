@@ -247,6 +247,7 @@ export const ar: Dictionary = {
     area: '{value} م²',
   },
   property: {
+    perSqm: '{amount} للمتر المربع',
     mapTitle: 'الموقع',
     mapApproximate: 'موقع تقريبي — نشارك العنوان الدقيق عند حجز موعد المعاينة.',
     mapFrameTitle: 'خريطة موقع العقار',

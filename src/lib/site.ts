@@ -10,6 +10,8 @@ export interface SiteImage {
   src: string;
   width: number;
   height: number;
+  /** Tiny blurred preview shown while the photo loads. */
+  blurDataURL: string;
 }
 
 export interface SiteSettings {
@@ -33,6 +35,10 @@ export interface SiteSettings {
 export const SOCIAL_NETWORKS = ['facebook', 'instagram', 'linkedin', 'tiktok', 'youtube'] as const;
 export type SocialNetwork = (typeof SOCIAL_NETWORKS)[number];
 
+/** 24px preview of the bundled hero photo (generated with sharp). */
+const HERO_BLUR =
+  'data:image/webp;base64,UklGRqQAAABXRUJQVlA4IJgAAACQBACdASoYAA0APtFUo0uoJKMhsAgBABoJYgCdMoMYJn/AXZ7qOgX7pEeYysYA/eKaf5jVJjHqlbdT+1YuyNWbRIvi6VkrZ9D+IBx53SaVHiw3wsFeo49855L3dXzSJqdZ8Qx82/IZ72G7ekrQwQU2I13XWoO6zLIRFAfqxNj8KZtnwlq5Gan/0SVUIP2qdb5HIr3nzdYAAA==';
+
 /** PLACEHOLDER defaults (the original hard-coded values). Change them in Admin → Website. */
 export const DEFAULT_SITE: SiteSettings = {
   contact: {
@@ -44,7 +50,7 @@ export const DEFAULT_SITE: SiteSettings = {
   social: { facebook: '', instagram: '', linkedin: '', tiktok: '', youtube: '' },
   // Charles Malek Avenue, Achrafieh.
   office: { showMap: true, lat: 33.8869, lng: 35.5131, zoom: 16 },
-  hero: { image: { src: '/images/photos/hero-villa-dusk.jpg', width: 2400, height: 1350 }, showSearch: true },
+  hero: { image: { src: '/images/photos/hero-villa-dusk.jpg', width: 2400, height: 1350, blurDataURL: HERO_BLUR }, showSearch: true },
   home: { showSpotlight: true, showFeatured: true, showTypeRows: true, showStats: true, showBrandBand: true },
   about: { showStats: true, showValues: true, showHours: true },
   stats: { placed: 2400, regions: 6 },

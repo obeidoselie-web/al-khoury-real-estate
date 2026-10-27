@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { localizedPath } from '@/i18n/config';
 import { useI18n } from '@/i18n/I18nProvider';
@@ -42,6 +42,7 @@ interface ListingsExplorerProps {
 export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerProps) {
   const { locale, t } = useI18n();
   const [filters, setFilters] = useState<ListingFilters>(initialFilters);
+  const stuck = useStuck();
 
   const results = useMemo(() => sortListings(filterListings(listings, filters), filters.sort), [listings, filters]);
   const counts = useMemo(() => countOptions(listings, filters), [listings, filters]);
@@ -72,7 +73,7 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
 
   return (
     <div className={styles.explorer}>
-      <search className={styles.filters} aria-label={t.listings.filtersLabel}>
+      <search ref={stuck.ref} className={styles.filters} data-stuck={stuck.value || undefined} aria-label={t.listings.filtersLabel}>
         <CategoryTabs
           name="type"
           legend={t.listings.typeLegend}
@@ -166,4 +167,34 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
       )}
     </div>
   );
+}
+
+/**
+ * True once the filter bar is pinned under the header, so it can switch to its compact form and
+ * leave more of the screen for results. Checked on scroll (cheap: one rect read per frame).
+ */
+function useStuck() {
+  const ref = useRef<HTMLElement>(null);
+  const [value, setValue] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      const pinnedAt = parseFloat(getComputedStyle(el).top) || 0;
+      // Only pinned once the page has actually scrolled; at the top the bar sits in its normal place.
+      setValue(window.scrollY > 0 && el.getBoundingClientRect().top <= pinnedAt + 0.5);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(check);
+    };
+    check();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+  return { ref, value };
 }

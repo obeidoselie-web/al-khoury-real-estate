@@ -4,12 +4,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { ContactForm } from '@/components/ContactForm';
+import { JsonLd } from '@/components/JsonLd';
 import { LocationMap } from '@/components/LocationMap';
 import { isLocale, localizedPath } from '@/i18n/config';
 import { formatNumber, interpolate } from '@/i18n/plural';
 import { getListingById } from '@/lib/data/listings';
 import { getSiteDictionary, getSiteSettings } from '@/lib/data/site-store';
+import { siteUrl } from '@/lib/company';
 import { telHref } from '@/lib/site';
+import { agencyJsonLd } from '@/lib/structured-data';
 import { alternates } from '@/lib/seo';
 
 import styles from './about.module.css';
@@ -38,6 +41,7 @@ export default async function AboutPage({ params, searchParams }: Props) {
 
   return (
     <>
+      <JsonLd data={agencyJsonLd(site, t, locale, siteUrl())} />
       <section className={`container ${styles.intro}`} aria-labelledby="about-title">
         <div className={styles.introText}>
           <p className="eyebrow">{a.eyebrow}</p>

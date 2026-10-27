@@ -33,6 +33,11 @@
 
 .navArea {
   justify-self: center;
+  min-width: 0;
+}
+
+.labelShort {
+  display: none;
 }
 
 .nav {
@@ -170,5 +175,17 @@
 
   .link[aria-current='page']::after {
     inset-inline: var(--space-2);
+  }
+
+  .labelLong {
+    display: none;
+  }
+
+  .labelShort {
+    display: inline;
+  }
+
+  .end {
+    gap: var(--space-1);
   }
 }

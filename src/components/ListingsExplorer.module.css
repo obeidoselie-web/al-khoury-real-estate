@@ -1,5 +1,7 @@
 .explorer {
   display: grid;
+  /* minmax(0, …): wide filter rows scroll inside the bar instead of widening the page. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
 }
 
@@ -24,6 +26,13 @@
   min-width: 0;
 }
 
+/* Never wider than the bar: the tab and refine rows scroll inside it instead. */
+.filters > * {
+  min-width: 0;
+  min-inline-size: 0;
+  max-width: 100%;
+}
+
 .filters > :last-child {
   padding-bottom: var(--space-3);
 }
@@ -37,6 +46,51 @@
   .filters > :last-child {
     order: -1;
     padding-bottom: 0;
+  }
+}
+
+/* Pinned while scrolling: drop the tab icons and tighten spacing so results keep the screen. */
+.filters[data-stuck] {
+  padding-top: var(--space-1);
+  box-shadow: 0 6px 12px -10px rgba(0, 0, 0, 0.25);
+}
+
+.filters[data-stuck] > fieldset svg {
+  display: none;
+}
+
+.filters[data-stuck] > :last-child {
+  padding-bottom: var(--space-2);
+}
+
+@media (min-width: 744px) {
+  /* One row: tabs scroll sideways if they run out of room. */
+  .filters[data-stuck] {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .filters[data-stuck] > :last-child {
+    flex: none;
+    padding-top: var(--space-1);
+  }
+}
+
+@media (max-width: 743px) {
+  .filters[data-stuck] {
+    gap: var(--space-1);
+  }
+
+  /* Filters, area and Buy/Rent share one row that scrolls sideways. */
+  .filters[data-stuck] .refine {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: var(--space-1);
+  }
+
+  .filters[data-stuck] .refine > * {
+    flex: none;
   }
 }
 

@@ -48,7 +48,9 @@ export function SiteHeader({ locale, t, site }: { locale: Locale; t: Dictionary;
             </li>
             <li>
               <NavLink href={localizedPath(locale, '/about')} className={styles.link}>
-                {t.nav.about}
+                {/* Phones get the short label so the bar fits 360px screens; only one is displayed. */}
+                <span className={styles.labelLong}>{t.nav.about}</span>
+                <span className={styles.labelShort}>{t.nav.contact}</span>
               </NavLink>
             </li>
           </ul>

@@ -60,6 +60,31 @@
   letter-spacing: var(--tracking-tight);
 }
 
+.headerPrice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin-top: var(--space-1);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tight);
+}
+
+.perSqm {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--color-text-secondary);
+}
+
+/* Wide screens show the price in the side card next to the photos. */
+@media (min-width: 900px) {
+  .headerPrice {
+    display: none;
+  }
+}
+
 .subhead {
   display: flex;
   flex-wrap: wrap;
@@ -258,6 +283,26 @@
   .stickyIcon {
     width: 3rem;
     padding-inline: 0;
+  }
+}
+
+/* Small phones: tighter bar so the price stays readable (two short lines rather than "$1,2…"). */
+@media (max-width: 420px) {
+  .stickyBar {
+    padding-inline: var(--space-4);
+  }
+
+  .stickyPrice {
+    font-size: var(--text-sm);
+    line-height: 1.2;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .stickyInner > :global(.button):not(.stickyIcon) {
+    padding-inline: var(--space-3);
   }
 }
 

@@ -175,6 +175,7 @@ export const en = {
     area: '{value} m²',
   },
   property: {
+    perSqm: '{amount} per m²',
     mapTitle: 'Location',
     mapApproximate: 'Approximate location — the exact address is shared when you book a viewing.',
     mapFrameTitle: 'Map of the property location',

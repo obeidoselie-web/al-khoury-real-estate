@@ -19,4 +19,5 @@ export async function logActivity(
 /** Rebuilds the public pages (home, listings, property pages) in both languages after a change. */
 export function refreshPublicSite(): void {
   revalidatePath('/[locale]', 'layout');
+  revalidatePath('/sitemap.xml');
 }

@@ -17,6 +17,8 @@ export interface StoredPhoto {
   url: string;
   width: number;
   height: number;
+  /** 24px WebP preview as a data URL, for blur-up placeholders. */
+  blurDataURL: string;
 }
 
 export interface PhotoStorage {
@@ -118,5 +120,12 @@ async function storePhoto(folder: string, file: File): Promise<StoredPhoto> {
   const key = `${folder}/${crypto.randomUUID()}.webp`;
   const store = getPhotoStorage();
   await store.put(key, output.data, 'image/webp');
-  return { key, url: store.url(key), width: output.info.width, height: output.info.height };
+  const preview = await sharp(output.data).resize(24).webp({ quality: 50 }).toBuffer();
+  return {
+    key,
+    url: store.url(key),
+    width: output.info.width,
+    height: output.info.height,
+    blurDataURL: `data:image/webp;base64,${preview.toString('base64')}`,
+  };
 }

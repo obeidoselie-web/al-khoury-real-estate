@@ -49,7 +49,7 @@ export async function uploadHeroImage(_prev: HeroState, form: FormData): Promise
   try {
     const stored = await storeSitePhoto(file);
     const current = await getSiteSettings();
-    await saveSiteSettings({ ...current, hero: { ...current.hero, image: { src: stored.url, width: stored.width, height: stored.height } } });
+    await saveSiteSettings({ ...current, hero: { ...current.hero, image: { src: stored.url, width: stored.width, height: stored.height, blurDataURL: stored.blurDataURL } } });
     await removeOldHero(current.hero.image.src);
   } catch (error) {
     if (error instanceof UploadError) return { error: error.message, at: Date.now() };

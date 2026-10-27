@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { JsonLd } from '@/components/JsonLd';
 import { ListingRow } from '@/components/ListingRow';
 import { SearchCapsule } from '@/components/SearchCapsule';
 import { Spotlight } from '@/components/Spotlight';
@@ -9,7 +10,9 @@ import { isLocale, localizedPath } from '@/i18n/config';
 import { formatNumber, interpolate } from '@/i18n/plural';
 import { getFeaturedListings, getListingById, getListingSummaries } from '@/lib/data/listings';
 import { getSiteDictionary, getSiteSettings } from '@/lib/data/site-store';
+import { siteUrl } from '@/lib/company';
 import { listingsHref } from '@/lib/filters';
+import { agencyJsonLd } from '@/lib/structured-data';
 import { PROPERTY_TYPES } from '@/lib/types';
 
 import styles from './page.module.css';
@@ -32,11 +35,14 @@ export default async function HomePage({ params }: PageProps<'/[locale]'>) {
 
   return (
     <>
+      <JsonLd data={agencyJsonLd(site, t, locale, siteUrl())} />
       <section className={styles.hero} aria-labelledby="hero-title">
         <div className={`container ${styles.heroFrame}`}>
           <div className={styles.heroMedia}>
             <Image
               src={site.hero.image.src}
+              placeholder="blur"
+              blurDataURL={site.hero.image.blurDataURL}
               alt=""
               fill
               priority

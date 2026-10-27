@@ -413,6 +413,14 @@ WhatsApp are icon buttons with accessible names, so the price keeps its room on 
 - `lang`/`dir` are correct per page, and labels in the other language (e.g. "العربية" on an English page) carry their own `lang`, so screen readers switch voice.
 - Error boundaries move focus to their heading and use `role="alert"`.
 
+## Search engines
+
+- `/sitemap.xml` lists every public page and published listing in both languages with `hreflang` alternates; it refreshes with the pages when a listing changes in the admin.
+- `/robots.txt` allows everything except `/admin` and points to the sitemap.
+- JSON-LD structured data: the agency (`RealEstateAgent`: contact, office location, social profiles) on the home and About pages; each property (`RealEstateListing` with photos, size, rooms and an `Offer`) plus breadcrumbs. It follows the page: a hidden price or an approximate pin is not published.
+- Every page has a canonical URL and `hreflang` alternates; the saved page is `noindex`.
+- **Set `SITE_URL` in production** (e.g. `https://alkhoury.com`): sitemap, robots, canonical and structured-data URLs are built from it.
+
 ## Performance
 
 - Server Components by default. Home and property pages are statically generated for both languages.
@@ -436,7 +444,7 @@ WhatsApp are icon buttons with accessible names, so the price keeps its room on 
 npm test
 ```
 
-177 tests across 18 files. Tests that need a database get their own migrated SQLite file in a temp folder
+180 tests across 19 files. Tests that need a database get their own migrated SQLite file in a temp folder
 (`tests/db.ts`); every other test points at an empty in-memory database, so the suite never touches `data/`.
 
 | File | Covers |
@@ -457,6 +465,7 @@ npm test
 | `share.test.tsx` | Share sheet when available, silent on dismiss, clipboard fallback with status message, fallback after a share error, no-clipboard message in Arabic; the encoded `wa.me` link |
 | `appearance.test.tsx` | Settings parsing and attributes; the pre-paint script matching `applyAppearance`; the dialog applying, persisting, restoring and resetting choices; Arabic labels |
 | `admin.test.ts` | Listing form (slug generation, numbers, enums, dates, publish-needs-both-languages, land drops rooms, markup stripped); account and profile forms; post-login redirect allow-list; role permissions; scrypt hashing and the password policy; phone normalisation; relative times |
+| `seo.test.ts` | Agency and listing JSON-LD (absolute URLs, social profiles, office location), no price published for “Price on request”, no coordinates for approximate pins, breadcrumbs, script-safe serialisation |
 | `website.test.ts` | Text flattening, overrides and placeholder protection; settings merge and validation (unticked switches, bad phone/email/year/URL/zoom); tel/WhatsApp/map links; pasted Google/OSM link parsing; hidden listing details stripped on the server (price, area, rooms, size, features) and the approximate pin rounded; price-on-request in budget filters and sorting; listing-form display switches and map pin |
 | `database.test.ts` | Against a real SQLite file: migrations and an idempotent seed; website settings and edited texts saved, applied to the dictionary and reset; the DB source returns exactly the placeholder catalogue in both languages; drafts and photo-less listings hidden; advisor fallback; website leads saved and routed (listing advisor, region, unknown property id); photo uploads re-encoded to WebP without EXIF and resized; non-images and path-traversal keys rejected |
 
