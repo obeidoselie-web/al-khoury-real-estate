@@ -209,12 +209,17 @@ describe('filters panel', () => {
     expect(onApply).toHaveBeenCalledWith(expect.objectContaining({ deal: 'sale', minBeds: 2 }));
   });
 
-  it('disables the budget until Buy or Rent is chosen, and shows the active count', async () => {
+  it('asks for Buy or Rent before showing the budget scale, and shows the active count', async () => {
     const user = userEvent.setup();
     renderWithI18n(<FiltersDialog listings={sampleListings()} filters={{ ...DEFAULT_FILTERS, minSize: 100 }} onApply={vi.fn()} />);
     await user.click(screen.getByRole('button', { name: 'Filters, 1 filter applied' }));
-    expect(screen.getByRole('group', { name: 'Budget' })).toBeDisabled();
-    expect(screen.getByText('Choose Buy or Rent first to set a budget.')).toBeInTheDocument();
+    const budget = screen.getByRole('group', { name: 'Budget' });
+    expect(within(budget).getByText('Choose Buy or Rent first to set a budget.')).toBeInTheDocument();
+    expect(within(budget).queryByRole('slider')).toBeNull();
+
+    await user.click(within(budget).getByRole('radio', { name: 'Buy' }));
+    expect(within(budget).getByRole('slider', { name: 'Minimum price' })).toBeInTheDocument();
+    expect(within(budget).getByRole('slider', { name: 'Maximum price' })).toHaveAttribute('aria-valuetext', '$5M+');
   });
 });
 

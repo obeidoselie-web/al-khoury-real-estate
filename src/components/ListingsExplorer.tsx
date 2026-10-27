@@ -107,7 +107,7 @@ export function ListingsExplorer({ listings, initialFilters }: ListingsExplorerP
             options={dealOptions}
             value={filters.deal}
             // Budget presets differ between buying and renting, so a budget never carries across.
-            onChange={(deal) => update({ ...filters, deal, maxPrice: undefined })}
+            onChange={(deal) => update({ ...filters, deal, minPrice: undefined, maxPrice: undefined })}
           />
         </div>
       </search>

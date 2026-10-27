@@ -6,19 +6,17 @@ import { useI18n } from '@/i18n/I18nProvider';
 import { formatNumber, interpolate, plural } from '@/i18n/plural';
 import {
   BEDROOM_STEPS,
-  BUDGETS,
   SIZE_STEPS,
   activeRefinements,
   filterListings,
   type ListingFilters,
 } from '@/lib/filters';
 import { formatArea } from '@/lib/format';
-import type { ListingSummary } from '@/lib/types';
+import { DEAL_TYPES, type ListingSummary } from '@/lib/types';
 
 import styles from './FiltersDialog.module.css';
 import { CloseIcon, SlidersIcon } from './icons';
-
-const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 });
+import { PriceRange } from './PriceRange';
 
 interface FiltersDialogProps {
   listings: ListingSummary[];
@@ -80,7 +78,6 @@ export function FiltersDialog({ listings, filters, onApply }: FiltersDialogProps
 
   const active = activeRefinements(filters);
   const draftCount = filterListings(listings, draft).length;
-  const money = (n: number) => (locale === 'ar' ? `⁦${usd.format(n)}⁩` : usd.format(n));
 
   function open() {
     setDraft(filters);
@@ -103,16 +100,13 @@ export function FiltersDialog({ listings, filters, onApply }: FiltersDialogProps
     close();
   }
 
-  const budgets: Pill<number | undefined>[] = [
-    { value: undefined, label: l.budgetAny },
-    ...(draft.deal === 'all' ? [] : BUDGETS[draft.deal]).map((amount) => ({
-      value: amount,
-      label:
-        draft.deal === 'rent'
-          ? interpolate(t.format.perMonth, { amount: interpolate(l.budgetUpTo, { amount: money(amount) }) })
-          : interpolate(l.budgetUpTo, { amount: money(amount) }),
-    })),
-  ];
+  // Prices behind the histogram: everything matching the other choices, for the chosen deal.
+  const prices =
+    draft.deal === 'all'
+      ? []
+      : filterListings(listings, { ...draft, minPrice: undefined, maxPrice: undefined })
+          .filter((listing) => !listing.priceOnRequest)
+          .map((listing) => listing.price);
   const beds: Pill<number | undefined>[] = [
     { value: undefined, label: l.any },
     ...BEDROOM_STEPS.map((n) => ({ value: n, label: interpolate(l.atLeast, { value: formatNumber(n, locale) }) })),
@@ -165,15 +159,37 @@ export function FiltersDialog({ listings, filters, onApply }: FiltersDialogProps
           </header>
 
           <div className={styles.body}>
-            <PillGroup
-              name="budget"
-              legend={l.budget}
-              options={budgets}
-              value={draft.deal === 'all' ? undefined : draft.maxPrice}
-              onChange={(maxPrice) => setDraft({ ...draft, maxPrice })}
-              disabled={draft.deal === 'all'}
-              hint={draft.deal === 'all' ? l.budgetHint : undefined}
-            />
+            <fieldset className={styles.group}>
+              <legend className={styles.legend}>{l.budget}</legend>
+              {/* Sale prices and monthly rents need different scales, so the budget starts with the deal. */}
+              <div className={styles.pills} role="radiogroup" aria-label={l.dealLegend}>
+                {DEAL_TYPES.map((deal) => (
+                  <label key={deal} className={styles.pill}>
+                    <input
+                      type="radio"
+                      name="budget-deal"
+                      checked={draft.deal === deal}
+                      onChange={() => setDraft({ ...draft, deal, minPrice: undefined, maxPrice: undefined })}
+                    />
+                    <span>{t.deals[deal].filter}</span>
+                  </label>
+                ))}
+              </div>
+              {draft.deal === 'all' ? (
+                <p className={styles.hint}>{l.budgetHint}</p>
+              ) : (
+                <PriceRange
+                  key={draft.deal}
+                  deal={draft.deal}
+                  min={draft.minPrice}
+                  max={draft.maxPrice}
+                  prices={prices}
+                  onChange={({ min, max }) => setDraft({ ...draft, minPrice: min, maxPrice: max })}
+                  locale={locale}
+                  t={t}
+                />
+              )}
+            </fieldset>
             <PillGroup name="beds" legend={l.bedrooms} options={beds} value={draft.minBeds} onChange={(minBeds) => setDraft({ ...draft, minBeds })} />
             <PillGroup name="size" legend={l.size} options={sizes} value={draft.minSize} onChange={(minSize) => setDraft({ ...draft, minSize })} />
           </div>
@@ -182,7 +198,7 @@ export function FiltersDialog({ listings, filters, onApply }: FiltersDialogProps
             <button
               type="button"
               className={styles.clearAll}
-              onClick={() => setDraft({ ...draft, maxPrice: undefined, minBeds: undefined, minSize: undefined })}
+              onClick={() => setDraft({ ...draft, minPrice: undefined, maxPrice: undefined, minBeds: undefined, minSize: undefined })}
             >
               {l.clearAll}
             </button>

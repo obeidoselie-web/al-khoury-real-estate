@@ -13,7 +13,8 @@ export interface ListingFilters {
   deal: DealFilter;
   /** Optional so callers that only filter by type/deal stay simple; missing means "anywhere". */
   region?: RegionFilter;
-  /** Budget ceiling in USD (monthly for rentals). Only applied once Buy or Rent is chosen. */
+  /** Budget floor and ceiling in USD (monthly for rentals). Only applied once Buy or Rent is chosen. */
+  minPrice?: number;
   maxPrice?: number;
   /** Minimum bedrooms (0 = studios and up). Listings without bedrooms (land, most commercial) drop out. */
   minBeds?: number;
@@ -25,10 +26,16 @@ export interface ListingFilters {
 export const SORT_ORDERS = ['newest', 'price-asc', 'price-desc', 'size-desc'] as const;
 export type SortOrder = (typeof SORT_ORDERS)[number];
 
-/** Budget presets per deal: monthly rent vs sale price. */
-export const BUDGETS: Record<DealType, number[]> = {
-  rent: [1_000, 2_000, 5_000, 10_000],
-  sale: [300_000, 500_000, 1_000_000, 2_000_000],
+/**
+ * Stops on the budget slider, per deal (USD; monthly for rentals). Closer together at the low end,
+ * where small differences matter, wider at the top. The last stop means "and above" (no maximum).
+ */
+export const PRICE_STEPS: Record<DealType, number[]> = {
+  sale: [
+    0, 50_000, 100_000, 150_000, 200_000, 250_000, 300_000, 400_000, 500_000, 600_000, 700_000, 800_000, 900_000,
+    1_000_000, 1_250_000, 1_500_000, 1_750_000, 2_000_000, 2_500_000, 3_000_000, 4_000_000, 5_000_000,
+  ],
+  rent: [0, 250, 500, 750, 1_000, 1_250, 1_500, 2_000, 2_500, 3_000, 4_000, 5_000, 7_500, 10_000, 15_000, 20_000],
 };
 export const BEDROOM_STEPS = [1, 2, 3, 4];
 export const SIZE_STEPS = [100, 200, 500, 1_000];
@@ -76,11 +83,13 @@ export function parseFilters(params: ParamSource): ListingFilters {
     deal: isDealType(deal) ? deal : 'all',
     region: isRegion(region) ? region : 'all',
   };
+  const minPrice = positiveInt(readParam(params, 'minPrice'));
   const maxPrice = positiveInt(readParam(params, 'maxPrice'));
   const minBeds = positiveInt(readParam(params, 'minBeds'), true);
   const minSize = positiveInt(readParam(params, 'minSize'));
   const sort = readParam(params, 'sort');
-  if (maxPrice !== undefined) filters.maxPrice = maxPrice;
+  if (minPrice !== undefined) filters.minPrice = minPrice;
+  if (maxPrice !== undefined && (minPrice === undefined || maxPrice >= minPrice)) filters.maxPrice = maxPrice;
   if (minBeds !== undefined && minBeds <= 10) filters.minBeds = minBeds;
   if (minSize !== undefined) filters.minSize = minSize;
   if (isSortOrder(sort) && sort !== 'newest') filters.sort = sort;
@@ -93,6 +102,7 @@ export function filtersToQueryString(filters: ListingFilters): string {
   if (filters.deal !== 'all') params.set('deal', filters.deal);
   if (filters.type !== 'all') params.set('type', filters.type);
   if (filters.region && filters.region !== 'all') params.set('region', filters.region);
+  if (filters.minPrice) params.set('minPrice', String(filters.minPrice));
   if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice));
   if (filters.minBeds !== undefined) params.set('minBeds', String(filters.minBeds));
   if (filters.minSize) params.set('minSize', String(filters.minSize));
@@ -114,9 +124,11 @@ const inRegion = (listing: Filterable, region: RegionFilter | undefined) =>
 
 /** Budget, bedrooms and size — the refinements in the Filters panel. */
 function matchesRefinements(listing: Filterable, filters: ListingFilters): boolean {
-  if (filters.maxPrice && filters.deal !== 'all') {
+  if ((filters.minPrice || filters.maxPrice) && filters.deal !== 'all') {
     // A budget filter can't vouch for an unpublished price, so those listings drop out.
-    if (listing.priceOnRequest || (listing.price !== undefined && listing.price > filters.maxPrice)) return false;
+    if (listing.priceOnRequest || listing.price === undefined) return false;
+    if (filters.minPrice && listing.price < filters.minPrice) return false;
+    if (filters.maxPrice && listing.price > filters.maxPrice) return false;
   }
   if (filters.minBeds !== undefined && (listing.bedrooms === undefined || listing.bedrooms < filters.minBeds)) return false;
   if (filters.minSize && (listing.areaSqm === undefined || listing.areaSqm < filters.minSize)) return false;
@@ -134,7 +146,7 @@ export function matchesFilters(listing: Filterable, filters: ListingFilters): bo
 
 /** How many Filters-panel refinements are active (for the button badge). */
 export function activeRefinements(filters: ListingFilters): number {
-  return (filters.maxPrice && filters.deal !== 'all' ? 1 : 0) + (filters.minBeds !== undefined ? 1 : 0) + (filters.minSize ? 1 : 0);
+  return ((filters.minPrice || filters.maxPrice) && filters.deal !== 'all' ? 1 : 0) + (filters.minBeds !== undefined ? 1 : 0) + (filters.minSize ? 1 : 0);
 }
 
 /** Returns a sorted copy. "newest" keeps the data layer's order (it already returns newest first). */
@@ -169,7 +181,7 @@ export function countOptions(listings: readonly Filterable[], filters: ListingFi
   for (const r of REGIONS) byRegion[r] = 0;
 
   // Bedrooms and size narrow the counts too; budget doesn't, because it depends on the deal chosen.
-  const { maxPrice: _maxPrice, ...withoutBudget } = filters;
+  const { minPrice: _minPrice, maxPrice: _maxPrice, ...withoutBudget } = filters;
   for (const listing of listings) {
     if (!matchesRefinements(listing, withoutBudget)) continue;
     // Region counts: what each area would show with the current type and deal.
@@ -220,4 +232,18 @@ export function isDefaultFilters(filters: ListingFilters): boolean {
     (!filters.region || filters.region === 'all') &&
     activeRefinements({ ...filters, deal: filters.maxPrice ? 'sale' : filters.deal }) === 0
   );
+}
+
+/** Shorthand budgets typed by people: "750k", "1.2m", "$1,250,000" → whole dollars. */
+export function parseAmount(input: string): number | undefined {
+  const text = input
+    .trim()
+    .toLowerCase()
+    .replace(/[$,\s]/g, '')
+    // Arabic-Indic digits, as typed on an Arabic keyboard.
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
+  const match = /^(\d+(?:\.\d+)?)([km])?$/.exec(text);
+  if (!match) return undefined;
+  const value = Number(match[1]) * (match[2] === 'm' ? 1_000_000 : match[2] === 'k' ? 1_000 : 1);
+  return Number.isFinite(value) && value > 0 ? Math.round(value) : undefined;
 }

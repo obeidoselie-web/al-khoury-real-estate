@@ -9,7 +9,7 @@ Every URL starts with a language: `/en/…` or `/ar/…`. A bare URL such as `/`
 visitor's language (see [Languages](#languages-english--arabic)).
 
 - **Home** (`/en`, `/ar`): one primary action ("Browse properties"), shortcuts by property type, and featured listings.
-- **Properties** (`/en/listings`): instant filtering by *Buy / Rent*, *property type* and *region*, plus a **Filters** panel (budget, bedrooms, size) and **sorting** (newest, price, size). Everything is kept in the URL (`/en/listings?deal=sale&minBeds=3&sort=price-desc`), so filtered views can be shared and bookmarked.
+- **Properties** (`/en/listings`): instant filtering by *Buy / Rent*, *property type* and *region*, plus a **Filters** panel (a **price range** with a histogram, two-handle slider and Min/Max fields that accept `750k` or `1.2m`; bedrooms; size) and **sorting** (newest, price, size). Everything is kept in the URL (`/en/listings?deal=sale&minBeds=3&sort=price-desc`), so filtered views can be shared and bookmarked.
 - **Property detail** (`/en/listings/[id]`): photo gallery with a **full-screen viewer**, *Title deed verified* and *Listed on* badges, key facts, description, features, a **payment calculator** (sale listings), a **Book a viewing** form, the responsible **advisor** with call/WhatsApp, *Share* and *Save*, and **similar properties**. Phones get a sticky *Book a viewing / Call / WhatsApp* bar.
 - **List your property** (`/en/sell`): why list with Al Khoury and a free-valuation request form for owners.
 - **Saved properties** (`/en/saved`): every card and property page has a heart; saved properties are listed here and counted in the header (see [Saved properties, sharing and WhatsApp](#saved-properties-sharing-and-whatsapp)).
@@ -445,7 +445,7 @@ WhatsApp are icon buttons with accessible names, so the price keeps its room on 
 npm test
 ```
 
-191 tests across 21 files. Tests that need a database get their own migrated SQLite file in a temp folder
+200 tests across 22 files. Tests that need a database get their own migrated SQLite file in a temp folder
 (`tests/db.ts`); every other test points at an empty in-memory database, so the suite never touches `data/`.
 
 | File | Covers |
@@ -467,6 +467,7 @@ npm test
 | `appearance.test.tsx` | Settings parsing and attributes; the pre-paint script matching `applyAppearance`; the dialog applying, persisting, restoring and resetting choices; Arabic labels |
 | `admin.test.ts` | Listing form (slug generation, numbers, enums, dates, publish-needs-both-languages, land drops rooms, markup stripped); account and profile forms; post-login redirect allow-list; role permissions; scrypt hashing and the password policy; phone normalisation; relative times |
 | `listing-display.test.tsx` | Listing display settings (range and choice validation), cards hiding badge/heart/type/location/facts, grid columns, grid ⇄ list switch remembered per device, admin default and switch turned off |
+| `price-range.test.tsx` | Budget: shorthand amounts (`750k`, `1.2m`, Arabic digits), min/max in the URL, range filtering, the stepped scale and histogram, handles that never cross, typed values reordered, bad input restored, applying from the Filters panel |
 | `dropdown.test.tsx` | The filter dropdown as an ARIA combobox: opening, selected state, counts announced, arrows/Home/End/type-ahead/Enter/Escape, active descendant, outside click, form submission |
 | `seo.test.ts` | Agency and listing JSON-LD (absolute URLs, social profiles, office location), no price published for “Price on request”, no coordinates for approximate pins, breadcrumbs, script-safe serialisation |
 | `website.test.ts` | Text flattening, overrides and placeholder protection; settings merge and validation (unticked switches, bad phone/email/year/URL/zoom); tel/WhatsApp/map links; pasted Google/OSM link parsing; hidden listing details stripped on the server (price, area, rooms, size, features) and the approximate pin rounded; price-on-request in budget filters and sorting; listing-form display switches and map pin |
